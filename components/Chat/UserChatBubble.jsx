@@ -1,7 +1,7 @@
 import { StyleSheet, Text } from "react-native";
 
 import ChatBubble from "./ChatBubble";
-import { chatBubbleColors } from "../../constants/colors";
+import { mainColors, chatBubbleColors } from "../../constants/colors";
 
 function UserChatBubble({ children }) {
   return (
@@ -22,8 +22,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   textOwn: {
-    color: "white",
-    fontFamily: "quicksand",
+    color: mainColors.white,
   },
 });
 

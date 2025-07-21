@@ -1,7 +1,7 @@
 import { StyleSheet, Text } from "react-native";
 
 import ChatBubble from "./ChatBubble";
-import { chatBubbleColors } from "../../constants/colors";
+import { mainColors, chatBubbleColors } from "../../constants/colors";
 
 function BotChatBubble({ children }) {
   return (
@@ -21,8 +21,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   text: {
-    color: "black",
-    fontFamily: "quicksand",
+    color: mainColors.black,
   },
 });
 
