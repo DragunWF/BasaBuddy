@@ -11,7 +11,7 @@ const ACTION_TYPE = {
 // For auto-completion and documentation purposes
 export const ChatContext = createContext({
   chatHistory: [],
-  addChat: (data) => {},
+  addChat: (message, isUser) => {},
   setChat: (data) => {},
   updateChat: (id, updatedData) => {},
   deleteChat: (id) => {},
@@ -21,8 +21,9 @@ export const ChatContext = createContext({
 function ChatContextProvider({ children }) {
   const [chatState, dispatch] = useReducer(dataReducer, []);
 
-  function addChat(data) {
-    dispatch({ type: ACTION_TYPE.ADD, payload: data });
+  function addChat(message, isUser) {
+    const messageData = { role: isUser ? "user" : "model", text: message };
+    dispatch({ type: ACTION_TYPE.ADD, payload: messageData });
   }
 
   function setChat(data) {
@@ -42,7 +43,7 @@ function ChatContextProvider({ children }) {
   }
 
   const value = {
-    data: dataState,
+    chatHistory: chatState,
     addChat,
     setChat,
     updateChat,
@@ -56,7 +57,7 @@ function ChatContextProvider({ children }) {
 function dataReducer(state, action) {
   switch (action.type) {
     case ACTION_TYPE.ADD:
-      return [action.payload, ...state];
+      return [...state, action.payload];
     case ACTION_TYPE.SET:
       return action.payload;
     case ACTION_TYPE.UPDATE:
