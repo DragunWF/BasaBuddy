@@ -21,6 +21,7 @@
 - **React Native** - Cross-platform mobile development
 - **Expo** - Development platform and build tools
 - **JavaScript** - Programming language
+- **SQLite** - Offline relational database
 
 ---
 
@@ -71,11 +72,13 @@ npm start
 ### 3. Run the App
 
 **Option A: Physical Device**
+
 1. Make sure your phone and computer are on the same Wi-Fi network
 2. Open the Expo Go app on your phone
 3. Scan the QR code that appears in your terminal
 
 **Option B: Emulator**
+
 ```bash
 # For iOS (macOS only)
 npm run ios
