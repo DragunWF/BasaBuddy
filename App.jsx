@@ -6,7 +6,7 @@ import NavigationWrapper from "./components/Navigation/NavigationWrapper";
 export default function App() {
   return (
     <>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <NavigationWrapper />
       <Toast />
     </>

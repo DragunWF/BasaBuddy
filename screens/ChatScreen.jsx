@@ -15,6 +15,7 @@ import {
   getBotResponse,
   getInitialBotResponse,
 } from "../helpers/chatbot/chatbot";
+import { logGeminiHistoryCompact } from "../helpers/tools/loggers";
 
 function ChatScreen() {
   const chatContext = useContext(ChatContext);
@@ -26,6 +27,11 @@ function ChatScreen() {
 
   async function sendMessageHandler() {
     if (!isValidMessage()) {
+      Toast.show({
+        type: "info",
+        text1: "Empty Message!",
+        text2: "Your message is empty, enter something to chat.",
+      });
       return;
     }
 
@@ -54,7 +60,7 @@ function ChatScreen() {
 
   useEffect(() => {
     async function fetchInitialResponse() {
-      const response = getInitialBotResponse(chatContext);
+      const response = await getInitialBotResponse(chatContext);
       chatContext.addChat(response, false);
     }
 
@@ -68,7 +74,7 @@ function ChatScreen() {
       keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
     >
       <View style={styles.chatContainer}>
-        <ChatHistory />
+        <ChatHistory data={chatContext.chatHistory} />
       </View>
       <MessageInput
         message={userMessage}

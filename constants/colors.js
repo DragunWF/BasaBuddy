@@ -7,7 +7,7 @@ export const mainColors = {
 };
 
 export const chatBubbleColors = {
-  player: lightgrey,
+  player: "gray",
   bot: mainColors.primary300,
-  botActive: "grey",
+  botActive: "gray",
 };
