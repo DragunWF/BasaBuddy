@@ -5,6 +5,8 @@ import Toast from "react-native-toast-message";
 import Button from "../components/ui/Button";
 import CustomTextInput from "../components/ui/CustomTextInput";
 import CustomDropdown from "../components/ui/CustomDropdown";
+import Profile from "../models/profile";
+import { createProfile } from "../helpers/tools/database";
 
 function ProfileSetupScreen({ navigation }) {
   const [firstName, setFirstName] = useState("");
@@ -36,14 +38,27 @@ function ProfileSetupScreen({ navigation }) {
     setReadingSpeed(selectedReadingSpeed);
   }
 
-  function finishSetupHandler() {
-    if (!firstName) showToastValidation("First Name");
-    else if (!lastName) showToastValidation("Last Name");
-    else if (!favoriteGenre) showToastValidation("Favorite Genre");
-    else if (!preferredReadingTime)
-      showToastValidation("Preferred Reading Time");
-    else if (!readingSpeed) showToastValidation("Reading Speed");
-    else {
+  async function finishSetupHandler() {
+    if (!firstName) {
+      showToastValidationEmptyMessage("First Name");
+    } else if (!lastName) {
+      showToastValidationEmptyMessage("Last Name");
+    } else if (!favoriteGenre) {
+      showToastValidationEmptyMessage("Favorite Genre");
+    } else if (!preferredReadingTime) {
+      showToastValidationEmptyMessage("Preferred Reading Time");
+    } else if (!readingSpeed) {
+      showToastValidationEmptyMessage("Reading Speed");
+    } else {
+      await createProfile(
+        new Profile(
+          firstName,
+          lastName,
+          favoriteGenre,
+          preferredReadingTime,
+          readingSpeed
+        )
+      );
       Toast.show({
         type: "success",
         text1: "Finished Profile Setup!",
@@ -53,7 +68,7 @@ function ProfileSetupScreen({ navigation }) {
     }
   }
 
-  function showToastValidation(inputFieldName) {
+  function showToastValidationEmptyMessage(inputFieldName) {
     Toast.show({
       type: "info",
       text1: `Empty ${inputFieldName} Field!`,

@@ -24,7 +24,7 @@ function HomeBottomTabNavigator() {
         name="Explore"
         component={ExploreScreen}
         options={{
-          headerTitle: "Explore new books!",
+          headerTitle: "Explore new books",
           tabBarIcon: ({ color, size }) => {
             return <MaterialIcons name="explore" color={color} size={size} />;
           },
