@@ -23,7 +23,7 @@ const descriptionContent = [
   },
 ];
 
-function OnboardingScreen() {
+function OnboardingScreen({ navigation }) {
   const [contentIndex, setContentIndex] = useState(0);
   const [contentTitle, setContentTitle] = useState(
     descriptionContent[contentIndex].title
@@ -37,6 +37,8 @@ function OnboardingScreen() {
       setContentIndex((current) => current + 1);
       setContentTitle(descriptionContent[contentIndex + 1].title);
       setContentDescription(descriptionContent[contentIndex + 1].description);
+    } else {
+      navigation.navigate("ProfileSetup");
     }
   }
 
