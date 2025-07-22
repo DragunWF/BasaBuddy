@@ -11,3 +11,12 @@ export const chatBubbleColors = {
   bot: mainColors.primary300,
   botActive: "gray",
 };
+
+export const inputColors = {
+  text: "#333",
+  background: mainColors.white,
+  overlayColor: "rgba(0,0,0,0.3)",
+  dropdownList: mainColors.white,
+  dropdownItem: "#eee",
+  border: "#ccc",
+};
