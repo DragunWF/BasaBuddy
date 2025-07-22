@@ -49,7 +49,7 @@ function ProfileSetupScreen({ navigation }) {
         text1: "Finished Profile Setup!",
         text2: "Your profile has been successfully set up!",
       });
-      navigation.replace("Home");
+      navigation.replace("HomeNavigator");
     }
   }
 

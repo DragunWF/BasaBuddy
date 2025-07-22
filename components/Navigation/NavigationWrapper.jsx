@@ -1,5 +1,5 @@
 import { NavigationContainer } from "@react-navigation/native";
-import StackNavigator from "./StackNavigator";
+import IntroStackNavigator from "./IntroStackNavigator";
 
 import ChatContextProvider from "../../store/ChatContext";
 
@@ -7,7 +7,7 @@ function NavigationWrapper() {
   return (
     <ChatContextProvider>
       <NavigationContainer>
-        <StackNavigator />
+        <IntroStackNavigator />
       </NavigationContainer>
     </ChatContextProvider>
   );
