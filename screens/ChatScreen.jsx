@@ -35,6 +35,7 @@ function ChatScreen() {
       return;
     }
 
+    setUserMessage("");
     try {
       const response = await getBotResponse(chatContext, userMessage);
       chatContext.addChat(userMessage, true);
@@ -51,7 +52,6 @@ function ChatScreen() {
         err
       );
     }
-    setUserMessage("");
   }
 
   function isValidMessage() {
@@ -93,7 +93,6 @@ const styles = StyleSheet.create({
     flex: 2,
     marginTop: 10,
     paddingHorizontal: 10,
-    margin: 20,
   },
 });
 
