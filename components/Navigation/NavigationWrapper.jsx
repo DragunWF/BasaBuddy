@@ -1,13 +1,26 @@
+import { useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import IntroStackNavigator from "./IntroStackNavigator";
 
 import ChatContextProvider from "../../store/ChatContext";
+import { hasProfile } from "../../helpers/tools/database";
+import HomeBottomTabNavigator from "./HomeBottomTabNavigator";
 
 function NavigationWrapper() {
+  const [isProfileExist, setIsProfileExist] = useState(false);
+
+  useEffect(() => {
+    async function fetchProfile() {
+      setIsProfileExist(await hasProfile());
+    }
+
+    fetchProfile();
+  }, []);
+
   return (
     <ChatContextProvider>
       <NavigationContainer>
-        <IntroStackNavigator />
+        {isProfileExist ? <HomeBottomTabNavigator /> : <IntroStackNavigator />}
       </NavigationContainer>
     </ChatContextProvider>
   );
