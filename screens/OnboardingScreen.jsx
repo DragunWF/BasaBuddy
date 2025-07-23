@@ -4,6 +4,7 @@ import { StyleSheet, View, Text } from "react-native";
 import Button from "../components/ui/Button";
 import { mainColors } from "../constants/colors";
 
+
 // Dummy descriptions for now
 const descriptionContent = [
   {
