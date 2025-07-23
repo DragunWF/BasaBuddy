@@ -21,7 +21,7 @@ function NavigationWrapper() {
   return (
     <ChatContextProvider>
       <NavigationContainer>
-        {isProfileExist ? <HomeBottomTabNavigator /> : <AppNavigator />}
+        {isProfileExist ? <HomeBottomTabNavigator /> : <IntroStackNavigator />}
       </NavigationContainer>
     </ChatContextProvider>
   );
