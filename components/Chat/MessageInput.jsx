@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     margin: 10,
     paddingHorizontal: 20,
     paddingVertical: 8,
-    backgroundColor: mainColors.secondary100,
+    backgroundColor: mainColors.white,
     borderRadius: 25,
     justifyContent: "space-between",
     alignItems: "flex-end", // align to bottom since input grows vertically

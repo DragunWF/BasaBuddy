@@ -5,12 +5,18 @@ import HomeScreen from "../../screens/HomeScreen";
 import ChatScreen from "../../screens/ChatScreen";
 import ExploreScreen from "../../screens/ExploreScreen";
 import LibraryScreen from "../../screens/LibraryScreen";
+import { mainColors } from "../../constants/colors";
 
 const BottomTab = createBottomTabNavigator();
 
 function HomeBottomTabNavigator() {
   return (
-    <BottomTab.Navigator>
+    <BottomTab.Navigator
+      screenOptions={{
+        tabBarActiveTintColor: mainColors.primary500,
+        tabBarInactiveTintColor: mainColors.black,
+      }}
+    >
       <BottomTab.Screen
         name="Home"
         component={HomeScreen}

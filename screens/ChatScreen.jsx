@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import Toast from "react-native-toast-message";
 
+import CustomBackground from "../components/Chat/CustomBackground";
 import MessageInput from "../components/Chat/MessageInput";
 import ChatHistory from "../components/Chat/ChatHistory";
 import { ChatContext } from "../store/ChatContext";
@@ -68,20 +69,24 @@ function ChatScreen() {
   }, []);
 
   return (
-    <KeyboardAvoidingView
-      style={styles.keyboardContainer}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+    <CustomBackground
+      imageSource={require("../assets/images/chatbotBackground.png")}
     >
-      <View style={styles.chatContainer}>
-        <ChatHistory data={chatContext.chatHistory} />
-      </View>
-      <MessageInput
-        message={userMessage}
-        onSendMessage={sendMessageHandler}
-        onChange={userMessageInputHandler}
-      />
-    </KeyboardAvoidingView>
+      <KeyboardAvoidingView
+        style={styles.keyboardContainer}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+      >
+        <View style={styles.chatContainer}>
+          <ChatHistory data={chatContext.chatHistory} />
+        </View>
+        <MessageInput
+          message={userMessage}
+          onSendMessage={sendMessageHandler}
+          onChange={userMessageInputHandler}
+        />
+      </KeyboardAvoidingView>
+    </CustomBackground>
   );
 }
 
