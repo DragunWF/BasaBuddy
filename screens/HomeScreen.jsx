@@ -6,8 +6,9 @@ import ProfileHeader from "../components/ui/ProfileHeader";
 import CharacterCard from "../components/ui/CharacterCard";
 import StatCard from "../components/ui/StatCard";
 import CategorySection from "../components/ui/CategorySection";
+import TrendingBooks from "../components/books/TrendingBooks";
 
-function HomeScreen() {
+function HomeScreen({ navigation }) {
   // Sample data for categories
   const categories = [
     { id: "1", name: "Art", color: "#FF6B6B" },
@@ -65,6 +66,8 @@ function HomeScreen() {
           onCategoryPress={handleCategoryPress}
           onViewAllPress={handleViewAllPress}
         />
+        
+        <TrendingBooks navigation={navigation} />
       </ScrollView>
     </SafeAreaView>
   );
