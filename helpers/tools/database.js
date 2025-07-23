@@ -45,31 +45,19 @@ export async function createProfile(profile) {
 }
 
 // Read Profile(s)
-export async function fetchProfile(id = null) {
+export async function fetchProfile() {
   const db = await database;
+  const result = await db.getFirstAsync(`SELECT * FROM profile LIMIT 1`);
 
-  let result;
-  if (id) {
-    // Fetch specific profile by ID
-    result = await db.getFirstAsync(`SELECT * FROM profile WHERE id = ?`, [id]);
-  } else {
-    // Fetch all profiles
-    result = await db.getAllAsync(`SELECT * FROM profile`);
-  }
+  if (!result) return null;
 
-  const profiles = [];
-  for (let dp of result) {
-    profiles.push(
-      new Profile(
-        dp.firstName,
-        dp.lastName,
-        dp.favoriteGenre,
-        dp.preferredReadingTime,
-        dp.readingSpeed
-      )
-    );
-  }
-  return profiles;
+  return new Profile(
+    result.firstName,
+    result.lastName,
+    result.favoriteGenre,
+    result.preferredReadingTime,
+    result.readingSpeed
+  );
 }
 
 export async function updateProfile(id, updatedProfile) {
@@ -108,9 +96,12 @@ export async function updateProfile(id, updatedProfile) {
   );
 }
 
-export async function deleteProfile(id) {
+export async function hasProfile() {
   const db = await database;
-  return await db.runAsync(`DELETE FROM profile WHERE id = ?`, [id]);
+  const result = await db.getFirstAsync(
+    `SELECT COUNT(*) as count FROM profile`
+  );
+  return result.count > 0;
 }
 
 export async function resetDatabase() {

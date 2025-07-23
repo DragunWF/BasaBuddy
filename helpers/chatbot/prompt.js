@@ -1,6 +1,11 @@
 // Unique IDs to be filled to prevent prompt injection
 export const promptTemplates = {
   bookList: "(*47&(@", // will be replaced with actual list of books read
+  firstName: "8&#*@$",
+  lastName: "&^#&!)$",
+  favoriteGenre: "&$(haukd",
+  preferredReadingTime: "*$&@)$",
+  readingSpeed: "*$^!*$)",
 };
 
 // TODO: Modify behavior
@@ -28,6 +33,13 @@ If the user has read some books:
 - React authentically to what they just said
 - Answer questions directly first, then add brief personality
 - No markdown syntax
+
+Key User Info:
+First Name: ${promptTemplates.firstName}
+Last Name: ${promptTemplates.lastName}
+Favorite Genre: ${promptTemplates.favoriteGenre}
+Preferred Reading Time: ${promptTemplates.preferredReadingTime}
+Reading Speed: ${promptTemplates.readingSpeed}
 
 Books the user has recently read:
 ${promptTemplates.bookList}

@@ -8,7 +8,7 @@ class Profile extends Model {
   #readingSpeed;
 
   constructor(firstName, lastName, favoriteGenre, readingTime, readingSpeed) {
-    super(Math.random() + new Date().toString()); // temporary
+    super(Math.random() + new Date().toString()); // There is only one profile
     this.#firstName = firstName;
     this.#lastName = lastName;
     this.#favoriteGenre = favoriteGenre;

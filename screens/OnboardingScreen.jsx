@@ -1,26 +1,38 @@
 import { useState } from "react";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View, Text, Image } from "react-native";
 
 import Button from "../components/ui/Button";
 import { mainColors } from "../constants/colors";
 
-
 // Dummy descriptions for now
 const descriptionContent = [
   {
-    title: "BasaBuddy",
+    title: "Your Basa Buddy",
     description:
-      "A comprehensive reading companion app that helps users track their reading progress, discover new books, and connect with fellow book lovers through personalized recommendations and social features.",
+      "Meet Tassie, your reading pet who keeps you company and helps you build the habit of reading.",
+    imageSource: require("../assets/onboarding/first.png"),
   },
   {
-    title: "BasaBuddy",
+    title: "Read to Keep Tassie Happy",
     description:
-      "An intelligent language learning platform that uses AI-powered conversations and interactive exercises to help users master Filipino and other languages through immersive, real-world scenarios.",
+      "Tassie sleeps when you read. But skip a day and she gets sad. Keep her happy with just 5 minutes a day.",
+    imageSource: require("../assets/onboarding/second.png"),
   },
   {
-    title: "BasaBuddy",
+    title: "Build Your Reading Streak",
     description:
-      "A digital literacy tool designed for students and educators, featuring interactive reading materials, comprehension quizzes, and progress tracking to enhance reading skills across all grade levels.",
+      "Track your progress, grow your streak, and unlock cute rewards as you read every day.",
+    imageSource: require("../assets/onboarding/third.png"),
+  },
+  {
+    title: "Chat with Tassie",
+    description:
+      "Tassie reacts to what you read! Talk to her and get fun, book-inspired replies.",
+  },
+  {
+    title: "Tassie Never Forgets",
+    description:
+      "Your pet remembers your journey. Whether you pause or push on, Tassie stays with you.",
   },
 ];
 
@@ -28,6 +40,9 @@ function OnboardingScreen({ navigation }) {
   const [contentIndex, setContentIndex] = useState(0);
   const [contentTitle, setContentTitle] = useState(
     descriptionContent[contentIndex].title
+  );
+  const [contentImageSource, setContentImageSource] = useState(
+    descriptionContent[contentIndex].imageSource
   );
   const [contentDescription, setContentDescription] = useState(
     descriptionContent[contentIndex].description
@@ -38,6 +53,7 @@ function OnboardingScreen({ navigation }) {
       setContentIndex((current) => current + 1);
       setContentTitle(descriptionContent[contentIndex + 1].title);
       setContentDescription(descriptionContent[contentIndex + 1].description);
+      setContentImageSource(descriptionContent[contentIndex + 1].imageSource);
     } else {
       navigation.navigate("ProfileSetup");
     }
@@ -46,30 +62,22 @@ function OnboardingScreen({ navigation }) {
   return (
     <View style={styles.rootContainer}>
       <View style={styles.progressBarList}>
-        <View
-          style={[
-            styles.progressBar,
-            contentIndex === 0
-              ? styles.progressBarActive
-              : styles.progressBarInactive,
-          ]}
-        ></View>
-        <View
-          style={[
-            styles.progressBar,
-            contentIndex === 1
-              ? styles.progressBarActive
-              : styles.progressBarInactive,
-          ]}
-        ></View>
-        <View
-          style={[
-            styles.progressBar,
-            contentIndex === 2
-              ? styles.progressBarActive
-              : styles.progressBarInactive,
-          ]}
-        ></View>
+        {descriptionContent.map((item, index) => {
+          return (
+            <View
+              style={[
+                styles.progressBar,
+                contentIndex === index
+                  ? styles.progressBarActive
+                  : styles.progressBarInactive,
+              ]}
+              key={index}
+            ></View>
+          );
+        })}
+      </View>
+      <View style={styles.imageContainer}>
+        <Image style={styles.image} source={contentImageSource} />
       </View>
       <View style={styles.descriptionCard}>
         <View style={styles.descriptionContent}>
@@ -89,7 +97,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   progressBarList: {
-    flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
     gap: 15,
@@ -97,7 +104,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 45,
   },
   progressBar: {
-    width: 85,
+    width: "15%",
     height: 10,
     borderRadius: 15,
   },
@@ -107,6 +114,15 @@ const styles = StyleSheet.create({
   progressBarInactive: {
     backgroundColor: "lightgray",
   },
+  imageContainer: {
+    flex: 2,
+    marginTop: 50,
+  },
+  image: {
+    width: "100%",
+    minHeight: 450,
+    overflow: "hidden",
+  },
   title: {
     fontSize: 22,
     fontWeight: "bold",
@@ -115,6 +131,7 @@ const styles = StyleSheet.create({
   descriptionCard: {
     flex: 1,
     backgroundColor: "lightgray",
+    marginTop: 50,
   },
   descriptionContent: {
     margin: 15,
