@@ -34,7 +34,7 @@ function HomeScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
+    <SafeAreaView className="flex-1 bg-gray-100 pt-12">
       <ProfileHeader onProfilePress={handleProfilePress} />
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 20 }}>
         <View className="flex-row px-4 pt-6 pb-4 mb-4 bg-[#FE9F1F] rounded-l-[100px] -ml-12 pl-16">
