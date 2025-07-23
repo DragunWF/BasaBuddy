@@ -5,6 +5,7 @@ import Toast from "react-native-toast-message";
 
 import { init, resetDatabase } from "./helpers/tools/database";
 import NavigationWrapper from "./components/Navigation/NavigationWrapper";
+import "./components/globals.css";
 
 export default function App() {
   const [dbInitialized, setDbInitialized] = useState(false);
