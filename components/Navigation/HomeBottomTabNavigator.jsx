@@ -15,6 +15,8 @@ function HomeBottomTabNavigator() {
       screenOptions={{
         tabBarActiveTintColor: mainColors.primary500,
         tabBarInactiveTintColor: mainColors.black,
+headerShown: false,
+
       }}
     >
       <BottomTab.Screen

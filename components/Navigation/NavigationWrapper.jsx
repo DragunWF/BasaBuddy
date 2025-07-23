@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
+import AppNavigator from "./AppNavigator";
 import IntroStackNavigator from "./IntroStackNavigator";
 
 import ChatContextProvider from "../../store/ChatContext";
@@ -20,7 +21,7 @@ function NavigationWrapper() {
   return (
     <ChatContextProvider>
       <NavigationContainer>
-        {isProfileExist ? <HomeBottomTabNavigator /> : <IntroStackNavigator />}
+        {isProfileExist ? <HomeBottomTabNavigator /> : <AppNavigator />}
       </NavigationContainer>
     </ChatContextProvider>
   );

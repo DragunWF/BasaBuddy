@@ -6,8 +6,9 @@ import ProfileHeader from "../components/ui/ProfileHeader";
 import CharacterCard from "../components/ui/CharacterCard";
 import StatCard from "../components/ui/StatCard";
 import CategorySection from "../components/ui/CategorySection";
+import TrendingBooks from "../components/books/TrendingBooks";
 
-function HomeScreen() {
+function HomeScreen({ navigation }) {
   // Sample data for categories
   const categories = [
     { id: "1", name: "Art", color: "#FF6B6B" },
@@ -34,7 +35,7 @@ function HomeScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
+    <SafeAreaView className="flex-1 bg-gray-100 pt-12">
       <ProfileHeader onProfilePress={handleProfilePress} />
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 20 }}>
         <View className="flex-row px-4 pt-6 pb-4 mb-4 bg-[#FE9F1F] rounded-l-[100px] -ml-12 pl-16">
@@ -65,6 +66,8 @@ function HomeScreen() {
           onCategoryPress={handleCategoryPress}
           onViewAllPress={handleViewAllPress}
         />
+        
+        <TrendingBooks navigation={navigation} />
       </ScrollView>
     </SafeAreaView>
   );
