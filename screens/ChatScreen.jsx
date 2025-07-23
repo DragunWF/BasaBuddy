@@ -70,7 +70,7 @@ function ChatScreen() {
 
   return (
     <CustomBackground
-      imageSource={require("../assets/images/chatbotBackground.png")}
+      imageSource={require("../assets/tassie/background.png")}
     >
       <KeyboardAvoidingView
         style={styles.keyboardContainer}
