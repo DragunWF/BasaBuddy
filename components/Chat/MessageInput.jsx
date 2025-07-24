@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Text,
   Platform,
+  Image,
 } from "react-native";
 import { mainColors } from "../../constants/colors";
 
@@ -17,34 +18,58 @@ const MessageInput = memo(function MessageInput({
   const [inputHeight, setInputHeight] = useState(40); // default height
 
   return (
-    <View style={styles.inputContainer}>
-      <TextInput
-        style={[styles.textInput, { height: Math.max(40, inputHeight) }]}
-        value={message}
-        onChangeText={onChange}
-        placeholder="Type your message..."
-        placeholderTextColor={mainColors.black + "80"}
-        multiline
-        onContentSizeChange={(e) =>
-          setInputHeight(e.nativeEvent.contentSize.height)
-        }
-        textAlignVertical="top"
-      />
-      <TouchableOpacity
-        style={styles.sendButton}
-        onPress={onSendMessage}
-        activeOpacity={0.7}
-      >
-        <Text style={styles.sendButtonText}>Send</Text>
-      </TouchableOpacity>
+    <View style={styles.container}>
+      {/* Tassie Image */}
+      <View style={styles.tassieContainer}>
+        <Image
+          source={require("../../assets/tassie/tassie.png")}
+          style={styles.tassieImage}
+          resizeMode="contain"
+        />
+      </View>
+
+      {/* Message Input */}
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={[styles.textInput, { height: Math.max(40, inputHeight) }]}
+          value={message}
+          onChangeText={onChange}
+          placeholder="Type your message..."
+          placeholderTextColor={mainColors.black + "80"}
+          multiline
+          onContentSizeChange={(e) =>
+            setInputHeight(e.nativeEvent.contentSize.height)
+          }
+          textAlignVertical="top"
+        />
+        <TouchableOpacity
+          style={styles.sendButton}
+          onPress={onSendMessage}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.sendButtonText}>Send</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 });
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  tassieContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 10,
+  },
+  tassieImage: {
+    width: 125,
+    height: 125,
+  },
   inputContainer: {
     flexDirection: "row",
-    margin: 10,
+    marginBottom: 7,
     paddingHorizontal: 20,
     paddingVertical: 8,
     backgroundColor: mainColors.white,
