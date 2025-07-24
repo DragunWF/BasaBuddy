@@ -69,9 +69,7 @@ function ChatScreen() {
   }, []);
 
   return (
-    <CustomBackground
-      imageSource={require("../assets/tassie/background.png")}
-    >
+    <CustomBackground imageSource={require("../assets/tassie/background.png")}>
       <KeyboardAvoidingView
         style={styles.keyboardContainer}
         behavior={Platform.OS === "ios" ? "padding" : "height"}

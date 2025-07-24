@@ -3,10 +3,11 @@ import { generateText, generateTextWithHistory } from "../tools/gemini";
 import { chatbotPrompt, promptTemplates } from "./prompt";
 import { dummyBooksRead } from "../tools/dummyData";
 
-export async function getInitialBotResponse() {
+export async function getInitialBotResponse(chatbotContext) {
   const userProfile = await fetchProfile();
   const fullModifiedPrompt = await getFullPrompt(userProfile, dummyBooksRead);
   const response = await generateText(fullModifiedPrompt);
+  chatbotContext.setInitialChatbotPrompt(fullModifiedPrompt);
   return response;
 }
 
@@ -15,7 +16,11 @@ export async function getBotResponse(chatbotContext, userMessage) {
     role: "user",
     text: userMessage,
   };
-  const updatedHistory = [...chatbotContext.chatHistory, newMessage];
+  const updatedHistory = [
+    chatbotContext.initialChatbotPrompt,
+    ...chatbotContext.chatHistory,
+    newMessage,
+  ];
 
   const response = await generateTextWithHistory(updatedHistory);
   // TODO: Plug in values from the user's most recently read books
