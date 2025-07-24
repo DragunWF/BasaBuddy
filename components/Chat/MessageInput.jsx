@@ -56,7 +56,7 @@ const MessageInput = memo(function MessageInput({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
   },
   tassieContainer: {
     justifyContent: "center",
