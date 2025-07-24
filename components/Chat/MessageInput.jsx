@@ -20,13 +20,13 @@ const MessageInput = memo(function MessageInput({
   return (
     <View style={styles.container}>
       {/* Tassie Image */}
-      <View style={styles.tassieContainer}>
+      {/*<View style={styles.tassieContainer}>
         <Image
           source={require("../../assets/tassie/tassie.png")}
           style={styles.tassieImage}
           resizeMode="contain"
         />
-      </View>
+      </View>*/}
 
       {/* Message Input */}
       <View style={styles.inputContainer}>
