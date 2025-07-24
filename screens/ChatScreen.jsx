@@ -5,6 +5,7 @@ import {
   Platform,
   KeyboardAvoidingView,
   ScrollView,
+  SafeAreaView,
 } from "react-native";
 import Toast from "react-native-toast-message";
 
@@ -69,26 +70,33 @@ function ChatScreen() {
   }, []);
 
   return (
-    <CustomBackground imageSource={require("../assets/tassie/background.png")}>
-      <KeyboardAvoidingView
-        style={styles.keyboardContainer}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+    <SafeAreaView style={styles.safeArea}>
+      <CustomBackground
+        imageSource={require("../assets/tassie/background.png")}
       >
-        <View style={styles.chatContainer}>
-          <ChatHistory data={chatContext.chatHistory} />
-        </View>
-        <MessageInput
-          message={userMessage}
-          onSendMessage={sendMessageHandler}
-          onChange={userMessageInputHandler}
-        />
-      </KeyboardAvoidingView>
-    </CustomBackground>
+        <KeyboardAvoidingView
+          style={styles.keyboardContainer}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+        >
+          <View style={styles.chatContainer}>
+            <ChatHistory data={chatContext.chatHistory} />
+          </View>
+          <MessageInput
+            message={userMessage}
+            onSendMessage={sendMessageHandler}
+            onChange={userMessageInputHandler}
+          />
+        </KeyboardAvoidingView>
+      </CustomBackground>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   keyboardContainer: {
     flex: 1,
   },
