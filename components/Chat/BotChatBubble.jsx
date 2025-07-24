@@ -18,7 +18,7 @@ function BotChatBubble({ children }) {
   useEffect(() => {
     const typingSpeed = 15; // The lower, the faster
 
-    if (currentIndex < fullText.length) {
+    if (fullText && currentIndex < fullText.length) {
       const timer = setTimeout(() => {
         setDisplayedText(fullText.slice(0, currentIndex + 1));
         setCurrentIndex(currentIndex + 1);

@@ -17,7 +17,7 @@ export async function getBotResponse(chatbotContext, userMessage) {
     text: userMessage,
   };
   const updatedHistory = [
-    chatbotContext.initialChatbotPrompt,
+    { role: "model", text: chatbotContext.initialChatbotPrompt },
     ...chatbotContext.chatHistory,
     newMessage,
   ];

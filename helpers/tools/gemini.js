@@ -30,7 +30,6 @@ export async function generateTextWithHistory(messageHistory) {
 
 async function generateGeminiResponse(messageHistory) {
   try {
-    logGeminiHistoryCompact(messageHistory);
     const response = await geminiApi.post("", {
       contents: messageHistory.map((message) => ({
         role: message.role,
