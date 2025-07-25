@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import HomeBottomTabNavigator from './HomeBottomTabNavigator';
 import BookDetailsScreen from '../../screens/BookDetailsScreen';
 import ReadingScreen from '../../screens/ReadingScreen';
+import ProfileScreen from '../../screens/ProfileScreen';
 import IntroStackNavigator from './IntroStackNavigator';
 
 const Stack = createStackNavigator();
@@ -40,6 +41,11 @@ function AppNavigator() {
       <Stack.Screen 
         name="Reading" 
         component={ReadingScreen} 
+      />
+      
+      <Stack.Screen 
+        name="Profile" 
+        component={ProfileScreen} 
       />
     </Stack.Navigator>
   );

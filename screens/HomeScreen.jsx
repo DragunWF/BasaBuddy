@@ -20,8 +20,8 @@ function HomeScreen({ navigation }) {
   ];
 
   const handleProfilePress = () => {
-    // Handle profile button press
-    console.log("Profile button pressed");
+    // Navigate to the ProfileScreen
+    navigation.navigate("ProfileScreen");
   };
 
   const handleCategoryPress = (category) => {

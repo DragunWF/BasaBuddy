@@ -58,6 +58,7 @@ headerShown: false,
           },
         }}
       />
+
     </BottomTab.Navigator>
   );
 }
