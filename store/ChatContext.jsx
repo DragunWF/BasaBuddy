@@ -1,4 +1,4 @@
-import { useReducer, createContext } from "react";
+import { useState, useReducer, createContext } from "react";
 
 const ACTION_TYPE = {
   ADD: "ADD",
@@ -10,6 +10,7 @@ const ACTION_TYPE = {
 
 // For auto-completion and documentation purposes
 export const ChatContext = createContext({
+  initialChatbotPrompt: "",
   chatHistory: [],
   addChat: (message, isUser) => {},
   setChat: (data) => {},
@@ -20,6 +21,11 @@ export const ChatContext = createContext({
 
 function ChatContextProvider({ children }) {
   const [chatState, dispatch] = useReducer(dataReducer, []);
+  const [chatbotPrompt, setChatbotPrompt] = useState("");
+
+  function setInitialChatbotPrompt(prompt) {
+    setChatbotPrompt(prompt);
+  }
 
   function addChat(message, isUser) {
     const messageData = { role: isUser ? "user" : "model", text: message };
@@ -43,7 +49,9 @@ function ChatContextProvider({ children }) {
   }
 
   const value = {
+    initialChatbotPrompt: chatbotPrompt,
     chatHistory: chatState,
+    setInitialChatbotPrompt,
     addChat,
     setChat,
     updateChat,
