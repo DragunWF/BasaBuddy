@@ -1,0 +1,125 @@
+import React from 'react';
+import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+
+const ProfileScreen = () => {
+  // Sample data - in a real app, this would come from user context or API
+  const userData = {
+    username: 'Username',
+    following: 0,
+    followers: 0,
+    booksRead: 0,
+    todaysReading: 10, // minutes
+    longestStreak: 10, // days
+    collections: [
+      {
+        id: '1',
+        title: 'Collection Title',
+        creator: 'user',
+        coverImage: null // placeholder for now
+      }
+    ]
+  };
+
+  return (
+    <SafeAreaView className="flex-1 bg-white">
+      <ScrollView className="flex-1">
+        {/* Header with settings */}
+        <View className="flex-row justify-between items-center px-4 py-2">
+          <View className="w-10 h-10 justify-center items-center rounded-full bg-orange-400">
+            <Text className="text-white font-bold text-lg">B</Text>
+          </View>
+          <TouchableOpacity className="w-10 h-10 justify-center items-center">
+            <Ionicons name="settings-outline" size={24} color="#888" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Profile Info */}
+        <View className="items-center mt-2">
+          <View className="w-24 h-24 rounded-full bg-orange-400 mb-2" />
+          <Text className="text-xl font-bold">{userData.username}</Text>
+        </View>
+
+        {/* Stats */}
+        <View className="flex-row justify-center bg-white rounded-2xl mx-4 mt-4 shadow-lg overflow-hidden">
+          <View className="flex-1 items-center py-3 border-r border-gray-200">
+            <Text className="text-xl font-bold">{userData.following}</Text>
+            <Text className="text-gray-500 text-sm">Following</Text>
+          </View>
+          <View className="flex-1 items-center py-3 border-r border-gray-200">
+            <Text className="text-xl font-bold">{userData.followers}</Text>
+            <Text className="text-gray-500 text-sm">Followers</Text>
+          </View>
+          <View className="flex-1 items-center py-3">
+            <Text className="text-xl font-bold">{userData.booksRead}</Text>
+            <Text className="text-gray-500 text-sm">Books Read</Text>
+          </View>
+        </View>
+
+        {/* Reading Stats */}
+        <View className="bg-orange-400 mx-4 mt-6 rounded-3xl p-4">
+          <View className="flex-row justify-between">
+            {/* Today's Reading */}
+            <View className="bg-white rounded-xl p-3 flex-1 mr-2 shadow-md">
+              <View className="flex-row items-center">
+                <View className="flex-1">
+                  <Text className="font-bold">Today's Reading</Text>
+                  <View className="flex-row items-baseline">
+                    <Text className="text-xl font-bold">{userData.todaysReading}</Text>
+                    <Text className="ml-1 text-xs">MINUTES</Text>
+                  </View>
+                </View>
+                <Image 
+                  source={require('../assets/home/timer.png')} 
+                  className="w-12 h-12"
+                  resizeMode="contain"
+                />
+              </View>
+            </View>
+
+            {/* Longest Streak */}
+            <View className="bg-white rounded-xl p-3 flex-1 ml-2 shadow-md">
+              <View className="flex-row items-center">
+                <View className="flex-1">
+                  <Text className="font-bold">Longest Streak</Text>
+                  <View className="flex-row items-baseline">
+                    <Text className="text-xl font-bold">{userData.longestStreak}</Text>
+                    <Text className="ml-1 text-xs">DAYS</Text>
+                  </View>
+                </View>
+                <Image 
+                  source={require('../assets/home/fire.png')} 
+                  className="w-12 h-12"
+                  resizeMode="contain"
+                />
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Collections */}
+        <View className="mx-4 mt-6 mb-6">
+          {userData.collections.map((collection) => (
+            <View key={collection.id} className="bg-white rounded-xl shadow-md mb-4 overflow-hidden">
+              <View className="flex-row">
+                <View className="w-24 h-24 bg-gray-200" />
+                <View className="p-3 flex-1">
+                  <Text className="font-bold text-lg">{collection.title}</Text>
+                  <Text className="text-gray-500">By {collection.creator}</Text>
+                </View>
+              </View>
+              <TouchableOpacity 
+                className="absolute bottom-2 right-2 w-8 h-8 bg-white rounded-full shadow items-center justify-center"
+              >
+                <Text className="text-xl font-bold text-gray-500">+</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+export default ProfileScreen;
