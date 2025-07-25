@@ -4,26 +4,26 @@
     "slug": "BasaBuddy",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/logo.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/logo.png",
+      "image": "./assets/icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#FBC45F"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/logo.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#FBC45F"
       },
       "edgeToEdgeEnabled": true
     },
     "web": {
-      "favicon": "./assets/logo.png",
+      "favicon": "./assets/icon.png",
       "bundler": "metro"
     },
     "plugins": ["expo-sqlite"]
