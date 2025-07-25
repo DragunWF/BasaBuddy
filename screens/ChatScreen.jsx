@@ -4,7 +4,6 @@ import {
   View,
   Platform,
   KeyboardAvoidingView,
-  ScrollView,
   SafeAreaView,
 } from "react-native";
 import Toast from "react-native-toast-message";
@@ -17,7 +16,6 @@ import {
   getBotResponse,
   getInitialBotResponse,
 } from "../helpers/chatbot/chatbot";
-import { logGeminiHistoryCompact } from "../helpers/tools/loggers";
 
 function ChatScreen() {
   const chatContext = useContext(ChatContext);
@@ -39,8 +37,18 @@ function ChatScreen() {
 
     setUserMessage("");
     try {
-      const response = await getBotResponse(chatContext, userMessage);
-      chatContext.addChat(userMessage, true);
+      const trimmedMessage = userMessage.trim();
+      if (trimmedMessage.length === 0) {
+        Toast.show({
+          type: "info",
+          text1: "Empty Message!",
+          text2: "Your message is empty, enter something to chat.",
+        });
+        return;
+      }
+
+      const response = await getBotResponse(chatContext, trimmedMessage);
+      chatContext.addChat(trimmedMessage, true);
       chatContext.addChat(response, false);
     } catch (err) {
       Toast.show({
