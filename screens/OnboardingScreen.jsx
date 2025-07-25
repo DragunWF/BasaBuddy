@@ -28,11 +28,13 @@ const descriptionContent = [
     title: "Chat with Tassie",
     description:
       "Tassie reacts to what you read! Talk to her and get fun, book-inspired replies.",
+    imageSource: require("../assets/onboarding/first.png"),
   },
   {
     title: "Tassie Never Forgets",
     description:
       "Your pet remembers your journey. Whether you pause or push on, Tassie stays with you.",
+    imageSource: require("../assets/onboarding/first.png"),
   },
 ];
 
@@ -77,7 +79,11 @@ function OnboardingScreen({ navigation }) {
         })}
       </View>
       <View style={styles.imageContainer}>
-        <Image style={styles.image} source={contentImageSource} />
+        <Image
+          style={styles.image}
+          source={contentImageSource}
+          resizeMode="stretch"
+        />
       </View>
       <View style={styles.descriptionCard}>
         <View style={styles.descriptionContent}>
@@ -117,11 +123,17 @@ const styles = StyleSheet.create({
   imageContainer: {
     flex: 2,
     marginTop: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    marginHorizontal: 0,
+    paddingHorizontal: 0,
   },
   image: {
     width: "100%",
-    minHeight: 450,
-    overflow: "hidden",
+    height: "100%",
+    maxHeight: 450,
+    marginHorizontal: 0,
+    paddingHorizontal: 0,
   },
   title: {
     fontSize: 22,
