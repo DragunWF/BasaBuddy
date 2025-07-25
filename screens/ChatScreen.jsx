@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
   },
   chatContainer: {
     flex: 2,
-    marginTop: 10,
+    marginTop: 80,
     paddingHorizontal: 10,
   },
 });

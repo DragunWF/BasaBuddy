@@ -15,8 +15,7 @@ function HomeBottomTabNavigator() {
       screenOptions={{
         tabBarActiveTintColor: mainColors.primary500,
         tabBarInactiveTintColor: mainColors.black,
-headerShown: false,
-
+        headerShown: false,
       }}
     >
       <BottomTab.Screen
@@ -32,7 +31,6 @@ headerShown: false,
         name="Explore"
         component={ExploreScreen}
         options={{
-          headerTitle: "Explore new books",
           tabBarIcon: ({ color, size }) => {
             return <MaterialIcons name="explore" color={color} size={size} />;
           },
@@ -42,7 +40,6 @@ headerShown: false,
         name="Library"
         component={LibraryScreen}
         options={{
-          headerTitle: "Your Library",
           tabBarIcon: ({ color, size }) => {
             return <Ionicons name="library" color={color} size={size} />;
           },
@@ -53,12 +50,21 @@ headerShown: false,
         component={ChatScreen}
         options={{
           headerTitle: "Chat with Tassie",
+          headerTitleAlign: "center",
+          headerShown: true,
+          headerTransparent: true,
+          headerStyle: {
+            backgroundColor: "#f5f3f2",
+            opacity: 0.85,
+          },
+          headerTitleStyle: {
+            fontWeight: "bold",
+          },
           tabBarIcon: ({ color, size }) => {
             return <Entypo name="chat" color={color} size={size} />;
           },
         }}
       />
-
     </BottomTab.Navigator>
   );
 }
