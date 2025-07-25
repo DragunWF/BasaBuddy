@@ -40,6 +40,7 @@ const MessageInput = memo(function MessageInput({
           onContentSizeChange={(e) =>
             setInputHeight(e.nativeEvent.contentSize.height)
           }
+          onSubmitEditing={onSendMessage}
           textAlignVertical="top"
         />
         <TouchableOpacity
