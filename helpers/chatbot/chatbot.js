@@ -1,11 +1,21 @@
 import { fetchProfile } from "../tools/database";
 import { generateText, generateTextWithHistory } from "../tools/gemini";
-import { chatbotPrompt, promptTemplates } from "./prompt";
+import {
+  chatbotPrompt,
+  chatbotPromptTemplates,
+  polishScannedTextPrompt,
+  polishScannedTextPromptTemplates,
+  tassieInsightsPrompt,
+  tassieInsightsPromptTemplates,
+} from "./prompt";
 import { dummyBooksRead } from "../tools/dummyData";
 
 export async function getInitialBotResponse(chatbotContext) {
   const userProfile = await fetchProfile();
-  const fullModifiedPrompt = await getFullPrompt(userProfile, dummyBooksRead);
+  const fullModifiedPrompt = await getChatbotPrompt(
+    userProfile,
+    dummyBooksRead
+  );
   const response = await generateText(fullModifiedPrompt);
   chatbotContext.setInitialChatbotPrompt(fullModifiedPrompt);
   return response;
@@ -27,26 +37,26 @@ export async function getBotResponse(chatbotContext, userMessage) {
   return response;
 }
 
-async function getFullPrompt(profile, booksRead) {
+async function getChatbotPrompt(profile, booksRead) {
   let modifiedPrompt = chatbotPrompt;
   modifiedPrompt = modifiedPrompt.replace(
-    promptTemplates.firstName,
+    chatbotPromptTemplates.firstName,
     profile.getFirstName()
   );
   modifiedPrompt = modifiedPrompt.replace(
-    promptTemplates.lastName,
+    chatbotPromptTemplates.lastName,
     profile.getLastName()
   );
   modifiedPrompt = modifiedPrompt.replace(
-    promptTemplates.favoriteGenre,
+    chatbotPromptTemplates.favoriteGenre,
     profile.getFavoriteGenre()
   );
   modifiedPrompt = modifiedPrompt.replace(
-    promptTemplates.preferredReadingTime,
+    chatbotPromptTemplates.preferredReadingTime,
     profile.getPreferredReadingTime()
   );
   modifiedPrompt = modifiedPrompt.replace(
-    promptTemplates.readingSpeed,
+    chatbotPromptTemplates.readingSpeed,
     profile.getReadingSpeed()
   );
 
@@ -55,9 +65,38 @@ async function getFullPrompt(profile, booksRead) {
     booksReadNames.push(`- ${book.getTitle()} by ${book.getAuthor()}`);
   }
   modifiedPrompt = modifiedPrompt.replace(
-    promptTemplates.bookList,
+    chatbotPromptTemplates.bookList,
     booksReadNames.join("\n")
   );
 
   return modifiedPrompt;
+}
+
+export async function generateTassieInsights(text) {
+  const profile = await fetchProfile();
+  let modifiedPolishPrompt = polishScannedTextPrompt;
+  modifiedPolishPrompt = modifiedPolishPrompt.replace(
+    polishScannedTextPromptTemplates.scannedText,
+    text
+  );
+  const polishedScannedText = await generateText(modifiedPolishPrompt);
+  console.info("Polished Scanned Text: ", polishedScannedText);
+
+  let modifiedInsightsPrompt = tassieInsightsPrompt;
+  modifiedInsightsPrompt = modifiedInsightsPrompt.replace(
+    tassieInsightsPromptTemplates.text,
+    polishedScannedText
+  );
+  modifiedInsightsPrompt = modifiedInsightsPrompt.replace(
+    tassieInsightsPromptTemplates.text,
+    dummyBooksRead // Replace this in the future
+  );
+  modifiedInsightsPrompt = modifiedInsightsPrompt.replace(
+    tassieInsightsPromptTemplates.userGenre,
+    profile.getFavoriteGenre()
+  );
+  const insights = await generateText(modifiedInsightsPrompt);
+  console.info("Tassie Insights: ", insights);
+
+  return insights;
 }
