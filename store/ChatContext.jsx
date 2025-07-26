@@ -12,7 +12,10 @@ const ACTION_TYPE = {
 export const ChatContext = createContext({
   initialChatbotPrompt: "",
   chatHistory: [],
+  isGenerating: false,
+  setIsGenerating: (value) => {},
   addChat: (message, isUser) => {},
+  addChatWithImage: (message, isUser, imageSource) => {},
   setChat: (data) => {},
   updateChat: (id, updatedData) => {},
   deleteChat: (id) => {},
@@ -22,6 +25,7 @@ export const ChatContext = createContext({
 function ChatContextProvider({ children }) {
   const [chatState, dispatch] = useReducer(dataReducer, []);
   const [chatbotPrompt, setChatbotPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   function setInitialChatbotPrompt(prompt) {
     setChatbotPrompt(prompt);
@@ -29,6 +33,19 @@ function ChatContextProvider({ children }) {
 
   function addChat(message, isUser) {
     const messageData = { role: isUser ? "user" : "model", text: message };
+    dispatch({
+      type: ACTION_TYPE.ADD,
+      payload: messageData,
+      imageSource: null,
+    });
+  }
+
+  function addChatWithImage(imageSourceUri, isUser) {
+    const messageData = {
+      role: isUser ? "user" : "model",
+      text: "",
+      imageSourceUri,
+    };
     dispatch({ type: ACTION_TYPE.ADD, payload: messageData });
   }
 
@@ -51,8 +68,11 @@ function ChatContextProvider({ children }) {
   const value = {
     initialChatbotPrompt: chatbotPrompt,
     chatHistory: chatState,
+    isGenerating,
+    setIsGenerating,
     setInitialChatbotPrompt,
     addChat,
+    addChatWithImage,
     setChat,
     updateChat,
     deleteChat,

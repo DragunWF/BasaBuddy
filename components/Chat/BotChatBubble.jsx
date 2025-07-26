@@ -1,16 +1,23 @@
+import { useContext } from "react";
 import { StyleSheet, Text } from "react-native";
 import { useState, useEffect } from "react";
 
 import ChatBubble from "./ChatBubble";
+import { ChatContext } from "../../store/ChatContext";
 import { mainColors, chatBubbleColors } from "../../constants/colors";
 
-function BotChatBubble({ children }) {
+function BotChatBubble({ children, isText = true }) {
+  const chatContext = useContext(ChatContext);
   const [displayedText, setDisplayedText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
-  const fullText = children;
+  const fullText = isText ? children : null;
 
   useEffect(() => {
-    // Reset when children changes (new message)
+    // Reset when children changes (new message text)
+    if (!isText) {
+      return;
+    }
+
     setDisplayedText("");
     setCurrentIndex(0);
   }, [children]);
@@ -19,9 +26,16 @@ function BotChatBubble({ children }) {
     const typingSpeed = 15; // The lower, the faster
 
     if (fullText && currentIndex < fullText.length) {
+      chatContext.setIsGenerating(true);
+
       const timer = setTimeout(() => {
-        setDisplayedText(fullText.slice(0, currentIndex + 1));
-        setCurrentIndex(currentIndex + 1);
+        const updatedIndex = currentIndex + 1;
+        setDisplayedText(fullText.slice(0, updatedIndex));
+        setCurrentIndex(updatedIndex);
+
+        if (updatedIndex >= fullText.length) {
+          chatContext.setIsGenerating(false);
+        }
       }, typingSpeed);
 
       return () => clearTimeout(timer);
@@ -35,7 +49,7 @@ function BotChatBubble({ children }) {
       withTail={true}
       style={styles.chatBubble}
     >
-      <Text style={styles.text}>{displayedText}</Text>
+      {isText ? <Text style={styles.text}>{displayedText}</Text> : children}
     </ChatBubble>
   );
 }

@@ -113,13 +113,19 @@ function ChatScreen() {
         // Perform OCR on the selected image
         console.log("Performing OCR...");
         const extractedText = await performOCR(result.assets[0]);
+        console.log("Finished performing OCR");
+
         // Set the selected image in state
         setSelectedImage(result.assets[0].uri);
+        chatContext.addChatWithImage(result.assets[0].uri, true);
         console.log("Extracted Text:", extractedText);
 
         // Only generate insights if OCR was successful and we have text
         if (extractedText && extractedText.trim()) {
+          console.log("Generating Tassie insights...");
           const tassieInsights = await generateTassieInsights(extractedText);
+          console.log("Finished generating Tassie insights");
+
           chatContext.addChat(tassieInsights, false);
         } else {
           console.log("No text extracted, skipping insights generation");

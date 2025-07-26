@@ -1,8 +1,9 @@
-import { memo, useState } from "react";
+import { memo, useState, useContext } from "react";
 import { StyleSheet, View, TextInput } from "react-native";
 
 import { mainColors } from "../../constants/colors";
 import IconButton from "../ui/IconButton";
+import { ChatContext } from "../../store/ChatContext";
 
 const MessageInput = memo(function MessageInput({
   message,
@@ -10,6 +11,7 @@ const MessageInput = memo(function MessageInput({
   onSendMessage,
   onSendImage,
 }) {
+  const chatContext = useContext(ChatContext);
   const [inputHeight, setInputHeight] = useState(40); // default height
 
   return (
@@ -36,7 +38,8 @@ const MessageInput = memo(function MessageInput({
             setInputHeight(e.nativeEvent.contentSize.height)
           }
           onSubmitEditing={onSendMessage}
-          textAlignVertical="top"
+          textAlignVertical="center"
+          editable={!chatContext.isGenerating}
         />
         <View style={styles.buttonListContainer}>
           <IconButton
@@ -69,7 +72,7 @@ const styles = StyleSheet.create({
     backgroundColor: mainColors.white,
     borderRadius: 25,
     justifyContent: "space-between",
-    alignItems: "flex-end", // align to bottom since input grows vertically
+    alignItems: "center", // center align all elements including placeholder text
   },
   textInput: {
     flex: 1,

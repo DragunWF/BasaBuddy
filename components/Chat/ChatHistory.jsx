@@ -1,4 +1,4 @@
-import { StyleSheet, FlatList } from "react-native";
+import { StyleSheet, FlatList, Image } from "react-native";
 
 import UserChatBubble from "./UserChatBubble";
 import BotChatBubble from "./BotChatBubble";
@@ -6,11 +6,17 @@ import BotChatBubble from "./BotChatBubble";
 function ChatHistory({ data }) {
   function renderChatBubble(itemData) {
     const message = itemData.item;
+    const messageContent = message.imageSourceUri ? (
+      <Image source={{ uri: message.imageSourceUri }} style={styles.image} />
+    ) : (
+      message.text
+    );
+    const isText = !message.imageSourceUri;
 
     if (message.role === "user") {
-      return <UserChatBubble>{message.text}</UserChatBubble>;
+      return <UserChatBubble isText={isText}>{messageContent}</UserChatBubble>;
     }
-    return <BotChatBubble>{message.text}</BotChatBubble>;
+    return <BotChatBubble isText={isText}>{messageContent}</BotChatBubble>;
   }
 
   return (
@@ -28,6 +34,11 @@ const styles = StyleSheet.create({
   list: {
     flex: 1,
     marginVertical: 10,
+  },
+  image: {
+    minWidth: 200,
+    minHeight: 200,
+    borderRadius: 6,
   },
 });
 

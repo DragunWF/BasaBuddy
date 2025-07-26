@@ -3,7 +3,7 @@ import { StyleSheet, Text } from "react-native";
 import ChatBubble from "./ChatBubble";
 import { mainColors, chatBubbleColors } from "../../constants/colors";
 
-function UserChatBubble({ children }) {
+function UserChatBubble({ children, isText = true }) {
   return (
     <ChatBubble
       isOwnMessage={true}
@@ -12,7 +12,7 @@ function UserChatBubble({ children }) {
       withTail={true}
       style={styles.chatBubble}
     >
-      <Text style={styles.textOwn}>{children}</Text>
+      {isText ? <Text style={styles.textOwn}>{children}</Text> : children}
     </ChatBubble>
   );
 }
