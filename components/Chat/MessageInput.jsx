@@ -1,24 +1,19 @@
 import { memo, useState } from "react";
-import {
-  StyleSheet,
-  View,
-  TextInput,
-  TouchableOpacity,
-  Text,
-  Platform,
-  Image,
-} from "react-native";
+import { StyleSheet, View, TextInput } from "react-native";
+
 import { mainColors } from "../../constants/colors";
+import IconButton from "../ui/IconButton";
 
 const MessageInput = memo(function MessageInput({
   message,
   onChange,
   onSendMessage,
+  onSendImage,
 }) {
   const [inputHeight, setInputHeight] = useState(40); // default height
 
   return (
-    <View style={styles.container}>
+    <View>
       {/* Tassie Image */}
       {/*<View style={styles.tassieContainer}>
         <Image
@@ -43,22 +38,20 @@ const MessageInput = memo(function MessageInput({
           onSubmitEditing={onSendMessage}
           textAlignVertical="top"
         />
-        <TouchableOpacity
-          style={styles.sendButton}
-          onPress={onSendMessage}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.sendButtonText}>Send</Text>
-        </TouchableOpacity>
+        <View style={styles.buttonListContainer}>
+          <IconButton
+            onPress={onSendImage}
+            icon="camera"
+            iconType="fontawesome"
+          />
+          <IconButton onPress={onSendMessage} icon="send" />
+        </View>
       </View>
     </View>
   );
 });
 
 const styles = StyleSheet.create({
-  container: {
-    // flex: 1,
-  },
   tassieContainer: {
     justifyContent: "center",
     alignItems: "center",
@@ -86,18 +79,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
     textAlignVertical: "top",
   },
-  sendButton: {
-    backgroundColor: "transparent", // No background
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-    justifyContent: "center",
-    alignItems: "center",
-    minHeight: 40, // Ensures button height matches default input height
-  },
-  sendButtonText: {
-    color: mainColors.primary500,
-    fontSize: 16,
-    fontWeight: "500",
+  buttonListContainer: {
+    flexDirection: "row",
+    gap: 15,
   },
 });
 

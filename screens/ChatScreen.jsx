@@ -64,6 +64,8 @@ function ChatScreen() {
     }
   }
 
+  async function sendImageHandler() {}
+
   function isValidMessage() {
     return userMessage.trim().length > 0;
   }
@@ -93,6 +95,7 @@ function ChatScreen() {
           <MessageInput
             message={userMessage}
             onSendMessage={sendMessageHandler}
+            onSendImage={sendImageHandler}
             onChange={userMessageInputHandler}
           />
         </KeyboardAvoidingView>
