@@ -8,12 +8,19 @@ import CustomDropdown from "../components/ui/CustomDropdown";
 import Profile from "../models/profile";
 import { createProfile } from "../helpers/tools/database";
 
+// Note: Set this to true if you're testing for a faster profile setup
+const isPrefilled = false;
+
 function ProfileSetupScreen({ navigation }) {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [favoriteGenre, setFavoriteGenre] = useState("");
-  const [preferredReadingTime, setPreferredReadingTime] = useState("");
-  const [readingSpeed, setReadingSpeed] = useState("");
+  const [firstName, setFirstName] = useState(isPrefilled ? "Jack" : "");
+  const [lastName, setLastName] = useState(isPrefilled ? "Sparrow" : "");
+  const [favoriteGenre, setFavoriteGenre] = useState(
+    isPrefilled ? "Fantasy" : ""
+  );
+  const [preferredReadingTime, setPreferredReadingTime] = useState(
+    isPrefilled ? "Morning" : ""
+  );
+  const [readingSpeed, setReadingSpeed] = useState(isPrefilled ? "Normal" : "");
 
   const readingTimeOptions = ["Morning", "Afternoon", "Evening", "Late Night"];
   const readingSpeedOptions = ["Slow", "Normal", "Fast"];
@@ -64,7 +71,7 @@ function ProfileSetupScreen({ navigation }) {
         text1: "Finished Profile Setup!",
         text2: "Your profile has been successfully set up!",
       });
-      navigation.replace("ReadingGoals");
+      navigation.replace("HomeNavigator");
     }
   }
 
