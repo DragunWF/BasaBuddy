@@ -1,13 +1,21 @@
 import * as SQLite from "expo-sqlite";
+
 import Profile from "../../models/profile";
+import Collection from "../../models/collection";
 
 const database = SQLite.openDatabaseAsync("basabuddy.db");
+const tables = {
+  profile: "profile",
+  booksRead: "booksRead",
+  collections: "collections",
+  savedBooks: "savedBooks",
+};
 
 export async function init() {
   const db = await database;
 
   await db.runAsync(`
-    CREATE TABLE IF NOT EXISTS booksRead (
+    CREATE TABLE IF NOT EXISTS ${tables.booksRead} (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT NOT NULL,
       author TEXT NOT NULL,
@@ -16,7 +24,7 @@ export async function init() {
   `);
 
   await db.runAsync(`
-    CREATE TABLE IF NOT EXISTS profile (
+    CREATE TABLE IF NOT EXISTS ${tables.profile} (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       firstName TEXT NOT NULL,
       lastName TEXT NOT NULL,
@@ -25,6 +33,42 @@ export async function init() {
       readingSpeed TEXT NOT NULL
     );
   `);
+
+  await db.runAsync(`
+    CREATE TABLE IF NOT EXISTS ${tables.collections} (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL
+    );
+  `);
+
+  await db.runAsync(`
+    CREATE TABLE IF NOT EXISTS ${tables.savedBooks} (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      bookId INTEGER NOT NULL,
+      collectionId INTEGER NOT NULL,
+      FOREIGN KEY (collectionId) REFERENCES collections(id)
+    )
+  `);
+
+  await db.runAsync(`
+    INSERT INTO ${tables.collections} (title)
+    VALUES ('Want to Read'),
+           ('Currently Reading'),
+           ('Read Books')
+  `);
+}
+
+/*
+  This is primarily used for testing and debugging.
+  Do not use this for production.
+*/
+export async function resetDatabase() {
+  const db = await database;
+  for (let key of Object.keys(tables)) {
+    await db.runAsync(`DROP TABLE IF EXISTS ${tables[key]}`);
+  }
+  await init();
+  console.info("Database has been reset!");
 }
 
 export async function createProfile(profile) {
@@ -104,10 +148,10 @@ export async function hasProfile() {
   return result.count > 0;
 }
 
-export async function resetDatabase() {
+export async function getCollections() {
   const db = await database;
-  await db.runAsync(`DROP TABLE IF EXISTS profile`);
-  await db.runAsync(`DROP TABLE IF EXISTS booksRead`);
-  await init();
-  console.info("Database has been reset!");
+  const result = await db.getAllAsync(`SELECT * FROM collections`);
+  return result.map(
+    (collection) => new Collection(collection.id, collection.title)
+  );
 }
