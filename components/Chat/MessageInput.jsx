@@ -83,7 +83,6 @@ const styles = StyleSheet.create({
     marginRight: 10,
     color: mainColors.black,
     fontSize: 16,
-    paddingVertical: Platform.OS === "ios" ? 8 : 4,
     paddingHorizontal: 0,
     textAlignVertical: "top",
   },

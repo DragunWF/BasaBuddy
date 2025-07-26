@@ -14,7 +14,11 @@ function IntroStackNavigator() {
       <Stack.Screen
         name="Onboarding"
         component={OnboardingScreen}
-        options={{ title: "Welcome to BasaBuddy!" }}
+        options={{
+          title: "Welcome to BasaBuddy!",
+          headerShown: true,
+          headerTitleAlign: "center",
+        }}
       />
       <Stack.Screen
         name="ProfileSetup"
