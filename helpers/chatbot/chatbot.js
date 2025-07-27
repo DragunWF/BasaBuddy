@@ -1,5 +1,8 @@
 import { fetchProfile } from "../tools/database";
-import { generateText, generateTextWithHistory } from "../tools/gemini";
+import {
+  generateText,
+  generateTextWithHistory,
+} from "../../services/geminiService";
 import {
   chatbotPrompt,
   chatbotPromptTemplates,

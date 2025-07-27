@@ -9,7 +9,7 @@ import Profile from "../models/profile";
 import { createProfile } from "../helpers/tools/database";
 
 // Note: Set this to true if you're testing for a faster profile setup
-const isPrefilled = false;
+const isPrefilled = true;
 
 function ProfileSetupScreen({ navigation }) {
   const [firstName, setFirstName] = useState(isPrefilled ? "Jack" : "");

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { logGeminiHistoryCompact } from "./loggers";
+import { logGeminiHistoryCompact } from "../helpers/tools/loggers";
 
 /*
    Preferred Gemini Models:

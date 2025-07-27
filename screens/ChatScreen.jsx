@@ -19,7 +19,7 @@ import {
   getInitialBotResponse,
   generateTassieInsights,
 } from "../helpers/chatbot/chatbot";
-import { performOCR } from "../helpers/chatbot/ocrTool";
+import { performOCR } from "../services/ocrService";
 
 function ChatScreen() {
   const chatContext = useContext(ChatContext);
