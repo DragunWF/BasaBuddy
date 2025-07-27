@@ -21,18 +21,18 @@ import {
 } from "../helpers/chatbot/chatbot";
 import { performOCR } from "../services/ocrService";
 
-function ChatScreen() {
+const ChatScreen = () => {
   const chatContext = useContext(ChatContext);
 
   // TODO: Make selected image show in a user chat bubble
   const [selectedImage, setSelectedImage] = useState(null);
   const [userMessage, setUserMessage] = useState("");
 
-  function userMessageInputHandler(enteredText) {
+  const userMessageInputHandler = (enteredText) => {
     setUserMessage(enteredText);
-  }
+  };
 
-  async function sendMessageHandler() {
+  const sendMessageHandler = async () => {
     if (!isValidMessage()) {
       Toast.show({
         type: "info",
@@ -69,9 +69,9 @@ function ChatScreen() {
         err
       );
     }
-  }
+  };
 
-  async function sendImageHandler() {
+  const sendImageHandler = async () => {
     Alert.alert(
       "Book Page Scanner",
       "Scan a page from a book with your camera or select an image of a page from your gallery to get insight from Tassie!",
@@ -88,9 +88,9 @@ function ChatScreen() {
         },
       ]
     );
-  }
+  };
 
-  async function bookPageImageHandler(isTakePhoto) {
+  const bookPageImageHandler = async (isTakePhoto) => {
     let result;
     if (isTakePhoto) {
       result = await ImagePicker.launchCameraAsync({
@@ -136,11 +136,11 @@ function ChatScreen() {
         setSelectedImage(result.assets[0].uri);
       }
     }
-  }
+  };
 
-  function isValidMessage() {
+  const isValidMessage = () => {
     return userMessage.trim().length > 0;
-  }
+  };
 
   useEffect(() => {
     async function fetchInitialResponse() {
@@ -174,7 +174,7 @@ function ChatScreen() {
       </CustomBackground>
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   safeArea: {

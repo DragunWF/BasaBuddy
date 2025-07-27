@@ -4,7 +4,6 @@ import { StyleSheet, View, Text, Image } from "react-native";
 import Button from "../components/ui/Button";
 import { mainColors } from "../constants/colors";
 
-// Dummy descriptions for now
 const descriptionContent = [
   {
     title: "Your Basa Buddy",
@@ -38,7 +37,7 @@ const descriptionContent = [
   },
 ];
 
-function OnboardingScreen({ navigation }) {
+const OnboardingScreen = ({ navigation }) => {
   const [contentIndex, setContentIndex] = useState(0);
   const [contentTitle, setContentTitle] = useState(
     descriptionContent[contentIndex].title
@@ -50,7 +49,7 @@ function OnboardingScreen({ navigation }) {
     descriptionContent[contentIndex].description
   );
 
-  function nextHandler() {
+  const nextHandler = () => {
     if (contentIndex + 1 < descriptionContent.length) {
       setContentIndex((current) => current + 1);
       setContentTitle(descriptionContent[contentIndex + 1].title);
@@ -59,7 +58,7 @@ function OnboardingScreen({ navigation }) {
     } else {
       navigation.navigate("ProfileSetup");
     }
-  }
+  };
 
   return (
     <View style={styles.rootContainer}>
@@ -96,7 +95,7 @@ function OnboardingScreen({ navigation }) {
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   rootContainer: {

@@ -1,6 +1,6 @@
 import { StyleSheet, ImageBackground } from "react-native";
 
-function CustomBackground({ children, imageSource }) {
+const CustomBackground = ({ children, imageSource }) => {
   return (
     <ImageBackground
       source={imageSource}

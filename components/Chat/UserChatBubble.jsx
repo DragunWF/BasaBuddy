@@ -3,7 +3,7 @@ import { StyleSheet, Text } from "react-native";
 import ChatBubble from "./ChatBubble";
 import { mainColors, chatBubbleColors } from "../../constants/colors";
 
-function UserChatBubble({ children, isText = true }) {
+const UserChatBubble = ({ children, isText = true }) => {
   return (
     <ChatBubble
       isOwnMessage={true}

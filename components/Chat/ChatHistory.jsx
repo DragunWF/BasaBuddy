@@ -3,8 +3,8 @@ import { StyleSheet, FlatList, Image } from "react-native";
 import UserChatBubble from "./UserChatBubble";
 import BotChatBubble from "./BotChatBubble";
 
-function ChatHistory({ data }) {
-  function renderChatBubble(itemData) {
+const ChatHistory = ({ data }) => {
+  const renderChatBubble = (itemData) => {
     const message = itemData.item;
     const messageContent = message.imageSourceUri ? (
       <Image source={{ uri: message.imageSourceUri }} style={styles.image} />
@@ -28,7 +28,7 @@ function ChatHistory({ data }) {
       style={styles.list}
     />
   );
-}
+};
 
 const styles = StyleSheet.create({
   list: {

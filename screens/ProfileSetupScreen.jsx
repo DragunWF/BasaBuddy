@@ -11,7 +11,7 @@ import { createProfile } from "../helpers/tools/database";
 // Note: Set this to true if you're testing for a faster profile setup
 const isPrefilled = true;
 
-function ProfileSetupScreen({ navigation }) {
+const ProfileSetupScreen = ({ navigation }) => {
   const [firstName, setFirstName] = useState(isPrefilled ? "Jack" : "");
   const [lastName, setLastName] = useState(isPrefilled ? "Sparrow" : "");
   const [favoriteGenre, setFavoriteGenre] = useState(
@@ -25,27 +25,27 @@ function ProfileSetupScreen({ navigation }) {
   const readingTimeOptions = ["Morning", "Afternoon", "Evening", "Late Night"];
   const readingSpeedOptions = ["Slow", "Normal", "Fast"];
 
-  function firstNameInputHandler(enteredFirstName) {
+  const firstNameInputHandler = (enteredFirstName) => {
     setFirstName(enteredFirstName);
-  }
+  };
 
-  function lastNameInputHandler(enteredLastName) {
+  const lastNameInputHandler = (enteredLastName) => {
     setLastName(enteredLastName);
-  }
+  };
 
-  function favoriteGenreInputHandler(enteredFavoriteGenre) {
+  const favoriteGenreInputHandler = (enteredFavoriteGenre) => {
     setFavoriteGenre(enteredFavoriteGenre);
-  }
+  };
 
-  function onSelectPreferredReadingTimeHandler(selectedReadingTime) {
+  const onSelectPreferredReadingTimeHandler = (selectedReadingTime) => {
     setPreferredReadingTime(selectedReadingTime);
-  }
+  };
 
-  function onSelectReadingSpeedHandler(selectedReadingSpeed) {
+  const onSelectReadingSpeedHandler = (selectedReadingSpeed) => {
     setReadingSpeed(selectedReadingSpeed);
-  }
+  };
 
-  async function finishSetupHandler() {
+  const finishSetupHandler = async () => {
     if (!firstName) {
       showToastValidationEmptyMessage("First Name");
     } else if (!lastName) {
@@ -73,15 +73,15 @@ function ProfileSetupScreen({ navigation }) {
       });
       navigation.replace("HomeNavigator");
     }
-  }
+  };
 
-  function showToastValidationEmptyMessage(inputFieldName) {
+  const showToastValidationEmptyMessage = (inputFieldName) => {
     Toast.show({
       type: "info",
       text1: `Empty ${inputFieldName} Field!`,
       text2: `Please enter your ${inputFieldName}.`,
     });
-  }
+  };
 
   return (
     <View style={styles.rootContainer}>
@@ -130,7 +130,7 @@ function ProfileSetupScreen({ navigation }) {
       </ScrollView>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   rootContainer: {

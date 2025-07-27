@@ -6,7 +6,7 @@ import ChatBubble from "./ChatBubble";
 import { ChatContext } from "../../store/ChatContext";
 import { mainColors, chatBubbleColors } from "../../constants/colors";
 
-function BotChatBubble({ children, isText = true }) {
+const BotChatBubble = ({ children, isText = true }) => {
   const chatContext = useContext(ChatContext);
   const [displayedText, setDisplayedText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -52,7 +52,7 @@ function BotChatBubble({ children, isText = true }) {
       {isText ? <Text style={styles.text}>{displayedText}</Text> : children}
     </ChatBubble>
   );
-}
+};
 
 const styles = StyleSheet.create({
   chatBubble: {

@@ -7,7 +7,7 @@ import ChatContextProvider from "../../store/ChatContext";
 import { hasProfile } from "../../helpers/tools/database";
 import HomeBottomTabNavigator from "./HomeBottomTabNavigator";
 
-function NavigationWrapper() {
+const NavigationWrapper = () => {
   const [isProfileExist, setIsProfileExist] = useState(false);
 
   useEffect(() => {
