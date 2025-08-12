@@ -141,7 +141,6 @@ const styles = StyleSheet.create({
   },
   descriptionCard: {
     flex: 1,
-    backgroundColor: "lightgray",
     marginTop: 50,
   },
   descriptionContent: {
