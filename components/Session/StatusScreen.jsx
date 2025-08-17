@@ -24,6 +24,54 @@ const StatusScreen = () => {
       title: 'Page Turner',
       description: 'Finish 5 books — your curiosity is unstoppable!',
       iconName: 'checkmark'
+    },
+    {
+      type: 'exp',
+      value: 20,
+      title: 'Literary Marathoner',
+      description: 'Read 10 books from cover to cover.'
+    },
+    {
+      type: 'completed',
+      title: 'Genre Explorer',
+      description: 'Complete at least 1 book from 3 different genres.',
+      iconName: 'checkmark'
+    },
+    {
+      type: 'exp',
+      value: 20,
+      title: 'Night Owl Reader',
+      description: 'Finish a book after reading mostly at night.'
+    },
+    {
+      type: 'completed',
+      title: 'Speed Reader',
+      description: 'Complete a book in less than 3 days.',
+      iconName: 'checkmark'
+    },
+    {
+      type: 'exp',
+      value: 20,
+      title: 'Classic Conqueror',
+      description: 'Finish a classic literature book.'
+    },
+    {
+      type: 'completed',
+      title: 'Series Slayer',
+      description: 'Complete all books in a single series.',
+      iconName: 'checkmark'
+    },
+    {
+      type: 'exp',
+      value: 20,
+      title: 'Knowledge Collector',
+      description: 'Read 5 non-fiction books in BasaBuddy.'
+    },
+    {
+      type: 'completed',
+      title: "Tassie's Best Friend",
+      description: "Finish 20 books — Tassie couldn't be prouder!",
+      iconName: 'checkmark'
     }
   ];
 
