@@ -5,6 +5,7 @@ import HomeScreen from "../../screens/HomeScreen";
 import ChatScreen from "../../screens/ChatScreen";
 import ExploreScreen from "../../screens/ExploreScreen";
 import LibraryScreen from "../../screens/LibraryScreen";
+import SessionScreen from "../../screens/SessionScreen";
 import { mainColors } from "../../constants/colors";
 
 const BottomTab = createBottomTabNavigator();
@@ -42,6 +43,15 @@ function HomeBottomTabNavigator() {
         options={{
           tabBarIcon: ({ color, size }) => {
             return <Ionicons name="library" color={color} size={size} />;
+          },
+        }}
+      />
+      <BottomTab.Screen
+        name="Session"
+        component={SessionScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => {
+            return <MaterialIcons name="timer" color={color} size={size} />;
           },
         }}
       />
