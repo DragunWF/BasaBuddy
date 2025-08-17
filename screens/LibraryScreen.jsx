@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { View, Text, ScrollView, SafeAreaView } from 'react-native';
 import BookCard from '../components/ui/BookCard';
 import ReadingListCard from '../components/ui/ReadingListCard';
 import ToggleSwitch from '../components/ui/ToggleSwitch';
+import FloatingActionButton from '../components/ui/FloatingActionButton';
 
 function LibraryScreen() {
   const [activeTab, setActiveTab] = useState('books');
+  const [userBooks, setUserBooks] = useState([]);
 
   // Sample data - replace with actual data from your store/API
   const sampleBooks = [
@@ -15,6 +16,9 @@ function LibraryScreen() {
     { id: 3, title: 'Book title', author: 'Author', coverUrl: null },
     { id: 4, title: 'Book title', author: 'Author', coverUrl: null },
   ];
+
+  // Combine sample books with user uploaded books
+  const allBooks = [...sampleBooks, ...userBooks];
 
   const sampleCollections = [
     { id: 1, title: 'Collection Title', author: 'user', bookCount: 1 },
@@ -34,6 +38,15 @@ function LibraryScreen() {
   const handleMenuPress = (collection) => {
     // Show menu options (Delete, Rename, etc.)
     console.log('Menu pressed for:', collection);
+  };
+
+  const handleBookAdded = (newBook) => {
+    setUserBooks(prevBooks => [...prevBooks, newBook]);
+  };
+
+  const handleCollectionAdded = () => {
+    // Handle collection creation logic here
+    console.log('Collection added');
   };
 
   return (
@@ -61,7 +74,7 @@ function LibraryScreen() {
           {activeTab === 'books' ? (
             /* Books Grid */
             <View className="flex-row flex-wrap justify-between">
-              {sampleBooks.map((book, index) => (
+              {allBooks.map((book, index) => (
                 <View key={book.id} className="w-[48%]">
                   <BookCard 
                     book={book} 
@@ -106,20 +119,11 @@ function LibraryScreen() {
       </ScrollView>
       
       {/* Floating Action Button */}
-      <TouchableOpacity 
-        className="absolute bottom-6 right-6 w-14 h-14 bg-white rounded-full items-center justify-center shadow-lg"
-        onPress={() => {
-          if (activeTab === 'books') {
-            // Handle add book
-            console.log('Add book pressed');
-          } else {
-            // Handle add collection
-            console.log('Add collection pressed');
-          }
-        }}
-      >
-        <Icon name="add" size={28} color="dark" />
-      </TouchableOpacity>
+      <FloatingActionButton 
+        activeTab={activeTab}
+        onBookAdded={handleBookAdded}
+        onCollectionAdded={handleCollectionAdded}
+      />
     </SafeAreaView>
   );
 }
