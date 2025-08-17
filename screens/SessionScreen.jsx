@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import TabButton from '../components/ui/TabButton';
+import TabSwitcher from '../components/ui/TabSwitcher';
 import StatusScreen from '../components/Session/StatusScreen';
 import TimerScreen from '../components/Session/TimerScreen';
 import StreakScreen from '../components/Session/StreakScreen';
 
 const SessionScreen = () => {
   const [activeTab, setActiveTab] = useState('Status');
+  
+  const sessionTabs = [
+    { key: 'Status', label: 'Status', icon: 'assessment' },
+    { key: 'Timer', label: 'Timer', icon: 'timer' },
+    { key: 'Streak', label: 'Streak', icon: 'local-fire-department' }
+  ];
   const [pomodoroMinutes, setPomodoroMinutes] = useState(25); // Pomodoro duration in minutes
   const [pomodoroTime, setPomodoroTime] = useState(25 * 60); // Current timer in seconds
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -51,23 +57,12 @@ const SessionScreen = () => {
           <Text className="text-white text-3xl font-bold mb-6">{activeTab}</Text>
           
           {/* Tab Navigation */}
-          <View className="flex-row rounded-full p-1" style={{backgroundColor: '#E8901B'}}>
-            <TabButton
-              title="Status"
-              isActive={activeTab === 'Status'}
-              onPress={() => setActiveTab('Status')}
-            />
-            <TabButton
-              title="Timer"
-              isActive={activeTab === 'Timer'}
-              onPress={() => setActiveTab('Timer')}
-            />
-            <TabButton
-              title="Streak"
-              isActive={activeTab === 'Streak'}
-              onPress={() => setActiveTab('Streak')}
-            />
-          </View>
+          <TabSwitcher
+            tabs={sessionTabs}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            className="mb-6"
+          />
         </View>
 
         {/* Content Area */}
