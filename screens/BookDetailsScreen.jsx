@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  Image, 
-  ScrollView, 
-  TouchableOpacity, 
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  TouchableOpacity,
   ActivityIndicator,
-  SafeAreaView
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { getBookDetails } from '../services/openLibraryService';
+  SafeAreaView,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { getBookDetails } from "../services/openLibraryService";
+import Toast from "react-native-toast-message";
 
 const BookDetailsScreen = ({ route, navigation }) => {
   const { bookId } = route.params;
@@ -28,8 +29,13 @@ const BookDetailsScreen = ({ route, navigation }) => {
       setBook(bookData);
       setError(null);
     } catch (err) {
-      setError('Failed to load book details. Please try again.');
-      console.error('Error fetching book details:', err);
+      setError("Failed to load book details. Please try again.");
+      Toast.show({
+        type: "error",
+        text1: "Error fetching book details",
+        text2: "Please try again.",
+      });
+      console.error("Error fetching book details:", err);
     } finally {
       setLoading(false);
     }
@@ -50,8 +56,8 @@ const BookDetailsScreen = ({ route, navigation }) => {
     return (
       <SafeAreaView className="flex-1 bg-gray-100 pt-10">
         <View className="flex-1 justify-center items-center px-4">
-          <Text className="text-red-500 mb-4">{error || 'Book not found'}</Text>
-          <TouchableOpacity 
+          <Text className="text-red-500 mb-4">{error || "Book not found"}</Text>
+          <TouchableOpacity
             className="bg-[#FE9F1F] py-2 px-4 rounded-full"
             onPress={() => navigation.goBack()}
           >
@@ -67,18 +73,23 @@ const BookDetailsScreen = ({ route, navigation }) => {
       <ScrollView className="flex-1">
         {/* Header with back button */}
         <View className="flex-row items-center px-4 py-2">
-          <TouchableOpacity onPress={() => navigation.goBack()} className="mr-4">
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            className="mr-4"
+          >
             <Ionicons name="arrow-back" size={24} color="black" />
           </TouchableOpacity>
-          <Text className="text-xl font-bold flex-1" numberOfLines={1}>Book Details</Text>
+          <Text className="text-xl font-bold flex-1" numberOfLines={1}>
+            Book Details
+          </Text>
         </View>
-        
+
         {/* Book cover and basic info */}
         <View className="flex-row px-4 py-4">
           <View className="mr-4">
             {book.coverUrl ? (
-              <Image 
-                source={{ uri: book.coverUrl }} 
+              <Image
+                source={{ uri: book.coverUrl }}
                 className="w-[120px] h-[180px] rounded-lg shadow-md"
                 resizeMode="cover"
               />
@@ -88,41 +99,48 @@ const BookDetailsScreen = ({ route, navigation }) => {
               </View>
             )}
           </View>
-          
+
           <View className="flex-1">
             <Text className="text-2xl font-bold mb-2">{book.title}</Text>
-            <Text className="text-gray-600 mb-4">Published: {book.publishDate}</Text>
-            
+            <Text className="text-gray-600 mb-4">
+              Published: {book.publishDate}
+            </Text>
+
             {/* Add to Library button */}
             <TouchableOpacity className="bg-[#FE9F1F] py-2 px-4 rounded-full mb-2 flex-row items-center justify-center">
               <Ionicons name="add" size={20} color="white" />
               <Text className="text-white font-bold ml-1">Add to Library</Text>
             </TouchableOpacity>
-            
+
             {/* Start Reading button */}
-            <TouchableOpacity 
+            <TouchableOpacity
               className="bg-white border border-[#FE9F1F] py-2 px-4 rounded-full flex-row items-center justify-center"
-              onPress={() => navigation.navigate('Reading', { book })}
+              onPress={() => navigation.navigate("Reading", { book })}
             >
               <Ionicons name="book-outline" size={20} color="#FE9F1F" />
-              <Text className="text-[#FE9F1F] font-bold ml-1">Start Reading</Text>
+              <Text className="text-[#FE9F1F] font-bold ml-1">
+                Start Reading
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
-        
+
         {/* Description */}
         <View className="px-4 py-4 bg-white mx-4 rounded-xl shadow-sm mb-4">
           <Text className="text-lg font-bold mb-2">Description</Text>
           <Text className="text-gray-700">{book.description}</Text>
         </View>
-        
+
         {/* Subjects/Categories */}
         {book.subjects && book.subjects.length > 0 && (
           <View className="px-4 py-4 bg-white mx-4 rounded-xl shadow-sm mb-4">
             <Text className="text-lg font-bold mb-2">Categories</Text>
             <View className="flex-row flex-wrap">
               {book.subjects.slice(0, 8).map((subject, index) => (
-                <View key={index} className="bg-gray-100 rounded-full px-3 py-1 mr-2 mb-2">
+                <View
+                  key={index}
+                  className="bg-gray-100 rounded-full px-3 py-1 mr-2 mb-2"
+                >
                   <Text className="text-sm text-gray-700">{subject}</Text>
                 </View>
               ))}

@@ -1,5 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Entypo, Ionicons, MaterialIcons, Fontisto } from "@expo/vector-icons";
 
 import HomeScreen from "../../screens/HomeScreen";
 import ChatScreen from "../../screens/ChatScreen";
@@ -72,6 +72,15 @@ function HomeBottomTabNavigator() {
           },
           tabBarIcon: ({ color, size }) => {
             return <Entypo name="chat" color={color} size={size} />;
+          },
+        }}
+      />
+      <BottomTab.Screen
+        name="Session"
+        component={SessionScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => {
+            return <Fontisto name="stopwatch" color={color} size={size} />;
           },
         }}
       />
