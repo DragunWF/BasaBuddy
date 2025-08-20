@@ -27,13 +27,13 @@ const descriptionContent = [
     title: "Chat with Tassie",
     description:
       "Tassie reacts to what you read! Talk to her and get fun, book-inspired replies.",
-    imageSource: require("../assets/onboarding/first.png"),
+    imageSource: require("../assets/onboarding/fourth.png"),
   },
   {
     title: "Tassie Never Forgets",
     description:
       "Your pet remembers your journey. Whether you pause or push on, Tassie stays with you.",
-    imageSource: require("../assets/onboarding/first.png"),
+    imageSource: require("../assets/onboarding/fifth.png"),
   },
 ];
 
