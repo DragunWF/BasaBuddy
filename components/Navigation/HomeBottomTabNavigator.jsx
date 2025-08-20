@@ -47,6 +47,15 @@ function HomeBottomTabNavigator() {
         }}
       />
       <BottomTab.Screen
+        name="Session"
+        component={SessionScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => {
+            return <MaterialIcons name="timer" color={color} size={size} />;
+          },
+        }}
+      />
+      <BottomTab.Screen
         name="Chat"
         component={ChatScreen}
         options={{
