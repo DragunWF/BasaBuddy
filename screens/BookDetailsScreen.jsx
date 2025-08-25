@@ -20,9 +20,11 @@ import {
   addBookToLikedBooks,
   addToBooksRead,
   addBookToCollection,
-  getUserCollections,
 } from "../helpers/storage/bookStorage";
-import { createCollection } from "../helpers/storage/collectionStorage";
+import {
+  getCollections,
+  createCollection,
+} from "../helpers/storage/collectionStorage";
 
 const BookDetailsScreen = ({ route, navigation }) => {
   const { bookId } = route.params;
@@ -62,8 +64,15 @@ const BookDetailsScreen = ({ route, navigation }) => {
 
   const loadUserCollections = async () => {
     try {
-      const collections = await getUserCollections();
-      setUserCollections(collections || []);
+      const collections = await getCollections();
+      const displayedCollections = [];
+      for (let collection of collections) {
+        displayedCollections.push({
+          id: collection.getId(),
+          title: collection.getTitle(),
+        });
+      }
+      setUserCollections(displayedCollections);
     } catch (err) {
       console.log("Error loading user collections:", err);
     }
@@ -73,7 +82,7 @@ const BookDetailsScreen = ({ route, navigation }) => {
     setShowLibraryOptions(true);
   };
 
-  const handleLibraryOptionSelect = async (option) => {
+  const handleLibraryOptionSelect = async (option, collectionId = null) => {
     try {
       let result;
       let successMessage = "";
@@ -93,7 +102,7 @@ const BookDetailsScreen = ({ route, navigation }) => {
           break;
         default:
           // Handle collection selection
-          result = await addBookToCollection(bookId, option);
+          result = await addBookToCollection(bookId, collectionId);
           successMessage = `Added to ${option}`;
           break;
       }
@@ -322,10 +331,12 @@ const BookDetailsScreen = ({ route, navigation }) => {
                   <TouchableOpacity
                     key={index}
                     className="flex-row items-center p-4 border-b border-gray-100"
-                    onPress={() => handleLibraryOptionSelect(collection.name)}
+                    onPress={() =>
+                      handleLibraryOptionSelect(collection.title, collection.id)
+                    }
                   >
                     <Ionicons name="folder-outline" size={24} color="#FE9F1F" />
-                    <Text className="ml-3 text-base">{collection.name}</Text>
+                    <Text className="ml-3 text-base">{collection.title}</Text>
                   </TouchableOpacity>
                 ))}
 

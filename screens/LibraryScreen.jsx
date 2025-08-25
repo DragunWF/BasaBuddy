@@ -15,19 +15,27 @@ import ToggleSwitch from "../components/ui/ToggleSwitch";
 import FloatingActionButton from "../components/ui/FloatingActionButton";
 import { Ionicons } from "@expo/vector-icons";
 
-import { getLibraryBooks } from "../helpers/storage/bookStorage";
+import {
+  getLibraryBooks,
+  getLikedBooks,
+  getBooksRead,
+} from "../helpers/storage/bookStorage";
 import { getBookDetails } from "../services/openLibraryService";
 import {
   getCollections,
   deleteCollection,
   updateCollection,
+  getCollectionBookCount,
 } from "../helpers/storage/collectionStorage";
 
 function LibraryScreen() {
   const [activeTab, setActiveTab] = useState("books");
-  const [author, setAuthor] = useState();
   const [userBooks, setUserBooks] = useState([]);
   const [userCollections, setUserCollections] = useState([]);
+
+  const [likedBooksCount, setLikedBooksCount] = useState(0);
+  const [finishedBooksCount, setFinishedBooksCount] = useState(0);
+
   const [showOptionsModal, setShowOptionsModal] = useState(false);
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState(null);
@@ -50,10 +58,16 @@ function LibraryScreen() {
           id: collection.getId(),
           title: collection.getTitle(),
           author: "You",
-          bookCount: 1,
+          bookCount: getCollectionBookCount(collection.getId()),
         });
       }
       setUserCollections(displayedCollections);
+    };
+    const fetchSpecialCollections = async () => {
+      const likedBooks = await getLikedBooks();
+      const finishedBooks = await getBooksRead();
+      setLikedBooksCount(likedBooks.length);
+      setFinishedBooksCount(finishedBooks.length);
     };
     const fetchProfile = async () => {
       const profileData = await fetchProfile();
@@ -66,6 +80,7 @@ function LibraryScreen() {
 
     fetchLibraryBooks();
     fetchCollections();
+    fetchSpecialCollections();
   }, []);
 
   const allBooks = [...userBooks];
@@ -170,14 +185,14 @@ function LibraryScreen() {
                 <View className="w-[48%]">
                   <ReadingListCard
                     type="liked"
-                    collection={{ bookCount: 1 }}
+                    collection={{ bookCount: likedBooksCount }}
                     onPress={() => handleCollectionPress({ type: "liked" })}
                   />
                 </View>
                 <View className="w-[48%]">
                   <ReadingListCard
                     type="finished"
-                    collection={{ bookCount: 1 }}
+                    collection={{ bookCount: finishedBooksCount }}
                     onPress={() => handleCollectionPress({ type: "finished" })}
                   />
                 </View>

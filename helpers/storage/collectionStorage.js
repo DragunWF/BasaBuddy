@@ -65,3 +65,14 @@ export async function createCollection(title) {
     return { success: false, error };
   }
 }
+
+export async function getCollectionBookCount(collectionId) {
+  try {
+    const savedBooks = (await getData(STORAGE_KEYS.savedBooks)) || [];
+    return savedBooks.filter((book) => book.collectionId === collectionId)
+      .length;
+  } catch (error) {
+    console.log("Error getting collection book count:", error);
+    return 0;
+  }
+}

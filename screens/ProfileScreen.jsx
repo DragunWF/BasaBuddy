@@ -1,16 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import Toast from "react-native-toast-message";
 
 import { fetchProfile } from "../helpers/storage/profileStorage";
 import { getLikedBooks, getBooksRead } from "../helpers/storage/bookStorage";
+import { getCollections } from "../helpers/storage/collectionStorage";
 
-const ProfileScreen = ({ navigation }) => {
+const ProfileScreen = () => {
+  const navigation = useNavigation();
+
   const [profile, setProfile] = useState(null);
   const [booksReadCount, setBooksReadCount] = useState(0);
   const [likedBooksCount, setLikedBooksCount] = useState(0);
   const [userLevel, setUserLevel] = useState(1);
+  const [userCollections, setUserCollections] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Load profile data when component mounts
@@ -25,13 +31,41 @@ const ProfileScreen = ({ navigation }) => {
         setProfile(profileData);
         setBooksReadCount(booksRead.length);
       } catch (error) {
-        console.error("Error loading profile:", error);
+        console.log("Error loading profile:", error);
+        Toast.show({
+          type: "error",
+          text1: "Error loading profile",
+          position: "bottom",
+        });
       } finally {
         setLoading(false);
       }
     };
+    const loadCollections = async () => {
+      try {
+        const collections = await getCollections();
+        const displayedCollections = [];
+        for (let collection of collections) {
+          displayedCollections.push({
+            id: collection.getId(),
+            title: collection.getTitle(),
+            creator: `${profile ? profile.getFirstName() : "user"}`,
+            coverImage: null, // Placeholder for now
+          });
+        }
+        setUserCollections(displayedCollections);
+      } catch (error) {
+        console.log("Error loading collections:", error);
+        Toast.show({
+          type: "error",
+          text1: "Error loading collections",
+          position: "bottom",
+        });
+      }
+    };
 
     loadProfile();
+    loadCollections();
   }, []);
 
   const userData = {
@@ -43,14 +77,16 @@ const ProfileScreen = ({ navigation }) => {
     userLevel: 0, // TODO: Implement level system
     todaysReading: 10, // minutes
     longestStreak: 10, // days
-    collections: [
-      {
-        id: "1",
-        title: "Collection Title",
-        creator: "user",
-        coverImage: null, // placeholder for now
+    collections: userCollections,
+  };
+
+  const handlePlusButtonPress = () => {
+    navigation.navigate("HomeNavigator", {
+      screen: "MainApp", // or whatever you called your bottom tab navigator inside HomeNavigator
+      params: {
+        screen: "Explore",
       },
-    ],
+    });
   };
 
   const handleBackPress = () => {
@@ -165,7 +201,10 @@ const ProfileScreen = ({ navigation }) => {
                   <Text className="text-gray-500">By {collection.creator}</Text>
                 </View>
               </View>
-              <TouchableOpacity className="absolute bottom-2 right-2 w-8 h-8 bg-white rounded-full shadow items-center justify-center">
+              <TouchableOpacity
+                className="absolute bottom-2 right-2 w-8 h-8 bg-white rounded-full shadow items-center justify-center"
+                onPress={handlePlusButtonPress}
+              >
                 <Text className="text-xl font-bold text-gray-500">+</Text>
               </TouchableOpacity>
             </View>
