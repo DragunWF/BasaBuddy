@@ -8,6 +8,7 @@ import Toast from "react-native-toast-message";
 import { fetchProfile } from "../helpers/storage/profileStorage";
 import { getLikedBooks, getBooksRead } from "../helpers/storage/bookStorage";
 import { getCollections } from "../helpers/storage/collectionStorage";
+import { getLevel } from "../helpers/storage/experienceStorage";
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -26,9 +27,11 @@ const ProfileScreen = () => {
         const profileData = await fetchProfile();
         const likedBooks = await getLikedBooks();
         const booksRead = await getBooksRead();
+        const level = await getLevel();
 
         setLikedBooksCount(likedBooks.length);
         setProfile(profileData);
+        setUserLevel(level);
         setBooksReadCount(booksRead.length);
       } catch (error) {
         console.log("Error loading profile:", error);
@@ -74,7 +77,7 @@ const ProfileScreen = () => {
       : "Username", // Fallback text
     booksRead: booksReadCount,
     likedBooks: likedBooksCount,
-    userLevel: 0, // TODO: Implement level system
+    userLevel,
     todaysReading: 10, // minutes
     longestStreak: 10, // days
     collections: userCollections,

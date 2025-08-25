@@ -1,79 +1,73 @@
-import React from 'react';
-import { ScrollView, View, Text } from 'react-native';
-import { CircularProgress } from 'react-native-circular-progress';
-import AchievementCard from '../ui/AchievementCard';
+import React, { useState, useEffect } from "react";
+import { ScrollView, View, Text } from "react-native";
+import { CircularProgress } from "react-native-circular-progress";
+import Toast from "react-native-toast-message";
+
+import AchievementCard from "../ui/AchievementCard";
+import { getAchievements } from "../../helpers/storage/achievementStorage";
+import {
+  getLevel,
+  getLevelTitle,
+  getExperience,
+} from "../../helpers/storage/experienceStorage";
 
 const StatusScreen = () => {
-  const userLevel = 10;
-  const userExp = 230;
-  const userTitle = "Bookworm";
-  
+  const [achievements, setAchievements] = useState([]);
+  const [userLevel, setUserLevel] = useState(10);
+  const [userExp, setUserExp] = useState(230);
+  const [userTitle, setUserTitle] = useState("Bookworm");
+
   // Calculate EXP progress for next level
-  const expForNextLevel = 300; // EXP needed for next level
+  const expForNextLevel = (userLevel + 1) * 100;
   const expProgress = (userExp / expForNextLevel) * 100;
 
-  const achievements = [
-    {
-      type: 'exp',
-      value: 20,
-      title: 'First Chapter Conqueror',
-      description: 'Complete your very first book in BasaBuddy'
-    },
-    {
-      type: 'completed',
-      title: 'Page Turner',
-      description: 'Finish 5 books — your curiosity is unstoppable!',
-      iconName: 'checkmark'
-    },
-    {
-      type: 'exp',
-      value: 20,
-      title: 'Literary Marathoner',
-      description: 'Read 10 books from cover to cover.'
-    },
-    {
-      type: 'completed',
-      title: 'Genre Explorer',
-      description: 'Complete at least 1 book from 3 different genres.',
-      iconName: 'checkmark'
-    },
-    {
-      type: 'exp',
-      value: 20,
-      title: 'Night Owl Reader',
-      description: 'Finish a book after reading mostly at night.'
-    },
-    {
-      type: 'completed',
-      title: 'Speed Reader',
-      description: 'Complete a book in less than 3 days.',
-      iconName: 'checkmark'
-    },
-    {
-      type: 'exp',
-      value: 20,
-      title: 'Classic Conqueror',
-      description: 'Finish a classic literature book.'
-    },
-    {
-      type: 'completed',
-      title: 'Series Slayer',
-      description: 'Complete all books in a single series.',
-      iconName: 'checkmark'
-    },
-    {
-      type: 'exp',
-      value: 20,
-      title: 'Knowledge Collector',
-      description: 'Read 5 non-fiction books in BasaBuddy.'
-    },
-    {
-      type: 'completed',
-      title: "Tassie's Best Friend",
-      description: "Finish 20 books — Tassie couldn't be prouder!",
-      iconName: 'checkmark'
+  useEffect(() => {
+    async function fetchAchievements() {
+      try {
+        const fetchedAchievements = await getAchievements();
+        const displayedAchievements = [];
+        for (let achievement of fetchedAchievements) {
+          displayedAchievements.push({
+            id: achievement.getId(),
+            type: achievement.getCompleted() ? "completed" : "exp",
+            value: achievement.getExpCount(),
+            title: achievement.getTitle(),
+            description: achievement.getDescription(),
+            iconName: achievement.getCompleted() ? "checkmark" : null,
+          });
+        }
+        setAchievements(displayedAchievements);
+      } catch (error) {
+        console.log("Error fetching achievements:", error);
+        Toast.show({
+          type: "error",
+          text1: "Error fetching achievements",
+          position: "bottom",
+        });
+      }
     }
-  ];
+    async function fetchLevel() {
+      try {
+        const fetchedLevel = await getLevel();
+        const fetchedTitle = await getLevelTitle();
+        const fetchedExp = await getExperience();
+
+        setUserLevel(fetchedLevel);
+        setUserTitle(fetchedTitle);
+        setUserExp(fetchedExp);
+      } catch (err) {
+        console.log("Error fetching level: ", err);
+        Toast.show({
+          type: "error",
+          text1: "Error fetching level and title",
+          position: "bottom",
+        });
+      }
+    }
+
+    fetchAchievements();
+    fetchLevel();
+  }, []);
 
   return (
     <ScrollView className="flex-1 px-6">
@@ -91,28 +85,36 @@ const StatusScreen = () => {
             lineCap="round"
           >
             {() => (
-              <View 
-                className="w-64 h-64 rounded-full border-4 border-gray-800 items-center justify-center" 
-                style={{backgroundColor: '#FE9F1F'}}
+              <View
+                className="w-64 h-64 rounded-full border-4 border-gray-800 items-center justify-center"
+                style={{ backgroundColor: "#FE9F1F" }}
               >
-                <Text className="text-white text-4xl font-bold mb-2">{userTitle}</Text>
-                <Text className="text-white text-8xl font-bold">{userLevel}</Text>
+                <Text className="text-white text-2xl font-bold mb-2">
+                  {userTitle}
+                </Text>
+                <Text className="text-white text-8xl font-bold">
+                  {userLevel}
+                </Text>
                 <Text className="text-white text-xl font-medium">LEVEL</Text>
               </View>
             )}
           </CircularProgress>
           <View className="absolute bottom-2">
-            <Text className="text-gray-800 text-sm font-medium">{userExp} EXP</Text>
+            <Text className="text-gray-800 text-sm font-medium">
+              {userExp} EXP
+            </Text>
           </View>
         </View>
 
         {/* Achievements Section */}
         <View className="w-full mt-12">
-          <Text className="text-gray-800 text-2xl font-bold mb-6">Achievements</Text>
-          
+          <Text className="text-gray-800 text-2xl font-bold mb-6">
+            Achievements
+          </Text>
+
           {achievements.map((achievement, index) => (
             <AchievementCard
-              key={index}
+              key={achievement.id || index}
               type={achievement.type}
               value={achievement.value}
               title={achievement.title}

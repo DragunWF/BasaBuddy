@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { defaultAchievements } from "../../constants/defaultAchievements";
 
 // Storage keys
 export const STORAGE_KEYS = {
@@ -9,6 +10,8 @@ export const STORAGE_KEYS = {
   savedBooks: "basabuddy_savedBooks",
   likedBooks: "basabuddy_likedBooks",
   initialized: "basabuddy_initialized",
+  achievements: "basabuddy_achievements",
+  experience: "basabuddy_experience",
 };
 
 // Helper function to get data from AsyncStorage
@@ -46,6 +49,7 @@ export async function init() {
       ];
 
       await storeData(STORAGE_KEYS.collections, defaultCollections);
+      await storeData(STORAGE_KEYS.achievements, defaultAchievements);
       await storeData(STORAGE_KEYS.booksRead, []);
       await storeData(STORAGE_KEYS.savedBooks, []);
       await storeData(STORAGE_KEYS.initialized, true);
