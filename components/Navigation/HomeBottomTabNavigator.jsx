@@ -6,7 +6,6 @@ import ChatScreen from "../../screens/ChatScreen";
 import ExploreScreen from "../../screens/ExploreScreen";
 import LibraryScreen from "../../screens/LibraryScreen";
 import SessionScreen from "../../screens/SessionScreen";
-import HomeStackNavigator from "./HomeStackNavigator";
 import { mainColors } from "../../constants/colors";
 
 const BottomTab = createBottomTabNavigator();
@@ -22,7 +21,7 @@ function HomeBottomTabNavigator() {
     >
       <BottomTab.Screen
         name="Home"
-        component={HomeStackNavigator}
+        component={HomeScreen}
         options={{
           tabBarIcon: ({ color, size }) => {
             return <Entypo name="home" color={color} size={size} />;

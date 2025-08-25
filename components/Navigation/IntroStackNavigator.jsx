@@ -5,6 +5,7 @@ import ProfileSetupScreen from "../../screens/ProfileSetupScreen";
 import ReadingGoalsScreen from "../../screens/ReadingGoalsScreen";
 import HomeBottomTabNavigator from "./HomeBottomTabNavigator";
 import ProfileScreen from "../../screens/ProfileScreen";
+import AppNavigator from "./AppNavigator";
 
 const Stack = createStackNavigator();
 
@@ -37,7 +38,7 @@ function IntroStackNavigator() {
       />
       <Stack.Screen
         name="HomeNavigator"
-        component={HomeBottomTabNavigator}
+        component={AppNavigator}
         options={{
           headerShown: false,
         }}
