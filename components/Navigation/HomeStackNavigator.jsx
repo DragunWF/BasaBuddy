@@ -9,15 +9,11 @@ const Stack = createStackNavigator();
 
 function HomeStackNavigator() {
   return (
-    <Stack.Navigator initialRouteName="Home">
-      <Stack.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{
-          headerShown: true,
-          headerTitleAlign: "center",
-        }}
-      />
+    <Stack.Navigator
+      initialRouteName="Home"
+      screenOptions={{ headerShown: false }}
+    >
+      <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="BookDetails" component={BookDetailsScreen} />
       <Stack.Screen name="Reading" component={ReadingScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />

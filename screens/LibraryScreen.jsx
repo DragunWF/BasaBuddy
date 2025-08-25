@@ -1,20 +1,37 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, SafeAreaView } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  SafeAreaView,
+  Alert,
+  Modal,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 import BookCard from "../components/ui/BookCard";
 import ReadingListCard from "../components/ui/ReadingListCard";
 import ToggleSwitch from "../components/ui/ToggleSwitch";
 import FloatingActionButton from "../components/ui/FloatingActionButton";
+import { Ionicons } from "@expo/vector-icons";
 
 import { getLibraryBooks } from "../helpers/storage/bookStorage";
 import { getBookDetails } from "../services/openLibraryService";
-import { getCollections } from "../helpers/storage/collectionStorage";
-import { fetchProfile } from "../helpers/storage/profileStorage";
+import {
+  getCollections,
+  deleteCollection,
+  updateCollection,
+} from "../helpers/storage/collectionStorage";
 
 function LibraryScreen() {
   const [activeTab, setActiveTab] = useState("books");
   const [author, setAuthor] = useState();
   const [userBooks, setUserBooks] = useState([]);
   const [userCollections, setUserCollections] = useState([]);
+  const [showOptionsModal, setShowOptionsModal] = useState(false);
+  const [showRenameModal, setShowRenameModal] = useState(false);
+  const [selectedCollection, setSelectedCollection] = useState(null);
+  const [newCollectionName, setNewCollectionName] = useState("");
 
   useEffect(() => {
     const fetchLibraryBooks = async () => {
@@ -65,8 +82,44 @@ function LibraryScreen() {
   };
 
   const handleMenuPress = (collection) => {
-    // Show menu options (Delete, Rename, etc.)
-    console.log("Menu pressed for:", collection);
+    setSelectedCollection(collection);
+    setShowOptionsModal(true);
+  };
+
+  const handleDeleteCollection = async () => {
+    try {
+      await deleteCollection(selectedCollection.id);
+      setUserCollections((prevCollections) =>
+        prevCollections.filter((c) => c.id !== selectedCollection.id)
+      );
+      setShowOptionsModal(false);
+      setSelectedCollection(null);
+    } catch (error) {
+      console.error("Delete collection error:", error);
+    }
+  };
+
+  const handleRenameCollection = async () => {
+    if (newCollectionName && newCollectionName.trim()) {
+      try {
+        await updateCollection(selectedCollection.id, {
+          title: newCollectionName.trim(),
+        });
+        setUserCollections((prevCollections) =>
+          prevCollections.map((c) =>
+            c.id === selectedCollection.id
+              ? { ...c, title: newCollectionName.trim() }
+              : c
+          )
+        );
+        setShowRenameModal(false);
+        setShowOptionsModal(false);
+        setSelectedCollection(null);
+        setNewCollectionName("");
+      } catch (error) {
+        console.error("Rename collection error:", error);
+      }
+    }
   };
 
   const handleBookAdded = (newBook) => {
@@ -150,6 +203,104 @@ function LibraryScreen() {
         onBookAdded={handleBookAdded}
         onCollectionAdded={handleCollectionAdded}
       />
+
+      {/* Collection Options Modal */}
+      <Modal
+        visible={showOptionsModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowOptionsModal(false)}
+      >
+        <View className="flex-1 bg-black bg-opacity-50 justify-center items-center px-4">
+          <View className="bg-white rounded-xl w-full max-w-sm">
+            <View className="p-4 border-b border-gray-200">
+              <Text className="text-lg font-bold text-center">
+                Collection Options
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              className="flex-row items-center p-4 border-b border-gray-100"
+              onPress={() => {
+                setShowOptionsModal(false);
+                setShowRenameModal(true);
+                setNewCollectionName(selectedCollection?.title || "");
+              }}
+            >
+              <Ionicons name="pencil-outline" size={24} color="#FE9F1F" />
+              <Text className="ml-3 text-base">Rename Collection</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="flex-row items-center p-4 border-b border-gray-100"
+              onPress={handleDeleteCollection}
+            >
+              <Ionicons name="trash-outline" size={24} color="#FF3B30" />
+              <Text className="ml-3 text-base text-red-600">
+                Delete Collection
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="p-4"
+              onPress={() => setShowOptionsModal(false)}
+            >
+              <Text className="text-center text-gray-500">Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Rename Collection Modal */}
+      <Modal
+        visible={showRenameModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowRenameModal(false)}
+      >
+        <View className="flex-1 bg-black bg-opacity-50 justify-center items-center px-4">
+          <View className="bg-white rounded-xl w-full max-w-sm">
+            <View className="p-4 border-b border-gray-200">
+              <Text className="text-lg font-bold text-center">
+                Rename Collection
+              </Text>
+            </View>
+
+            <View className="p-4">
+              <TextInput
+                className="border border-gray-300 rounded-lg px-3 py-2 mb-4"
+                placeholder="Enter new collection name"
+                value={newCollectionName}
+                onChangeText={setNewCollectionName}
+                autoFocus={true}
+                returnKeyType="done"
+                onSubmitEditing={handleRenameCollection}
+              />
+
+              <View className="flex-row space-x-3">
+                <TouchableOpacity
+                  className="flex-1 bg-gray-200 py-2 rounded-lg"
+                  onPress={() => {
+                    setShowRenameModal(false);
+                    setNewCollectionName("");
+                  }}
+                >
+                  <Text className="text-center text-gray-700">Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  className="flex-1 bg-[#FE9F1F] py-2 rounded-lg"
+                  onPress={handleRenameCollection}
+                >
+                  <Text className="text-center text-white font-bold">
+                    Rename
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
