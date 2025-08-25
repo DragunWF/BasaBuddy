@@ -1,12 +1,34 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import React, { useState, useEffect } from "react";
+import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+
+import { fetchProfile } from "../helpers/tools/database";
 
 const ProfileScreen = () => {
-  // Sample data - in a real app, this would come from user context or API
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Load profile data when component mounts
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const profileData = await fetchProfile();
+        setProfile(profileData);
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, []);
+
   const userData = {
-    username: 'Username',
+    username: profile
+      ? `${profile.getFirstName()} ${profile.getLastName()}`
+      : "Username", // Fallback text
     following: 0,
     followers: 0,
     booksRead: 0,
@@ -14,13 +36,24 @@ const ProfileScreen = () => {
     longestStreak: 10, // days
     collections: [
       {
-        id: '1',
-        title: 'Collection Title',
-        creator: 'user',
-        coverImage: null // placeholder for now
-      }
-    ]
+        id: "1",
+        title: "Collection Title",
+        creator: "user",
+        coverImage: null, // placeholder for now
+      },
+    ],
   };
+
+  // Show loading state while profile is being fetched
+  if (loading) {
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-1 justify-center items-center">
+          <Text>Loading profile...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -66,12 +99,14 @@ const ProfileScreen = () => {
                 <View className="flex-1">
                   <Text className="font-bold">Today's Reading</Text>
                   <View className="flex-row items-baseline">
-                    <Text className="text-xl font-bold">{userData.todaysReading}</Text>
+                    <Text className="text-xl font-bold">
+                      {userData.todaysReading}
+                    </Text>
                     <Text className="ml-1 text-xs">MINUTES</Text>
                   </View>
                 </View>
-                <Image 
-                  source={require('../assets/home/timer.png')} 
+                <Image
+                  source={require("../assets/home/timer.png")}
                   className="w-12 h-12"
                   resizeMode="contain"
                 />
@@ -84,12 +119,14 @@ const ProfileScreen = () => {
                 <View className="flex-1">
                   <Text className="font-bold">Longest Streak</Text>
                   <View className="flex-row items-baseline">
-                    <Text className="text-xl font-bold">{userData.longestStreak}</Text>
+                    <Text className="text-xl font-bold">
+                      {userData.longestStreak}
+                    </Text>
                     <Text className="ml-1 text-xs">DAYS</Text>
                   </View>
                 </View>
-                <Image 
-                  source={require('../assets/home/fire.png')} 
+                <Image
+                  source={require("../assets/home/fire.png")}
                   className="w-12 h-12"
                   resizeMode="contain"
                 />
@@ -101,7 +138,10 @@ const ProfileScreen = () => {
         {/* Collections */}
         <View className="mx-4 mt-6 mb-6">
           {userData.collections.map((collection) => (
-            <View key={collection.id} className="bg-white rounded-xl shadow-md mb-4 overflow-hidden">
+            <View
+              key={collection.id}
+              className="bg-white rounded-xl shadow-md mb-4 overflow-hidden"
+            >
               <View className="flex-row">
                 <View className="w-24 h-24 bg-gray-200" />
                 <View className="p-3 flex-1">
@@ -109,9 +149,7 @@ const ProfileScreen = () => {
                   <Text className="text-gray-500">By {collection.creator}</Text>
                 </View>
               </View>
-              <TouchableOpacity 
-                className="absolute bottom-2 right-2 w-8 h-8 bg-white rounded-full shadow items-center justify-center"
-              >
+              <TouchableOpacity className="absolute bottom-2 right-2 w-8 h-8 bg-white rounded-full shadow items-center justify-center">
                 <Text className="text-xl font-bold text-gray-500">+</Text>
               </TouchableOpacity>
             </View>
