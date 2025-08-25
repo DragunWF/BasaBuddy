@@ -1,61 +1,60 @@
-import * as SQLite from "expo-sqlite";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Profile from "../../models/profile";
 import Collection from "../../models/collection";
 
-const database = SQLite.openDatabaseAsync("basabuddy.db");
-const tables = {
-  profile: "profile",
-  booksRead: "booksRead",
-  collections: "collections",
-  savedBooks: "savedBooks",
+// Storage keys
+const STORAGE_KEYS = {
+  profile: "basabuddy_profile",
+  booksRead: "basabuddy_booksRead",
+  collections: "basabuddy_collections",
+  savedBooks: "basabuddy_savedBooks",
+  initialized: "basabuddy_initialized",
+};
+
+// Helper function to get data from AsyncStorage
+const getData = async (key) => {
+  try {
+    const jsonValue = await AsyncStorage.getItem(key);
+    return jsonValue != null ? JSON.parse(jsonValue) : null;
+  } catch (error) {
+    console.error(`Error getting data for key ${key}:`, error);
+    return null;
+  }
+};
+
+// Helper function to store data in AsyncStorage
+const storeData = async (key, value) => {
+  try {
+    const jsonValue = JSON.stringify(value);
+    await AsyncStorage.setItem(key, jsonValue);
+  } catch (error) {
+    console.error(`Error storing data for key ${key}:`, error);
+  }
 };
 
 export async function init() {
-  const db = await database;
+  try {
+    // Check if already initialized
+    const isInitialized = await getData(STORAGE_KEYS.initialized);
 
-  await db.runAsync(`
-    CREATE TABLE IF NOT EXISTS ${tables.booksRead} (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      title TEXT NOT NULL,
-      author TEXT NOT NULL,
-      description TEXT
-    );
-  `);
+    if (!isInitialized) {
+      // Initialize default collections
+      const defaultCollections = [
+        { id: 1, title: "Want to Read" },
+        { id: 2, title: "Currently Reading" },
+        { id: 3, title: "Read Books" },
+      ];
 
-  await db.runAsync(`
-    CREATE TABLE IF NOT EXISTS ${tables.profile} (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      firstName TEXT NOT NULL,
-      lastName TEXT NOT NULL,
-      favoriteGenre TEXT NOT NULL,
-      preferredReadingTime TEXT NOT NULL,
-      readingSpeed TEXT NOT NULL
-    );
-  `);
+      await storeData(STORAGE_KEYS.collections, defaultCollections);
+      await storeData(STORAGE_KEYS.booksRead, []);
+      await storeData(STORAGE_KEYS.savedBooks, []);
+      await storeData(STORAGE_KEYS.initialized, true);
 
-  await db.runAsync(`
-    CREATE TABLE IF NOT EXISTS ${tables.collections} (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      title TEXT NOT NULL
-    );
-  `);
-
-  await db.runAsync(`
-    CREATE TABLE IF NOT EXISTS ${tables.savedBooks} (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      bookId INTEGER NOT NULL,
-      collectionId INTEGER NOT NULL,
-      FOREIGN KEY (collectionId) REFERENCES collections(id)
-    )
-  `);
-
-  await db.runAsync(`
-    INSERT INTO ${tables.collections} (title)
-    VALUES ('Want to Read'),
-           ('Currently Reading'),
-           ('Read Books')
-  `);
+      console.log("AsyncStorage initialized with default data");
+    }
+  } catch (error) {
+    console.error("Error initializing AsyncStorage:", error);
+  }
 }
 
 /*
@@ -63,95 +62,204 @@ export async function init() {
   Do not use this for production.
 */
 export async function resetDatabase() {
-  const db = await database;
-  for (let key of Object.keys(tables)) {
-    await db.runAsync(`DROP TABLE IF EXISTS ${tables[key]}`);
+  try {
+    // Clear all stored data
+    await AsyncStorage.multiRemove([
+      STORAGE_KEYS.profile,
+      STORAGE_KEYS.booksRead,
+      STORAGE_KEYS.collections,
+      STORAGE_KEYS.savedBooks,
+      STORAGE_KEYS.initialized,
+    ]);
+
+    // Re-initialize
+    await init();
+    console.info("AsyncStorage has been reset!");
+  } catch (error) {
+    console.error("Error resetting AsyncStorage:", error);
   }
-  await init();
-  console.info("Database has been reset!");
 }
 
 export async function createProfile(profile) {
-  const db = await database;
+  try {
+    // Convert profile to plain object for storage
+    const profileData = {
+      id: 1, // Since we only store one profile
+      firstName: profile.getFirstName(),
+      lastName: profile.getLastName(),
+      favoriteGenre: profile.getFavoriteGenre(),
+      preferredReadingTime: profile.getPreferredReadingTime(),
+      readingSpeed: profile.getReadingSpeed(),
+      createdAt: new Date().toISOString(),
+    };
 
-  // If using object with getter methods
-  return await db.runAsync(
-    `INSERT INTO profile (firstName, lastName, favoriteGenre, preferredReadingTime, readingSpeed)
-     VALUES (?, ?, ?, ?, ?)`,
-    [
-      profile.getFirstName(),
-      profile.getLastName(),
-      profile.getFavoriteGenre(),
-      profile.getPreferredReadingTime(),
-      profile.getReadingSpeed(),
-    ]
-  );
+    await storeData(STORAGE_KEYS.profile, profileData);
+    return { success: true, insertId: 1 };
+  } catch (error) {
+    console.error("Error creating profile:", error);
+    return { success: false, error };
+  }
 }
 
-// Read Profile(s)
 export async function fetchProfile() {
-  const db = await database;
-  const result = await db.getFirstAsync(`SELECT * FROM profile LIMIT 1`);
+  try {
+    const profileData = await getData(STORAGE_KEYS.profile);
 
-  if (!result) return null;
+    if (!profileData) return null;
 
-  return new Profile(
-    result.firstName,
-    result.lastName,
-    result.favoriteGenre,
-    result.preferredReadingTime,
-    result.readingSpeed
-  );
+    return new Profile(
+      profileData.firstName,
+      profileData.lastName,
+      profileData.favoriteGenre,
+      profileData.preferredReadingTime,
+      profileData.readingSpeed
+    );
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+    return null;
+  }
 }
 
 export async function updateProfile(id, updatedProfile) {
-  const db = await database;
+  try {
+    const existingProfile = await getData(STORAGE_KEYS.profile);
 
-  // If using object with properties
-  if (typeof updatedProfile === "object" && !updatedProfile.getFirstName) {
-    return await db.runAsync(
-      `UPDATE profile 
-       SET firstName = ?, lastName = ?, favoriteGenre = ?, preferredReadingTime = ?, readingSpeed = ?
-       WHERE id = ?`,
-      [
-        updatedProfile.firstName,
-        updatedProfile.lastName,
-        updatedProfile.favoriteGenre,
-        updatedProfile.preferredReadingTime,
-        updatedProfile.readingSpeed,
-        id,
-      ]
-    );
+    if (!existingProfile) {
+      throw new Error("Profile not found");
+    }
+
+    let updatedData;
+
+    // If using object with properties
+    if (typeof updatedProfile === "object" && !updatedProfile.getFirstName) {
+      updatedData = {
+        ...existingProfile,
+        firstName: updatedProfile.firstName,
+        lastName: updatedProfile.lastName,
+        favoriteGenre: updatedProfile.favoriteGenre,
+        preferredReadingTime: updatedProfile.preferredReadingTime,
+        readingSpeed: updatedProfile.readingSpeed,
+        updatedAt: new Date().toISOString(),
+      };
+    } else {
+      // If using object with getter methods
+      updatedData = {
+        ...existingProfile,
+        firstName: updatedProfile.getFirstName(),
+        lastName: updatedProfile.getLastName(),
+        favoriteGenre: updatedProfile.getFavoriteGenre(),
+        preferredReadingTime: updatedProfile.getPreferredReadingTime(),
+        readingSpeed: updatedProfile.getReadingSpeed(),
+        updatedAt: new Date().toISOString(),
+      };
+    }
+
+    await storeData(STORAGE_KEYS.profile, updatedData);
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    return { success: false, error };
   }
-
-  // If using object with getter methods
-  return await db.runAsync(
-    `UPDATE profile 
-     SET firstName = ?, lastName = ?, favoriteGenre = ?, preferredReadingTime = ?, readingSpeed = ?
-     WHERE id = ?`,
-    [
-      updatedProfile.getFirstName(),
-      updatedProfile.getLastName(),
-      updatedProfile.getFavoriteGenre(),
-      updatedProfile.getPreferredReadingTime(),
-      updatedProfile.getReadingSpeed(),
-      id,
-    ]
-  );
 }
 
 export async function hasProfile() {
-  const db = await database;
-  const result = await db.getFirstAsync(
-    `SELECT COUNT(*) as count FROM profile`
-  );
-  return result.count > 0;
+  try {
+    const profile = await getData(STORAGE_KEYS.profile);
+    return profile !== null;
+  } catch (error) {
+    console.error("Error checking if profile exists:", error);
+    return false;
+  }
 }
 
 export async function getCollections() {
-  const db = await database;
-  const result = await db.getAllAsync(`SELECT * FROM collections`);
-  return result.map(
-    (collection) => new Collection(collection.id, collection.title)
-  );
+  try {
+    const collections = await getData(STORAGE_KEYS.collections);
+
+    if (!collections) return [];
+
+    return collections.map(
+      (collection) => new Collection(collection.id, collection.title)
+    );
+  } catch (error) {
+    console.error("Error getting collections:", error);
+    return [];
+  }
+}
+
+// Add a book to booksRead
+export async function addBookToRead(book) {
+  try {
+    const booksRead = (await getData(STORAGE_KEYS.booksRead)) || [];
+    const newBook = {
+      id: Date.now(), // Simple ID generation
+      title: book.title,
+      author: book.author,
+      description: book.description,
+      addedAt: new Date().toISOString(),
+    };
+
+    booksRead.push(newBook);
+    await storeData(STORAGE_KEYS.booksRead, booksRead);
+    return { success: true, book: newBook };
+  } catch (error) {
+    console.error("Error adding book to read:", error);
+    return { success: false, error };
+  }
+}
+
+export async function getBooksRead() {
+  try {
+    return (await getData(STORAGE_KEYS.booksRead)) || [];
+  } catch (error) {
+    console.error("Error getting books read:", error);
+    return [];
+  }
+}
+
+export async function addBookToCollection(bookId, collectionId) {
+  try {
+    const savedBooks = (await getData(STORAGE_KEYS.savedBooks)) || [];
+    const newSavedBook = {
+      id: Date.now(),
+      bookId: bookId,
+      collectionId: collectionId,
+      addedAt: new Date().toISOString(),
+    };
+
+    savedBooks.push(newSavedBook);
+    await storeData(STORAGE_KEYS.savedBooks, savedBooks);
+    return { success: true, savedBook: newSavedBook };
+  } catch (error) {
+    console.error("Error adding book to collection:", error);
+    return { success: false, error };
+  }
+}
+
+export async function getBooksInCollection(collectionId) {
+  try {
+    const savedBooks = (await getData(STORAGE_KEYS.savedBooks)) || [];
+    return savedBooks.filter((book) => book.collectionId === collectionId);
+  } catch (error) {
+    console.error("Error getting books in collection:", error);
+    return [];
+  }
+}
+
+export async function createCollection(title) {
+  try {
+    const collections = (await getData(STORAGE_KEYS.collections)) || [];
+    const newCollection = {
+      id: Date.now(),
+      title: title,
+      createdAt: new Date().toISOString(),
+    };
+
+    collections.push(newCollection);
+    await storeData(STORAGE_KEYS.collections, collections);
+    return { success: true, collection: newCollection };
+  } catch (error) {
+    console.error("Error creating collection:", error);
+    return { success: false, error };
+  }
 }
