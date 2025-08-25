@@ -7,6 +7,7 @@ export const STORAGE_KEYS = {
   collections: "basabuddy_collections",
   libraryBooks: "basabuddy_library",
   savedBooks: "basabuddy_savedBooks",
+  likedBooks: "basabuddy_likedBooks",
   initialized: "basabuddy_initialized",
 };
 

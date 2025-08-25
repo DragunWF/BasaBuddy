@@ -4,9 +4,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 import { fetchProfile } from "../helpers/storage/profileStorage";
+import { getLikedBooks, getBooksRead } from "../helpers/storage/bookStorage";
 
 const ProfileScreen = ({ navigation }) => {
   const [profile, setProfile] = useState(null);
+  const [booksReadCount, setBooksReadCount] = useState(0);
+  const [likedBooksCount, setLikedBooksCount] = useState(0);
+  const [userLevel, setUserLevel] = useState(1);
   const [loading, setLoading] = useState(true);
 
   // Load profile data when component mounts
@@ -14,7 +18,12 @@ const ProfileScreen = ({ navigation }) => {
     const loadProfile = async () => {
       try {
         const profileData = await fetchProfile();
+        const likedBooks = await getLikedBooks();
+        const booksRead = await getBooksRead();
+
+        setLikedBooksCount(likedBooks.length);
         setProfile(profileData);
+        setBooksReadCount(booksRead.length);
       } catch (error) {
         console.error("Error loading profile:", error);
       } finally {
@@ -29,9 +38,9 @@ const ProfileScreen = ({ navigation }) => {
     username: profile
       ? `${profile.getFirstName()} ${profile.getLastName()}`
       : "Username", // Fallback text
-    following: 0,
-    followers: 0,
-    booksRead: 0,
+    booksRead: booksReadCount,
+    likedBooks: likedBooksCount,
+    userLevel: 0, // TODO: Implement level system
     todaysReading: 10, // minutes
     longestStreak: 10, // days
     collections: [
@@ -84,12 +93,12 @@ const ProfileScreen = ({ navigation }) => {
         {/* Stats */}
         <View className="flex-row justify-center bg-white rounded-2xl mx-4 mt-4 shadow-lg overflow-hidden">
           <View className="flex-1 items-center py-3 border-r border-gray-200">
-            <Text className="text-xl font-bold">{userData.following}</Text>
-            <Text className="text-gray-500 text-sm">Following</Text>
+            <Text className="text-xl font-bold">{userData.likedBooks}</Text>
+            <Text className="text-gray-500 text-sm">Liked Books</Text>
           </View>
           <View className="flex-1 items-center py-3 border-r border-gray-200">
-            <Text className="text-xl font-bold">{userData.followers}</Text>
-            <Text className="text-gray-500 text-sm">Followers</Text>
+            <Text className="text-xl font-bold">{userData.userLevel}</Text>
+            <Text className="text-gray-500 text-sm">Level</Text>
           </View>
           <View className="flex-1 items-center py-3">
             <Text className="text-xl font-bold">{userData.booksRead}</Text>

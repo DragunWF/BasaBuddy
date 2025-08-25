@@ -1,6 +1,6 @@
 import { storeData, getData, STORAGE_KEYS } from "./storageCore";
 
-export async function addBookToRead(book) {
+export async function addToBooksRead(book) {
   try {
     const booksRead = (await getData(STORAGE_KEYS.booksRead)) || [];
     const newBook = {
@@ -98,6 +98,49 @@ export async function removeBookFromLibrary(bookId) {
     return { success: true };
   } catch (error) {
     console.log("Error removing book from library:", error);
+    return { success: false, error };
+  }
+}
+
+export async function addBookToLikedBooks(bookId) {
+  try {
+    const likedBooks = (await getData(STORAGE_KEYS.likedBooks)) || [];
+    if (likedBooks.find((b) => b.bookId === bookId)) {
+      return { success: false, error: "Book already in liked books" };
+    }
+
+    const newLikedBook = {
+      id: Date.now(),
+      bookId: bookId,
+      likedAt: new Date().toISOString(),
+    };
+
+    likedBooks.push(newLikedBook);
+    await storeData(STORAGE_KEYS.likedBooks, likedBooks);
+    return { success: true, likedBook: newLikedBook };
+  } catch (error) {
+    console.log("Error adding book to liked books:", error);
+    return { success: false, error };
+  }
+}
+
+export async function getLikedBooks() {
+  try {
+    return (await getData(STORAGE_KEYS.likedBooks)) || [];
+  } catch (error) {
+    console.log("Error getting liked books:", error);
+    return [];
+  }
+}
+
+export async function removeBookFromLiked(bookId) {
+  try {
+    let likedBooks = (await getData(STORAGE_KEYS.likedBooks)) || [];
+    likedBooks = likedBooks.filter((book) => book.bookId !== bookId);
+    await storeData(STORAGE_KEYS.likedBooks, likedBooks);
+    return { success: true };
+  } catch (error) {
+    console.log("Error removing book from liked books:", error);
     return { success: false, error };
   }
 }
