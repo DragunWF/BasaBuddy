@@ -3,9 +3,9 @@ import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
-import { fetchProfile } from "../helpers/storage/database";
+import { fetchProfile } from "../helpers/storage/profileStorage";
 
-const ProfileScreen = () => {
+const ProfileScreen = ({ navigation }) => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -44,6 +44,10 @@ const ProfileScreen = () => {
     ],
   };
 
+  const handleBackPress = () => {
+    navigation.goBack();
+  };
+
   // Show loading state while profile is being fetched
   if (loading) {
     return (
@@ -60,9 +64,12 @@ const ProfileScreen = () => {
       <ScrollView className="flex-1">
         {/* Header with settings */}
         <View className="flex-row justify-between items-center px-4 py-2">
-          <View className="w-10 h-10 justify-center items-center rounded-full bg-orange-400">
+          <TouchableOpacity
+            className="w-10 h-10 justify-center items-center rounded-full bg-orange-400"
+            onPress={handleBackPress}
+          >
             <Text className="text-white font-bold text-lg">B</Text>
-          </View>
+          </TouchableOpacity>
           <TouchableOpacity className="w-10 h-10 justify-center items-center">
             <Ionicons name="settings-outline" size={24} color="#888" />
           </TouchableOpacity>

@@ -3,7 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator } from "react-native";
 import Toast from "react-native-toast-message";
 
-import { init, resetDatabase } from "./helpers/storage/database";
+import { init, resetStorage } from "./helpers/storage/storageCore";
 import NavigationWrapper from "./components/Navigation/NavigationWrapper";
 import "./components/globals.css";
 
@@ -13,7 +13,7 @@ export default function App() {
   useEffect(() => {
     async function initializeDatabase() {
       try {
-        await resetDatabase();
+        await resetStorage();
         setDbInitialized(true);
       } catch (err) {
         console.error(

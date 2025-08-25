@@ -3,7 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import IntroStackNavigator from "./IntroStackNavigator";
 
 import ChatContextProvider from "../../store/ChatContext";
-import { hasProfile } from "../../helpers/storage/database";
+import { hasProfile } from "../../helpers/storage/profileStorage";
 import HomeBottomTabNavigator from "./HomeBottomTabNavigator";
 
 const NavigationWrapper = () => {
