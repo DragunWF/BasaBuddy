@@ -3,7 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator } from "react-native";
 import Toast from "react-native-toast-message";
 
-import { init, resetDatabase } from "./helpers/tools/database";
+import { init, resetDatabase } from "./helpers/storage/database";
 import NavigationWrapper from "./components/Navigation/NavigationWrapper";
 import "./components/globals.css";
 

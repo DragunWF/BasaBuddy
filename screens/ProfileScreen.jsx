@@ -3,7 +3,7 @@ import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
-import { fetchProfile } from "../helpers/tools/database";
+import { fetchProfile } from "../helpers/storage/database";
 
 const ProfileScreen = () => {
   const [profile, setProfile] = useState(null);

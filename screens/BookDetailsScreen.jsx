@@ -41,6 +41,15 @@ const BookDetailsScreen = ({ route, navigation }) => {
     }
   };
 
+  const handleAddToLibrary = () => {
+    // Logic to add book to user's library
+    Toast.show({
+      type: "success",
+      text1: "Added to Library",
+      text2: `${book.title} has been added to your library.`,
+    });
+  };
+
   if (loading) {
     return (
       <SafeAreaView className="flex-1 bg-gray-100 pt-10">
@@ -107,7 +116,10 @@ const BookDetailsScreen = ({ route, navigation }) => {
             </Text>
 
             {/* Add to Library button */}
-            <TouchableOpacity className="bg-[#FE9F1F] py-2 px-4 rounded-full mb-2 flex-row items-center justify-center">
+            <TouchableOpacity
+              className="bg-[#FE9F1F] py-2 px-4 rounded-full mb-2 flex-row items-center justify-center"
+              onPress={handleAddToLibrary}
+            >
               <Ionicons name="add" size={20} color="white" />
               <Text className="text-white font-bold ml-1">Add to Library</Text>
             </TouchableOpacity>
