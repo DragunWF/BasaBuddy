@@ -10,9 +10,24 @@ const MessageInput = memo(function MessageInput({
   onChange,
   onSendMessage,
   onSendImage,
+  disabled = false,
+  isLoading = false,
 }) {
   const chatContext = useContext(ChatContext);
-  const [inputHeight, setInputHeight] = useState(40); // default height
+  const [inputHeight, setInputHeight] = useState(40);
+
+  const handleKeyPress = ({ nativeEvent }) => {
+    if (nativeEvent.key === "Enter" && !nativeEvent.shiftKey) {
+      // Prevent adding a new line
+      nativeEvent.preventDefault?.();
+      // Only send if there's a valid message
+      if (message.trim().length > 0) {
+        onSendMessage();
+        // Clear the input by calling onChange with empty string
+        onChange("");
+      }
+    }
+  };
 
   return (
     <View>
@@ -33,11 +48,15 @@ const MessageInput = memo(function MessageInput({
           onChangeText={onChange}
           placeholder="Type your message..."
           placeholderTextColor={mainColors.black + "80"}
-          multiline
-          onContentSizeChange={(e) =>
-            setInputHeight(e.nativeEvent.contentSize.height)
-          }
-          onSubmitEditing={onSendMessage}
+          multiline={false} // disable multiline so Enter submits
+          returnKeyType="send" // changes keyboard button to "Send"
+          onSubmitEditing={() => {
+            if (message.trim().length > 0) {
+              onSendMessage();
+              onChange(""); // clear input
+            }
+          }}
+          disabled={disabled}
           textAlignVertical="center"
           editable={!chatContext.isGenerating}
         />
@@ -46,8 +65,13 @@ const MessageInput = memo(function MessageInput({
             onPress={onSendImage}
             icon="camera"
             iconType="fontawesome"
+            isLoading={isLoading}
           />
-          <IconButton onPress={onSendMessage} icon="send" />
+          <IconButton
+            onPress={onSendMessage}
+            icon="send"
+            isLoading={isLoading}
+          />
         </View>
       </View>
     </View>

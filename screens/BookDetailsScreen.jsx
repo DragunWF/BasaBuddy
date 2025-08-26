@@ -7,10 +7,24 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   SafeAreaView,
+  Modal,
+  TextInput,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { getBookDetails } from "../services/openLibraryService";
 import Toast from "react-native-toast-message";
+
+import { getBookDetails } from "../services/openLibraryService";
+import {
+  addBookToLibrary,
+  addBookToLikedBooks,
+  addToBooksRead,
+  addBookToCollection,
+} from "../helpers/storage/bookStorage";
+import {
+  getCollections,
+  createCollection,
+} from "../helpers/storage/collectionStorage";
 
 const BookDetailsScreen = ({ route, navigation }) => {
   const { bookId } = route.params;
@@ -18,8 +32,15 @@ const BookDetailsScreen = ({ route, navigation }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Modal states
+  const [showLibraryOptions, setShowLibraryOptions] = useState(false);
+  const [showNewCollectionModal, setShowNewCollectionModal] = useState(false);
+  const [newCollectionName, setNewCollectionName] = useState("");
+  const [userCollections, setUserCollections] = useState([]);
+
   useEffect(() => {
     fetchBookDetails();
+    loadUserCollections();
   }, [bookId]);
 
   const fetchBookDetails = async () => {
@@ -35,9 +56,116 @@ const BookDetailsScreen = ({ route, navigation }) => {
         text1: "Error fetching book details",
         text2: "Please try again.",
       });
-      console.error("Error fetching book details:", err);
+      console.log("Error fetching book details:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadUserCollections = async () => {
+    try {
+      const collections = await getCollections();
+      const displayedCollections = [];
+      for (let collection of collections) {
+        displayedCollections.push({
+          id: collection.getId(),
+          title: collection.getTitle(),
+        });
+      }
+      setUserCollections(displayedCollections);
+    } catch (err) {
+      console.log("Error loading user collections:", err);
+    }
+  };
+
+  const handleAddToLibrary = () => {
+    setShowLibraryOptions(true);
+  };
+
+  const handleLibraryOptionSelect = async (option, collectionId = null) => {
+    try {
+      let result;
+      let successMessage = "";
+
+      switch (option) {
+        case "liked":
+          result = await addBookToLikedBooks(bookId);
+          successMessage = "Added to Liked Books";
+          break;
+        case "finished":
+          result = await addToBooksRead(bookId);
+          successMessage = "Added to Finished Books";
+          break;
+        case "general":
+          result = await addBookToLibrary(bookId);
+          successMessage = "Added to Library";
+          break;
+        default:
+          // Handle collection selection
+          result = await addBookToCollection(bookId, collectionId);
+          successMessage = `Added to ${option}`;
+          break;
+      }
+
+      if (result.success) {
+        Toast.show({
+          type: "success",
+          text1: successMessage,
+          text2: `${book.title} has been added successfully.`,
+        });
+      } else {
+        Toast.show({
+          type: "info",
+          text1: "Already Added",
+          text2:
+            result.message || `${book.title} is already in this collection.`,
+        });
+      }
+    } catch (err) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to add book to collection.",
+      });
+      console.log("Error adding book to collection:", err);
+    } finally {
+      setShowLibraryOptions(false);
+    }
+  };
+
+  const handleCancelNewCollection = () => {
+    setNewCollectionName("");
+    setShowNewCollectionModal(false);
+    setShowLibraryOptions(true);
+  };
+
+  const handleCreateNewCollection = async () => {
+    if (!newCollectionName.trim()) {
+      Alert.alert("Error", "Please enter a collection name.");
+      return;
+    }
+
+    try {
+      const result = await createCollection(newCollectionName.trim());
+      if (result.success) {
+        await loadUserCollections(); // Refresh collections list
+        await addBookToCollection(bookId, newCollectionName.trim());
+
+        Toast.show({
+          type: "success",
+          text1: "Collection Created",
+          text2: `${book.title} added to "${newCollectionName}".`,
+        });
+
+        setNewCollectionName("");
+        setShowNewCollectionModal(false);
+        setShowLibraryOptions(false);
+      } else {
+        Alert.alert("Error", result.message || "Failed to create collection.");
+      }
+    } catch (err) {
+      Alert.alert("Error", "Failed to create collection.");
+      console.log("Error creating collection:", err);
     }
   };
 
@@ -107,7 +235,10 @@ const BookDetailsScreen = ({ route, navigation }) => {
             </Text>
 
             {/* Add to Library button */}
-            <TouchableOpacity className="bg-[#FE9F1F] py-2 px-4 rounded-full mb-2 flex-row items-center justify-center">
+            <TouchableOpacity
+              className="bg-[#FE9F1F] py-2 px-4 rounded-full mb-2 flex-row items-center justify-center"
+              onPress={handleAddToLibrary}
+            >
               <Ionicons name="add" size={20} color="white" />
               <Text className="text-white font-bold ml-1">Add to Library</Text>
             </TouchableOpacity>
@@ -148,6 +279,146 @@ const BookDetailsScreen = ({ route, navigation }) => {
           </View>
         )}
       </ScrollView>
+
+      {/* Modals */}
+      {showLibraryOptions && (
+        <Modal
+          visible={showLibraryOptions}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowLibraryOptions(false)}
+        >
+          <View className="flex-1 bg-black bg-opacity-50 justify-center items-center px-4">
+            <View className="bg-white rounded-xl w-full max-w-sm">
+              <View className="p-4 border-b border-gray-200">
+                <Text className="text-lg font-bold text-center">
+                  Add to Library
+                </Text>
+              </View>
+
+              <ScrollView className="max-h-96">
+                {/* Default options */}
+                <TouchableOpacity
+                  className="flex-row items-center p-4 border-b border-gray-100"
+                  onPress={() => handleLibraryOptionSelect("general")}
+                >
+                  <Ionicons name="library-outline" size={24} color="#FE9F1F" />
+                  <Text className="ml-3 text-base">General Library</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  className="flex-row items-center p-4 border-b border-gray-100"
+                  onPress={() => handleLibraryOptionSelect("liked")}
+                >
+                  <Ionicons name="heart-outline" size={24} color="#FE9F1F" />
+                  <Text className="ml-3 text-base">Liked Books</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  className="flex-row items-center p-4 border-b border-gray-100"
+                  onPress={() => handleLibraryOptionSelect("finished")}
+                >
+                  <Ionicons
+                    name="checkmark-circle-outline"
+                    size={24}
+                    color="#FE9F1F"
+                  />
+                  <Text className="ml-3 text-base">Finished Books</Text>
+                </TouchableOpacity>
+
+                {/* User collections */}
+                {userCollections.map((collection, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    className="flex-row items-center p-4 border-b border-gray-100"
+                    onPress={() =>
+                      handleLibraryOptionSelect(collection.title, collection.id)
+                    }
+                  >
+                    <Ionicons name="folder-outline" size={24} color="#FE9F1F" />
+                    <Text className="ml-3 text-base">{collection.title}</Text>
+                  </TouchableOpacity>
+                ))}
+
+                {/* Create new collection */}
+                <TouchableOpacity
+                  className="flex-row items-center p-4"
+                  onPress={() => {
+                    setShowLibraryOptions(false);
+                    setShowNewCollectionModal(true);
+                  }}
+                >
+                  <Ionicons
+                    name="add-circle-outline"
+                    size={24}
+                    color="#FE9F1F"
+                  />
+                  <Text className="ml-3 text-base font-medium">
+                    Create New Collection
+                  </Text>
+                </TouchableOpacity>
+              </ScrollView>
+
+              <TouchableOpacity
+                className="p-4 border-t border-gray-200"
+                onPress={() => setShowLibraryOptions(false)}
+              >
+                <Text className="text-center text-gray-500">Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
+
+      {showNewCollectionModal && (
+        <Modal
+          visible={true}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={handleCancelNewCollection}
+        >
+          <View className="flex-1 bg-black bg-opacity-50 justify-center items-center px-4">
+            <View className="bg-white rounded-xl w-full max-w-sm">
+              <View className="p-4 border-b border-gray-200">
+                <Text className="text-lg font-bold text-center">
+                  Create New Collection
+                </Text>
+              </View>
+
+              <View className="p-4">
+                <TextInput
+                  className="border border-gray-300 rounded-lg px-3 py-2 mb-4"
+                  placeholder="Enter collection name"
+                  value={newCollectionName}
+                  onChangeText={setNewCollectionName}
+                  autoFocus={true}
+                  returnKeyType="done"
+                  onSubmitEditing={handleCreateNewCollection}
+                  blurOnSubmit={false}
+                />
+
+                <View className="flex-row space-x-3">
+                  <TouchableOpacity
+                    className="flex-1 bg-gray-200 py-2 rounded-lg"
+                    onPress={handleCancelNewCollection}
+                  >
+                    <Text className="text-center text-gray-700">Cancel</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    className="flex-1 bg-[#FE9F1F] py-2 rounded-lg"
+                    onPress={handleCreateNewCollection}
+                  >
+                    <Text className="text-center text-white font-bold">
+                      Create
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
     </SafeAreaView>
   );
 };

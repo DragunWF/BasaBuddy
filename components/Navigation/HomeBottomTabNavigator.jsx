@@ -75,15 +75,6 @@ function HomeBottomTabNavigator() {
           },
         }}
       />
-      <BottomTab.Screen
-        name="Session"
-        component={SessionScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => {
-            return <Fontisto name="stopwatch" color={color} size={size} />;
-          },
-        }}
-      />
     </BottomTab.Navigator>
   );
 }

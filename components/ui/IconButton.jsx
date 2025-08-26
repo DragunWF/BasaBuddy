@@ -1,5 +1,4 @@
-import { StyleSheet, TouchableOpacity } from "react-native";
-
+import { StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { mainColors } from "../../constants/colors";
@@ -8,6 +7,7 @@ function IconButton({
   onPress,
   icon,
   style,
+  isLoading = false,
   iconType = "ionicons",
   size = 24,
   color = mainColors.white,
@@ -28,7 +28,11 @@ function IconButton({
       onPress={onPress}
       activeOpacity={0.7}
     >
-      {iconComponent}
+      {isLoading ? (
+        <ActivityIndicator size="small" color={color} />
+      ) : (
+        iconComponent
+      )}
     </TouchableOpacity>
   );
 }

@@ -1,4 +1,4 @@
-import { fetchProfile } from "../tools/database";
+import { fetchProfile } from "../storage/profileStorage";
 import {
   generateText,
   generateTextWithHistory,

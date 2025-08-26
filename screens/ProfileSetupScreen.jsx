@@ -6,7 +6,7 @@ import Button from "../components/ui/Button";
 import CustomTextInput from "../components/ui/CustomTextInput";
 import CustomDropdown from "../components/ui/CustomDropdown";
 import Profile from "../models/profile";
-import { createProfile } from "../helpers/tools/database";
+import { createProfile } from "../helpers/storage/profileStorage";
 
 // Note: Set this to true if you're testing for a faster profile setup
 const isPrefilled = true;

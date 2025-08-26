@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import AppNavigator from "./AppNavigator";
 import IntroStackNavigator from "./IntroStackNavigator";
 
 import ChatContextProvider from "../../store/ChatContext";
-import { hasProfile } from "../../helpers/tools/database";
+import { hasProfile } from "../../helpers/storage/profileStorage";
 import HomeBottomTabNavigator from "./HomeBottomTabNavigator";
+import AppNavigator from "./AppNavigator";
 
 const NavigationWrapper = () => {
   const [isProfileExist, setIsProfileExist] = useState(false);
@@ -21,10 +21,10 @@ const NavigationWrapper = () => {
   return (
     <ChatContextProvider>
       <NavigationContainer>
-        {isProfileExist ? <HomeBottomTabNavigator /> : <IntroStackNavigator />}
+        {isProfileExist ? <AppNavigator /> : <IntroStackNavigator />}
       </NavigationContainer>
     </ChatContextProvider>
   );
-}
+};
 
 export default NavigationWrapper;
