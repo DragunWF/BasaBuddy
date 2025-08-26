@@ -28,7 +28,7 @@ import {
   getCollectionBookCount,
 } from "../helpers/storage/collectionStorage";
 
-function LibraryScreen() {
+function LibraryScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState("books");
   const [userBooks, setUserBooks] = useState([]);
   const [userCollections, setUserCollections] = useState([]);
@@ -87,8 +87,7 @@ function LibraryScreen() {
   const allCollections = [...userCollections];
 
   const handleBookPress = (book) => {
-    // Navigate to book details or reading screen
-    console.log("Book pressed:", book);
+    navigation.navigate("BookDetails", { bookId: book.id });
   };
 
   const handleCollectionPress = (collection) => {
