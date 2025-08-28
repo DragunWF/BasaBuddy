@@ -91,8 +91,7 @@ function LibraryScreen({ navigation }) {
   };
 
   const handleCollectionPress = (collection) => {
-    // Navigate to collection details
-    console.log("Collection pressed:", collection);
+    navigation.navigate("CollectionDetails", { collection });
   };
 
   const handleMenuPress = (collection) => {

@@ -5,6 +5,7 @@ import HomeBottomTabNavigator from "./HomeBottomTabNavigator";
 import BookDetailsScreen from "../../screens/BookDetailsScreen";
 import ReadingScreen from "../../screens/ReadingScreen";
 import ProfileScreen from "../../screens/ProfileScreen";
+import CollectionDetailsScreen from "../../screens/CollectionDetailsScreen";
 import IntroStackNavigator from "./IntroStackNavigator";
 
 const Stack = createStackNavigator();
@@ -31,6 +32,8 @@ function AppNavigator() {
       <Stack.Screen name="Reading" component={ReadingScreen} />
 
       <Stack.Screen name="Profile" component={ProfileScreen} />
+
+      <Stack.Screen name="CollectionDetails" component={CollectionDetailsScreen} />
     </Stack.Navigator>
   );
 }
