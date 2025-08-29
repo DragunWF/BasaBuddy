@@ -3,6 +3,9 @@ import { storeData, getData, STORAGE_KEYS } from "./storageCore";
 export async function addToBooksRead(book) {
   try {
     const booksRead = (await getData(STORAGE_KEYS.booksRead)) || [];
+    if (booksRead.find((b) => b.bookId === book.bookId)) {
+      return { success: false, error: "Book already marked as read" };
+    }
     const newBook = {
       id: Date.now(), // Simple ID generation
       title: book.title,
@@ -42,6 +45,13 @@ export async function getBooksInCollection(collectionId) {
 export async function addBookToCollection(bookId, collectionId) {
   try {
     const savedBooks = (await getData(STORAGE_KEYS.savedBooks)) || [];
+    if (
+      savedBooks.find(
+        (b) => b.bookId === bookId && b.collectionId === collectionId
+      )
+    ) {
+      return { success: false, error: "Book already in collection" };
+    }
     const newSavedBook = {
       id: Date.now(),
       bookId: bookId,

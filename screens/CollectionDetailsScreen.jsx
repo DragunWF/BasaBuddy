@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  ScrollView,
   SafeAreaView,
   TouchableOpacity,
   FlatList,
@@ -10,7 +9,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import BookCard from "../components/ui/BookCard";
 import {
-  getCollectionBooks,
+  getBooksInCollection,
   getLikedBooks,
   getBooksRead,
 } from "../helpers/storage/bookStorage";
@@ -33,14 +32,14 @@ function CollectionDetailsScreen({ navigation, route }) {
       // Handle special collections
       if (collection.type === "liked") {
         const likedBooks = await getLikedBooks();
-        bookIds = likedBooks.map(book => book.bookId);
+        bookIds = likedBooks.map((book) => book.bookId);
       } else if (collection.type === "finished") {
         const finishedBooks = await getBooksRead();
-        bookIds = finishedBooks.map(book => book.bookId);
+        bookIds = finishedBooks.map((book) => book.bookId);
       } else {
         // Handle regular collections
-        const collectionBooks = await getCollectionBooks(collection.id);
-        bookIds = collectionBooks.map(book => book.bookId);
+        const collectionBooks = await getBooksInCollection(collection.id);
+        bookIds = collectionBooks.map((book) => book.bookId);
       }
 
       // Fetch book details for each book
@@ -74,6 +73,10 @@ function CollectionDetailsScreen({ navigation, route }) {
     return collection.title || "Collection";
   };
 
+  const addBookToCollectionHandler = () => {
+    navigation.navigate("Explore");
+  };
+
   const renderBookItem = ({ item }) => (
     <View className="w-[48%] mb-4">
       <BookCard book={item} onPress={() => handleBookPress(item)} />
@@ -91,9 +94,8 @@ function CollectionDetailsScreen({ navigation, route }) {
           >
             <Ionicons name="chevron-back" size={28} color="white" />
           </TouchableOpacity>
-
         </View>
-        
+
         <Text className="text-white text-2xl font-bold">
           {getCollectionTitle()}
         </Text>
@@ -108,7 +110,9 @@ function CollectionDetailsScreen({ navigation, route }) {
         ) : books.length === 0 ? (
           <View className="flex-1 justify-center items-center">
             <Ionicons name="book-outline" size={64} color="#D1D5DB" />
-            <Text className="text-gray-500 text-lg mt-4">No books in this collection</Text>
+            <Text className="text-gray-500 text-lg mt-4">
+              No books in this collection
+            </Text>
             <Text className="text-gray-400 text-sm mt-2 text-center">
               Add some books to get started
             </Text>
@@ -127,7 +131,10 @@ function CollectionDetailsScreen({ navigation, route }) {
 
       {/* Add Book Button */}
       <View className="absolute bottom-8 right-6">
-        <TouchableOpacity className="w-14 h-14 bg-[#FE9F1F] rounded-full items-center justify-center shadow-lg">
+        <TouchableOpacity
+          className="w-14 h-14 bg-[#FE9F1F] rounded-full items-center justify-center shadow-lg"
+          onPress={addBookToCollectionHandler}
+        >
           <Ionicons name="add" size={28} color="white" />
         </TouchableOpacity>
       </View>
