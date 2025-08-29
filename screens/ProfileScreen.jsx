@@ -9,6 +9,7 @@ import { fetchProfile } from "../helpers/storage/profileStorage";
 import { getLikedBooks, getBooksRead } from "../helpers/storage/bookStorage";
 import { getCollections } from "../helpers/storage/collectionStorage";
 import { getLevel } from "../helpers/storage/experienceStorage";
+import { getTodayReadingTime } from "../helpers/storage/timerStorage";
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -16,6 +17,7 @@ const ProfileScreen = () => {
   const [profile, setProfile] = useState(null);
   const [booksReadCount, setBooksReadCount] = useState(0);
   const [likedBooksCount, setLikedBooksCount] = useState(0);
+  const [todayReadingTime, setTodayReadingTime] = useState(0);
   const [userLevel, setUserLevel] = useState(1);
   const [userCollections, setUserCollections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -66,9 +68,23 @@ const ProfileScreen = () => {
         });
       }
     };
+    const loadTodayReadingTime = async () => {
+      try {
+        const minutes = await getTodayReadingTime();
+        setTodayReadingTime(minutes);
+      } catch (error) {
+        console.log("Error loading today's reading time: ", error);
+        Toast.show({
+          type: "error",
+          text1: "Error loading today's reading time",
+          position: "bottom",
+        });
+      }
+    };
 
     loadProfile();
     loadCollections();
+    loadTodayReadingTime();
   }, []);
 
   const userData = {
@@ -78,7 +94,7 @@ const ProfileScreen = () => {
     booksRead: booksReadCount,
     likedBooks: likedBooksCount,
     userLevel,
-    todaysReading: 10, // minutes
+    todaysReading: todayReadingTime, // minutes
     longestStreak: 10, // days
     collections: userCollections,
   };

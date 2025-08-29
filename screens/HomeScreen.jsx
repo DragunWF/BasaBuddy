@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { View, ScrollView, SafeAreaView } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 
 // Import custom components
 import ProfileHeader from "../components/ui/ProfileHeader";
@@ -8,7 +9,11 @@ import StatCard from "../components/ui/StatCard";
 import CategorySection from "../components/ui/CategorySection";
 import TrendingBooks from "../components/books/TrendingBooks";
 
+import { getTodayReadingTime } from "../helpers/storage/timerStorage";
+
 function HomeScreen({ navigation }) {
+  const [todayMinutes, setTodayMinutes] = useState(0); // default value
+
   // Sample data for categories
   const categories = [
     { id: "1", name: "Art", color: "#FF6B6B" },
@@ -18,6 +23,17 @@ function HomeScreen({ navigation }) {
     { id: "5", name: "Cooking", color: "#F4A261" },
     // Add more categories as needed
   ];
+
+  useFocusEffect(
+    useCallback(() => {
+      async function fetchTodayReadingTime() {
+        const minutes = await getTodayReadingTime();
+        setTodayMinutes(minutes);
+      }
+
+      fetchTodayReadingTime();
+    }, [])
+  );
 
   const handleProfilePress = () => {
     // Navigate to the ProfileScreen
@@ -51,8 +67,8 @@ function HomeScreen({ navigation }) {
           <View className="flex-1 ml-2">
             <StatCard
               title="Today's Reading"
-              value="10"
-              unit="MINUTES"
+              value={todayMinutes}
+              unit={todayMinutes === 1 ? "MINUTE" : "MINUTES"}
               image={require("../assets/home/timer.png")}
             />
             <StatCard

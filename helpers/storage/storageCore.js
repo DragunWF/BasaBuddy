@@ -12,6 +12,8 @@ export const STORAGE_KEYS = {
   initialized: "basabuddy_initialized",
   achievements: "basabuddy_achievements",
   experience: "basabuddy_experience",
+  readingSessions: "basabuddy_readingSessions",
+  dailyGoal: "basabuddy_dailyGoal",
 };
 
 // Helper function to get data from AsyncStorage
