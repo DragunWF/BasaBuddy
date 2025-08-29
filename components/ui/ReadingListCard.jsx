@@ -62,7 +62,7 @@ const ReadingListCard = ({
         </View>
       ) : (
         <Text className="text-gray-500 text-sm">
-          {collection?.bookCount || "1"}{" "}
+          {collection?.bookCount || "0"}{" "}
           {collection?.bookCount === 1 ? "book" : "books"}
         </Text>
       )}

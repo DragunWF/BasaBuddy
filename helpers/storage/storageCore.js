@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { defaultAchievements } from "../../constants/defaultAchievements";
+import { initialAchievements } from "../../constants/achievements";
 
 // Storage keys
 export const STORAGE_KEYS = {
@@ -45,11 +45,10 @@ export async function init() {
       const defaultCollections = [
         { id: 1, title: "Want to Read" },
         { id: 2, title: "Currently Reading" },
-        { id: 3, title: "Read Books" },
       ];
 
       await storeData(STORAGE_KEYS.collections, defaultCollections);
-      await storeData(STORAGE_KEYS.achievements, defaultAchievements);
+      await storeData(STORAGE_KEYS.achievements, initialAchievements);
       await storeData(STORAGE_KEYS.booksRead, []);
       await storeData(STORAGE_KEYS.savedBooks, []);
       await storeData(STORAGE_KEYS.initialized, true);
@@ -68,6 +67,11 @@ export async function init() {
 export async function resetStorage() {
   try {
     // Clear all stored data
+    const allKeys = [];
+    for (let key in STORAGE_KEYS) {
+      allKeys.push(key);
+    }
+    // await AsyncStorage.multiRemove(allKeys);
     await AsyncStorage.multiRemove([
       STORAGE_KEYS.profile,
       STORAGE_KEYS.booksRead,

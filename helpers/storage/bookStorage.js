@@ -1,4 +1,6 @@
 import { storeData, getData, STORAGE_KEYS } from "./storageCore";
+import { checkAndUnlockAchievements } from "../tools/achievementCog";
+import { ACHIEVEMENT_TRIGGERS } from "../../constants/achievements";
 
 export async function addToBooksRead(book) {
   try {
@@ -16,6 +18,10 @@ export async function addToBooksRead(book) {
 
     booksRead.push(newBook);
     await storeData(STORAGE_KEYS.booksRead, booksRead);
+    await checkAndUnlockAchievements(
+      ACHIEVEMENT_TRIGGERS.FINISHED_BOOKS_COUNT,
+      booksRead.length
+    );
     return { success: true, book: newBook };
   } catch (error) {
     console.log("Error adding book to read:", error);
@@ -127,6 +133,10 @@ export async function addBookToLikedBooks(bookId) {
 
     likedBooks.push(newLikedBook);
     await storeData(STORAGE_KEYS.likedBooks, likedBooks);
+    await checkAndUnlockAchievements(
+      ACHIEVEMENT_TRIGGERS.LIKED_BOOKS_COUNT,
+      likedBooks.length
+    );
     return { success: true, likedBook: newLikedBook };
   } catch (error) {
     console.log("Error adding book to liked books:", error);

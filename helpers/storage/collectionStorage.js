@@ -1,4 +1,6 @@
 import { storeData, getData, STORAGE_KEYS } from "./storageCore";
+import { checkAndUnlockAchievements } from "../tools/achievementCog";
+import { ACHIEVEMENT_TRIGGERS } from "../../constants/achievements";
 import Collection from "../../models/collection";
 
 export async function getCollections() {
@@ -59,6 +61,10 @@ export async function createCollection(title) {
 
     collections.push(newCollection);
     await storeData(STORAGE_KEYS.collections, collections);
+    await checkAndUnlockAchievements(
+      ACHIEVEMENT_TRIGGERS.COLLECTIONS_COUNT,
+      collections.length
+    );
     return {
       success: true,
       collection: new Collection(newCollection.id, newCollection.title),
