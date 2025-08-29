@@ -52,14 +52,17 @@ export async function createCollection(title) {
   try {
     const collections = (await getData(STORAGE_KEYS.collections)) || [];
     const newCollection = {
-      id: Date.now(),
+      id: Math.random() + Date.now(),
       title: title,
       createdAt: new Date().toISOString(),
     };
 
     collections.push(newCollection);
     await storeData(STORAGE_KEYS.collections, collections);
-    return { success: true, collection: newCollection };
+    return {
+      success: true,
+      collection: new Collection(newCollection.id, newCollection.title),
+    };
   } catch (error) {
     console.log("Error creating collection:", error);
     return { success: false, error };

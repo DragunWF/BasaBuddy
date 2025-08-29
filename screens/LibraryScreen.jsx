@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from "react";
+import { useState, useCallback } from "react";
 import {
   View,
   Text,
   ScrollView,
   SafeAreaView,
-  Alert,
   Modal,
   TextInput,
   TouchableOpacity,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+import Toast from "react-native-toast-message";
+
 import BookCard from "../components/ui/BookCard";
 import ReadingListCard from "../components/ui/ReadingListCard";
 import ToggleSwitch from "../components/ui/ToggleSwitch";
@@ -26,62 +28,112 @@ import {
   deleteCollection,
   updateCollection,
   getCollectionBookCount,
+  createCollection,
 } from "../helpers/storage/collectionStorage";
+import { fetchProfile } from "../helpers/storage/profileStorage";
 
 function LibraryScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState("books");
   const [userBooks, setUserBooks] = useState([]);
   const [userCollections, setUserCollections] = useState([]);
+  const [author, setAuthor] = useState("User");
 
   const [likedBooksCount, setLikedBooksCount] = useState(0);
   const [finishedBooksCount, setFinishedBooksCount] = useState(0);
 
+  // State for modals
   const [showOptionsModal, setShowOptionsModal] = useState(false);
   const [showRenameModal, setShowRenameModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false); // New state for create modal
+
+  // State for text inputs
   const [selectedCollection, setSelectedCollection] = useState(null);
   const [newCollectionName, setNewCollectionName] = useState("");
+  const [createCollectionName, setCreateCollectionName] = useState(""); // New state for create input
 
-  useEffect(() => {
-    const fetchLibraryBooks = async () => {
-      const books = await getLibraryBooks();
-      const displayedBooks = [];
-      for (let book of books) {
-        displayedBooks.push(await getBookDetails(book.bookId));
-      }
-      setUserBooks(displayedBooks || []);
-    };
-    const fetchCollections = async () => {
-      const collections = await getCollections();
-      const displayedCollections = [];
-      for (let collection of collections) {
-        displayedCollections.push({
-          id: collection.getId(),
-          title: collection.getTitle(),
-          author: "You",
-          bookCount: getCollectionBookCount(collection.getId()),
-        });
-      }
-      setUserCollections(displayedCollections);
-    };
-    const fetchSpecialCollections = async () => {
-      const likedBooks = await getLikedBooks();
-      const finishedBooks = await getBooksRead();
-      setLikedBooksCount(likedBooks.length);
-      setFinishedBooksCount(finishedBooks.length);
-    };
-    const fetchProfile = async () => {
-      const profileData = await fetchProfile();
-      setAuthor(
-        profileData
-          ? `${profileData.getFirstName()} ${profileData.getLastName()}`
-          : "Username"
-      );
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchLibraryBooks = async () => {
+        try {
+          const books = await getLibraryBooks();
+          const displayedBooks = [];
+          for (let book of books) {
+            displayedBooks.push(await getBookDetails(book.bookId));
+          }
+          setUserBooks(displayedBooks || []);
+        } catch (error) {
+          console.log("Error fetching library books:", error);
+          Toast.show({
+            type: "error",
+            text1: "Error fetching library books",
+            position: "bottom",
+          });
+        }
+      };
+      const fetchCollections = async () => {
+        try {
+          const collections = await getCollections();
+          const displayedCollections = [];
+          for (let collection of collections) {
+            displayedCollections.push({
+              id: collection.getId(),
+              title: collection.getTitle(),
+              author: "You",
+              bookCount: await getCollectionBookCount(collection.getId()),
+            });
+          }
+          setUserCollections(displayedCollections);
+        } catch (error) {
+          console.log("Error fetching collections:", error);
+          Toast.show({
+            type: "error",
+            text1: "Error fetching collections",
+            position: "bottom",
+          });
+        }
+      };
+      const fetchSpecialCollections = async () => {
+        try {
+          const likedBooks = await getLikedBooks();
+          const finishedBooks = await getBooksRead();
+          setLikedBooksCount(likedBooks.length);
+          setFinishedBooksCount(finishedBooks.length);
+        } catch (error) {
+          console.log(
+            "Error fetching liked and finished book collections:",
+            error
+          );
+          Toast.show({
+            type: "error",
+            text1: "Error fetching liked and finished book collections!",
+            position: "bottom",
+          });
+        }
+      };
+      const fetchProfileName = async () => {
+        try {
+          const profileData = await fetchProfile();
+          setAuthor(
+            profileData
+              ? `${profileData.getFirstName()} ${profileData.getLastName()}`
+              : "Username"
+          );
+        } catch (error) {
+          console.log("Error loading profile name:", error);
+          Toast.show({
+            type: "error",
+            text1: "Error loading profile name",
+            position: "bottom",
+          });
+        }
+      };
 
-    fetchLibraryBooks();
-    fetchCollections();
-    fetchSpecialCollections();
-  }, []);
+      fetchLibraryBooks();
+      fetchCollections();
+      fetchSpecialCollections();
+      fetchProfileName();
+    }, [])
+  );
 
   const allBooks = [...userBooks];
   const allCollections = [...userCollections];
@@ -107,6 +159,12 @@ function LibraryScreen({ navigation }) {
       );
       setShowOptionsModal(false);
       setSelectedCollection(null);
+
+      Toast.show({
+        type: "success",
+        text1: "Collection deleted successfully!",
+        position: "bottom",
+      });
     } catch (error) {
       console.error("Delete collection error:", error);
     }
@@ -129,6 +187,12 @@ function LibraryScreen({ navigation }) {
         setShowOptionsModal(false);
         setSelectedCollection(null);
         setNewCollectionName("");
+
+        Toast.show({
+          type: "success",
+          text1: "Collection renamed successfully!",
+          position: "bottom",
+        });
       } catch (error) {
         console.error("Rename collection error:", error);
       }
@@ -139,9 +203,50 @@ function LibraryScreen({ navigation }) {
     setUserBooks((prevBooks) => [...prevBooks, newBook]);
   };
 
+  // --- New and Updated Handlers ---
   const handleCollectionAdded = () => {
-    // Handle collection creation logic here
-    console.log("Collection added");
+    setShowCreateModal(true); // Open the create modal
+  };
+
+  const handleCreateCollection = async () => {
+    if (createCollectionName && createCollectionName.trim()) {
+      try {
+        const createCollectionResponse = await createCollection(
+          createCollectionName.trim()
+        );
+        if (!createCollectionResponse.success) {
+          Toast.show({
+            type: "error",
+            text1: "Failed to create collection",
+            position: "bottom",
+          });
+          setShowCreateModal(false);
+          return;
+        }
+        const newCollection = createCollectionResponse.collection;
+        const formattedCollection = {
+          id: newCollection.getId(),
+          title: newCollection.getTitle(),
+          author: author,
+          bookCount: 0,
+        };
+        setUserCollections((prev) => [...prev, formattedCollection]);
+        setShowCreateModal(false);
+        setCreateCollectionName("");
+        Toast.show({
+          type: "success",
+          text1: "Collection created successfully!",
+          position: "bottom",
+        });
+      } catch (error) {
+        console.error("Create collection error:", error);
+        Toast.show({
+          type: "error",
+          text1: "Failed to create collection",
+          position: "bottom",
+        });
+      }
+    }
   };
 
   return (
@@ -169,7 +274,7 @@ function LibraryScreen({ navigation }) {
           {activeTab === "books" ? (
             /* Books Grid */
             <View className="flex-row flex-wrap justify-between">
-              {allBooks.map((book, index) => (
+              {allBooks.map((book) => (
                 <View key={book.id} className="w-[48%]">
                   <BookCard book={book} onPress={() => handleBookPress(book)} />
                 </View>
@@ -307,6 +412,57 @@ function LibraryScreen({ navigation }) {
                 >
                   <Text className="text-center text-white font-bold">
                     Rename
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* --- New Create Collection Modal --- */}
+      <Modal
+        visible={showCreateModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowCreateModal(false)}
+      >
+        <View className="flex-1 bg-black bg-opacity-50 justify-center items-center px-4">
+          <View className="bg-white rounded-xl w-full max-w-sm">
+            <View className="p-4 border-b border-gray-200">
+              <Text className="text-lg font-bold text-center">
+                Create New Collection
+              </Text>
+            </View>
+
+            <View className="p-4">
+              <TextInput
+                className="border border-gray-300 rounded-lg px-3 py-2 mb-4"
+                placeholder="Enter collection name"
+                value={createCollectionName}
+                onChangeText={setCreateCollectionName}
+                autoFocus={true}
+                returnKeyType="done"
+                onSubmitEditing={handleCreateCollection}
+              />
+
+              <View className="flex-row space-x-3">
+                <TouchableOpacity
+                  className="flex-1 bg-gray-200 py-2 rounded-lg"
+                  onPress={() => {
+                    setShowCreateModal(false);
+                    setCreateCollectionName("");
+                  }}
+                >
+                  <Text className="text-center text-gray-700">Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  className="flex-1 bg-[#FE9F1F] py-2 rounded-lg"
+                  onPress={handleCreateCollection}
+                >
+                  <Text className="text-center text-white font-bold">
+                    Create
                   </Text>
                 </TouchableOpacity>
               </View>
