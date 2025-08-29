@@ -2,6 +2,7 @@ import { storeData, getData, STORAGE_KEYS } from "./storageCore";
 import { getLikedBooks, getLibraryBooks } from "./bookStorage";
 import { getCollections } from "./collectionStorage";
 import { ACHIEVEMENT_TRIGGERS } from "../../constants/achievements";
+import { addExperience } from "./experienceStorage";
 import Achievement from "../../models/achievement";
 
 export async function getAchievements() {
@@ -101,6 +102,10 @@ export async function tryUnlockAchievements() {
     });
 
     await storeData(STORAGE_KEYS.achievements, updatedAchievements);
+    for (let achievement of unlockedAchievements) {
+      await addExperience(achievement.expCount);
+    }
+
     return { success: true, unlockedAchievements };
   } catch (error) {
     console.log("Error trying to unlock achievements:", error);

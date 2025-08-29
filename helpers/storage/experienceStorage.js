@@ -1,5 +1,6 @@
 import { storeData, getData, STORAGE_KEYS } from "./storageCore";
 import { levelTitles } from "../../constants/levelTitles";
+import { expRequiredToLevelUp } from "../../constants/leveling";
 
 export async function addExperience(points) {
   try {
@@ -26,7 +27,7 @@ export async function getLevel() {
   try {
     const experience = await getExperience();
     // Simple level calculation: every 100 points = 1 level
-    return Math.floor(experience / 100);
+    return Math.floor(experience / expRequiredToLevelUp);
   } catch (error) {
     console.log("Error calculating level:", error);
     return 1;

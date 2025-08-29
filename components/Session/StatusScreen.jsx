@@ -11,6 +11,7 @@ import {
   getLevelTitle,
   getExperience,
 } from "../../helpers/storage/experienceStorage";
+import { expRequiredToLevelUp } from "../../constants/leveling";
 
 const StatusScreen = () => {
   const [achievements, setAchievements] = useState([]);
@@ -19,8 +20,8 @@ const StatusScreen = () => {
   const [userTitle, setUserTitle] = useState("Bookworm");
 
   // Calculate EXP progress for next level
-  const expForNextLevel = (userLevel + 1) * 100;
-  const expProgress = (userExp / expForNextLevel) * 100;
+  const expForNextLevel = (userLevel + 1) * expRequiredToLevelUp;
+  const expProgress = (userExp / expForNextLevel) * expRequiredToLevelUp;
 
   useFocusEffect(
     useCallback(() => {
