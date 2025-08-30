@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useCallback } from "react";
 import { ScrollView, View, Text, TouchableOpacity } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { CircularProgress } from "react-native-circular-progress";
 import {
@@ -20,16 +21,18 @@ const TimerScreen = ({
   const [dailyGoal, setDailyGoal] = useState(30); // In minutes
   const [todayMinutes, setTodayMinutes] = useState(0);
 
-  useEffect(() => {
-    // Load daily goal and today's reading time
-    const loadData = async () => {
-      const goal = await getDailyGoal();
-      const todayTime = await getTodayReadingTime();
-      setDailyGoal(goal);
-      setTodayMinutes(todayTime);
-    };
-    loadData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      // Load daily goal and today's reading time
+      const loadData = async () => {
+        const goal = await getDailyGoal();
+        const todayTime = await getTodayReadingTime();
+        setDailyGoal(goal);
+        setTodayMinutes(todayTime);
+      };
+      loadData();
+    }, [])
+  );
 
   // Calculate dynamic time values (MOVED UP)
   const totalPomodoroTime = pomodoroMinutes * 60; // Total time in seconds

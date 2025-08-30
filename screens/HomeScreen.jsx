@@ -10,9 +10,11 @@ import CategorySection from "../components/ui/CategorySection";
 import TrendingBooks from "../components/books/TrendingBooks";
 
 import { getTodayReadingTime } from "../helpers/storage/timerStorage";
+import { getCurrentStreak } from "../helpers/storage/streakStorage";
 
 function HomeScreen({ navigation }) {
-  const [todayMinutes, setTodayMinutes] = useState(0); // default value
+  const [todayMinutes, setTodayMinutes] = useState(0);
+  const [currentStreak, setCurrentStreak] = useState(0);
 
   // Sample data for categories
   const categories = [
@@ -30,8 +32,13 @@ function HomeScreen({ navigation }) {
         const minutes = await getTodayReadingTime();
         setTodayMinutes(minutes);
       }
+      async function fetchCurrentStreak() {
+        const streak = await getCurrentStreak();
+        setCurrentStreak(streak);
+      }
 
       fetchTodayReadingTime();
+      fetchCurrentStreak();
     }, [])
   );
 
@@ -72,9 +79,9 @@ function HomeScreen({ navigation }) {
               image={require("../assets/home/timer.png")}
             />
             <StatCard
-              title="Longest Streak"
-              value="10"
-              unit="DAYS"
+              title="Current Streak"
+              value={currentStreak}
+              unit={currentStreak === 1 ? "DAY" : "DAYS"}
               image={require("../assets/home/fire.png")}
             />
           </View>

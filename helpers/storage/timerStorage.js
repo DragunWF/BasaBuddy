@@ -1,11 +1,7 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getData, storeData } from "./storageCore";
+import { getData, storeData, TIMER_KEYS } from "./storageCore";
+import { updateStreak } from "./streakStorage";
 
 // Add these keys to storageCore.js STORAGE_KEYS
-const TIMER_KEYS = {
-  readingSessions: "basabuddy_readingSessions",
-  dailyGoal: "basabuddy_dailyGoal",
-};
 
 // Save a completed reading session
 export const saveReadingSession = async (minutes) => {
@@ -18,6 +14,9 @@ export const saveReadingSession = async (minutes) => {
 
     sessions.push(newSession);
     await storeData(TIMER_KEYS.readingSessions, sessions);
+
+    // Update streak after saving session
+    await updateStreak();
     return true;
   } catch (error) {
     console.error("Error saving reading session:", error);
@@ -44,7 +43,7 @@ export const getTodayReadingTime = async () => {
 export const getDailyGoal = async () => {
   try {
     const goal = await getData(TIMER_KEYS.dailyGoal);
-    return goal || 30; // Default 30 minutes
+    return goal || 5; // Default 5 minutes
   } catch (error) {
     console.error("Error getting daily goal:", error);
     return 30;
