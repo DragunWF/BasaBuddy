@@ -1,4 +1,8 @@
 import { storeData, getData, STORAGE_KEYS } from "./storageCore";
+import { getLikedBooks, getLibraryBooks } from "./bookStorage";
+import { getCollections } from "./collectionStorage";
+import { ACHIEVEMENT_TRIGGERS } from "../../constants/achievements";
+import { addExperience } from "./experienceStorage";
 import Achievement from "../../models/achievement";
 
 export async function getAchievements() {
@@ -14,6 +18,7 @@ export async function getAchievements() {
           achievement.title,
           achievement.description,
           achievement.expCount,
+          achievement.trigger,
           achievement.completed
         )
     );
@@ -40,6 +45,70 @@ export async function completeAchievement(achievementId) {
     return { success: true };
   } catch (error) {
     console.log("Error completing achievement:", error);
+    return { success: false, error };
+  }
+}
+
+export async function tryUnlockAchievements() {
+  try {
+    const unlockedAchievements = [];
+
+    const achievements = await getAchievements();
+    const likedBooks = await getLikedBooks();
+    const libraryBooks = await getLibraryBooks();
+    const collections = await getCollections();
+
+    const achievementsObjList = achievements.map((item) => {
+      return {
+        id: item.getId(),
+        title: item.getTitle(),
+        description: item.getDescription(),
+        expCount: item.getExpCount(),
+        completed: item.getCompleted(),
+        trigger: item.getRequiredTrigger(),
+      };
+    });
+
+    const updatedAchievements = achievementsObjList.map((achievement) => {
+      if (achievement.completed) {
+        return achievement; // Already completed
+      }
+
+      const requiredTrigger = achievement.trigger;
+      switch (requiredTrigger.type) {
+        case ACHIEVEMENT_TRIGGERS.LIKED_BOOKS_COUNT:
+          if (likedBooks.length >= requiredTrigger.count) {
+            achievement.completed = true;
+            unlockedAchievements.push(achievement);
+          }
+          break;
+        case ACHIEVEMENT_TRIGGERS.FINISHED_BOOKS_COUNT:
+          if (libraryBooks.length >= requiredTrigger.count) {
+            achievement.completed = true;
+            unlockedAchievements.push(achievement);
+          }
+          break;
+        case ACHIEVEMENT_TRIGGERS.COLLECTIONS_COUNT:
+          if (collections.length >= requiredTrigger.count) {
+            achievement.completed = true;
+            unlockedAchievements.push(achievement);
+          }
+          break;
+        default:
+          break;
+      }
+
+      return achievement;
+    });
+
+    await storeData(STORAGE_KEYS.achievements, updatedAchievements);
+    for (let achievement of unlockedAchievements) {
+      await addExperience(achievement.expCount);
+    }
+
+    return { success: true, unlockedAchievements };
+  } catch (error) {
+    console.log("Error trying to unlock achievements:", error);
     return { success: false, error };
   }
 }

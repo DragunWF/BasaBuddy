@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, Alert, Text, Animated } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import * as DocumentPicker from 'expo-document-picker';
+import React, { useState } from "react";
+import { View, TouchableOpacity, Alert, Text, Animated } from "react-native";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import * as DocumentPicker from "expo-document-picker";
 
-const FloatingActionButton = ({ activeTab, onBookAdded, onCollectionAdded }) => {
+const FloatingActionButton = ({
+  activeTab,
+  onBookAdded,
+  onCollectionAdded,
+}) => {
   const [isUploading, setIsUploading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [animation] = useState(new Animated.Value(0));
@@ -11,21 +15,21 @@ const FloatingActionButton = ({ activeTab, onBookAdded, onCollectionAdded }) => 
   const handlePDFUpload = async () => {
     try {
       setIsUploading(true);
-      
+
       const result = await DocumentPicker.getDocumentAsync({
-        type: 'application/pdf',
+        type: "application/pdf",
         copyToCacheDirectory: true,
       });
 
-      if (result.type === 'success') {
+      if (result.type === "success") {
         // Extract book title from filename (remove .pdf extension)
-        const bookTitle = result.name.replace(/\.pdf$/i, '');
-        
+        const bookTitle = result.name.replace(/\.pdf$/i, "");
+
         // Create book object
         const newBook = {
           id: Date.now(), // Simple ID generation
           title: bookTitle,
-          author: 'Unknown Author',
+          author: "Unknown Author",
           filePath: result.uri,
           fileName: result.name,
           fileSize: result.size,
@@ -40,31 +44,22 @@ const FloatingActionButton = ({ activeTab, onBookAdded, onCollectionAdded }) => 
         }
 
         Alert.alert(
-          'Success',
+          "Success",
           `"${bookTitle}" has been added to your library!`,
-          [{ text: 'OK' }]
+          [{ text: "OK" }]
         );
       }
     } catch (error) {
-      console.error('Error picking document:', error);
-      Alert.alert(
-        'Error',
-        'Failed to upload the PDF. Please try again.',
-        [{ text: 'OK' }]
-      );
+      console.error("Error picking document:", error);
+      Alert.alert("Error", "Failed to upload the PDF. Please try again.", [
+        { text: "OK" },
+      ]);
     } finally {
       setIsUploading(false);
     }
   };
 
   const handleAddCollection = () => {
-    // For now, just show an alert. You can implement collection creation logic here
-    Alert.alert(
-      'Add Collection',
-      'Collection creation feature coming soon!',
-      [{ text: 'OK' }]
-    );
-    
     if (onCollectionAdded) {
       onCollectionAdded();
     }
@@ -73,7 +68,7 @@ const FloatingActionButton = ({ activeTab, onBookAdded, onCollectionAdded }) => 
   const toggleExpanded = () => {
     const toValue = isExpanded ? 0 : 1;
     setIsExpanded(!isExpanded);
-    
+
     Animated.spring(animation, {
       toValue,
       useNativeDriver: true,
@@ -90,7 +85,7 @@ const FloatingActionButton = ({ activeTab, onBookAdded, onCollectionAdded }) => 
       tension: 100,
       friction: 8,
     }).start();
-    
+
     // Execute the action after animation
     setTimeout(() => {
       action();
@@ -98,49 +93,50 @@ const FloatingActionButton = ({ activeTab, onBookAdded, onCollectionAdded }) => 
   };
 
   const handleGoogleDrive = () => {
-    Alert.alert('Google Drive', 'Google Drive integration coming soon!');
+    Alert.alert("Google Drive", "Google Drive integration coming soon!");
   };
 
   const handleOneDrive = () => {
-    Alert.alert('OneDrive', 'OneDrive integration coming soon!');
+    Alert.alert("OneDrive", "OneDrive integration coming soon!");
   };
 
   const getOptionsForTab = () => {
-    if (activeTab === 'books') {
+    if (activeTab === "books") {
       return [
         {
-          icon: 'picture-as-pdf',
-          label: 'Upload PDF',
+          icon: "picture-as-pdf",
+          label: "Upload PDF",
           action: handlePDFUpload,
-          color: '#FF6B6B'
+          color: "#FF6B6B",
         },
         {
-          icon: 'cloud',
-          label: 'Google Drive',
+          icon: "cloud",
+          label: "Google Drive",
           action: handleGoogleDrive,
-          color: '#4285F4'
+          color: "#4285F4",
         },
         {
-          icon: 'cloud-upload',
-          label: 'OneDrive',
+          icon: "cloud-upload",
+          label: "OneDrive",
           action: handleOneDrive,
-          color: '#0078D4'
-        }
+          color: "#0078D4",
+        },
       ];
     } else {
       return [
         {
-          icon: 'create-new-folder',
-          label: 'New Collection',
+          icon: "create-new-folder",
+          label: "New Collection",
           action: handleAddCollection,
-          color: '#96CEB4'
+          color: "#96CEB4",
         },
         {
-          icon: 'import-export',
-          label: 'Import Collection',
-          action: () => Alert.alert('Import', 'Import collection feature coming soon!'),
-          color: '#FFEAA7'
-        }
+          icon: "import-export",
+          label: "Import Collection",
+          action: () =>
+            Alert.alert("Import", "Import collection feature coming soon!"),
+          color: "#FFEAA7",
+        },
       ];
     }
   };
@@ -166,7 +162,7 @@ const FloatingActionButton = ({ activeTab, onBookAdded, onCollectionAdded }) => 
             key={option.label}
             style={{
               transform: [{ translateY }, { scale }],
-              position: 'absolute',
+              position: "absolute",
               bottom: 0,
               right: 0,
             }}
@@ -180,7 +176,9 @@ const FloatingActionButton = ({ activeTab, onBookAdded, onCollectionAdded }) => 
             </TouchableOpacity>
             {isExpanded && (
               <View className="absolute right-14 top-2 bg-black bg-opacity-80 px-2 py-1 rounded">
-                <Text className="text-white text-xs whitespace-nowrap">{option.label}</Text>
+                <Text className="text-white text-xs whitespace-nowrap">
+                  {option.label}
+                </Text>
               </View>
             )}
           </Animated.View>
@@ -188,25 +186,27 @@ const FloatingActionButton = ({ activeTab, onBookAdded, onCollectionAdded }) => 
       })}
 
       {/* Main FAB */}
-      <TouchableOpacity 
+      <TouchableOpacity
         className="w-14 h-14 bg-white rounded-full items-center justify-center shadow-lg"
         onPress={toggleExpanded}
         disabled={isUploading}
       >
         <Animated.View
           style={{
-            transform: [{
-              rotate: animation.interpolate({
-                inputRange: [0, 1],
-                outputRange: ['0deg', '45deg'],
-              }),
-            }],
+            transform: [
+              {
+                rotate: animation.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ["0deg", "45deg"],
+                }),
+              },
+            ],
           }}
         >
-          <Icon 
-            name={isUploading ? "hourglass-empty" : "add"} 
-            size={28} 
-            color="#333" 
+          <Icon
+            name={isUploading ? "hourglass-empty" : "add"}
+            size={28}
+            color="#333"
           />
         </Animated.View>
       </TouchableOpacity>

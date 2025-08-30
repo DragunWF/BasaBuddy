@@ -9,6 +9,8 @@ import { fetchProfile } from "../helpers/storage/profileStorage";
 import { getLikedBooks, getBooksRead } from "../helpers/storage/bookStorage";
 import { getCollections } from "../helpers/storage/collectionStorage";
 import { getLevel } from "../helpers/storage/experienceStorage";
+import { getTodayReadingTime } from "../helpers/storage/timerStorage";
+import { getCurrentStreak } from "../helpers/storage/streakStorage";
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -16,6 +18,8 @@ const ProfileScreen = () => {
   const [profile, setProfile] = useState(null);
   const [booksReadCount, setBooksReadCount] = useState(0);
   const [likedBooksCount, setLikedBooksCount] = useState(0);
+  const [todayReadingTime, setTodayReadingTime] = useState(0);
+  const [currentStreak, setCurrentStreak] = useState(0);
   const [userLevel, setUserLevel] = useState(1);
   const [userCollections, setUserCollections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -66,9 +70,37 @@ const ProfileScreen = () => {
         });
       }
     };
+    const loadTodayReadingTime = async () => {
+      try {
+        const minutes = await getTodayReadingTime();
+        setTodayReadingTime(minutes);
+      } catch (error) {
+        console.log("Error loading today's reading time: ", error);
+        Toast.show({
+          type: "error",
+          text1: "Error loading today's reading time",
+          position: "bottom",
+        });
+      }
+    };
+    const loadCurrentStreak = async () => {
+      try {
+        const streak = await getCurrentStreak();
+        setCurrentStreak(streak);
+      } catch (error) {
+        console.log("Error loading the current streak: ", error);
+        Toast.show({
+          type: "error",
+          text1: "Error loading the current streak",
+          position: "bottom",
+        });
+      }
+    };
 
     loadProfile();
     loadCollections();
+    loadTodayReadingTime();
+    loadCurrentStreak();
   }, []);
 
   const userData = {
@@ -78,8 +110,8 @@ const ProfileScreen = () => {
     booksRead: booksReadCount,
     likedBooks: likedBooksCount,
     userLevel,
-    todaysReading: 10, // minutes
-    longestStreak: 10, // days
+    todaysReading: todayReadingTime, // minutes
+    currentStreak: currentStreak, // days
     collections: userCollections,
   };
 
@@ -175,7 +207,7 @@ const ProfileScreen = () => {
                   <Text className="font-bold">Longest Streak</Text>
                   <View className="flex-row items-baseline">
                     <Text className="text-xl font-bold">
-                      {userData.longestStreak}
+                      {userData.currentStreak}
                     </Text>
                     <Text className="ml-1 text-xs">DAYS</Text>
                   </View>

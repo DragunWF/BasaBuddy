@@ -1,5 +1,15 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { defaultAchievements } from "../../constants/defaultAchievements";
+import { initialAchievements } from "../../constants/achievements";
+
+export const STREAK_KEYS = {
+  streakData: "basabuddy_streakData",
+  lastReadDate: "basabuddy_lastReadDate",
+};
+
+export const TIMER_KEYS = {
+  readingSessions: "basabuddy_readingSessions",
+  dailyGoal: "basabuddy_dailyGoal",
+};
 
 // Storage keys
 export const STORAGE_KEYS = {
@@ -12,6 +22,28 @@ export const STORAGE_KEYS = {
   initialized: "basabuddy_initialized",
   achievements: "basabuddy_achievements",
   experience: "basabuddy_experience",
+  readingSessions: "basabuddy_readingSessions",
+  dailyGoal: "basabuddy_dailyGoal",
+  ...STREAK_KEYS,
+  ...TIMER_KEYS,
+};
+
+// Default values
+const DEFAULT_VALUES = {
+  profile: null,
+  booksRead: [],
+  collections: [
+    { id: 1, title: "Want to Read" },
+    { id: 2, title: "Currently Reading" },
+  ],
+  libraryBooks: [],
+  savedBooks: [],
+  likedBooks: [],
+  initialized: true,
+  achievements: initialAchievements,
+  experience: 0,
+  readingSessions: [],
+  dailyGoal: 1,
 };
 
 // Helper function to get data from AsyncStorage
@@ -41,23 +73,15 @@ export async function init() {
     const isInitialized = await getData(STORAGE_KEYS.initialized);
 
     if (!isInitialized) {
-      // Initialize default collections
-      const defaultCollections = [
-        { id: 1, title: "Want to Read" },
-        { id: 2, title: "Currently Reading" },
-        { id: 3, title: "Read Books" },
-      ];
-
-      await storeData(STORAGE_KEYS.collections, defaultCollections);
-      await storeData(STORAGE_KEYS.achievements, defaultAchievements);
-      await storeData(STORAGE_KEYS.booksRead, []);
-      await storeData(STORAGE_KEYS.savedBooks, []);
-      await storeData(STORAGE_KEYS.initialized, true);
+      // Initialize all storage keys with default values
+      for (const [key, defaultValue] of Object.entries(DEFAULT_VALUES)) {
+        await storeData(STORAGE_KEYS[key], defaultValue);
+      }
 
       console.log("AsyncStorage initialized with default data");
     }
   } catch (error) {
-    console.log("Error initializing AsyncStorage:", error);
+    console.error("Error initializing AsyncStorage:", error);
   }
 }
 
@@ -68,18 +92,17 @@ export async function init() {
 export async function resetStorage() {
   try {
     // Clear all stored data
-    await AsyncStorage.multiRemove([
-      STORAGE_KEYS.profile,
-      STORAGE_KEYS.booksRead,
-      STORAGE_KEYS.collections,
-      STORAGE_KEYS.savedBooks,
-      STORAGE_KEYS.initialized,
-    ]);
+    await AsyncStorage.multiRemove(Object.values(STORAGE_KEYS));
 
-    // Re-initialize
-    await init();
-    console.info("AsyncStorage has been reset!");
+    // Reset each key with its default value
+    for (const [key, defaultValue] of Object.entries(DEFAULT_VALUES)) {
+      await storeData(STORAGE_KEYS[key], defaultValue);
+    }
+
+    console.info("AsyncStorage has been reset to default values!");
+    return true;
   } catch (error) {
-    console.log("Error resetting AsyncStorage:", error);
+    console.error("Error resetting AsyncStorage:", error);
+    return false;
   }
 }
