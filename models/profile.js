@@ -6,6 +6,7 @@ class Profile extends Model {
   #favoriteGenre;
   #preferredReadingTime;
   #readingSpeed;
+  profileImage; // Add this line to store profile image
 
   constructor(firstName, lastName, favoriteGenre, readingTime, readingSpeed) {
     super(Math.random() + new Date().toString()); // There is only one profile
@@ -34,6 +35,15 @@ class Profile extends Model {
 
   getReadingSpeed() {
     return this.#readingSpeed;
+  }
+
+  // Add getter/setter for profile image
+  getProfileImage() {
+    return this.profileImage;
+  }
+
+  setProfileImage(uri) {
+    this.profileImage = uri;
   }
 }
 
