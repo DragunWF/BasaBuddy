@@ -38,6 +38,26 @@ export const tassieStickers = {
     require("../../assets/tassie/stickers/tassie-smirking-1.png"),
     require("../../assets/tassie/stickers/tassie-smirking-2.png"),
   ],
+  tassieCelebrating: [
+    require("../../assets/tassie/stickers/tassie-celebrating-1.png"),
+    require("../../assets/tassie/stickers/tassie-celebrating-2.png"),
+  ],
+  tassieEatingCookies: [
+    require("../../assets/tassie/stickers/tassie-eating-cookies-1.png"),
+    require("../../assets/tassie/stickers/tassie-eating-cookies-2.png"),
+  ],
+  tassieSleeping: [
+    require("../../assets/tassie/stickers/tassie-sleeping-1.png"),
+    require("../../assets/tassie/stickers/tassie-sleeping-2.png"),
+  ],
+  tassieWithGlasses: [
+    require("../../assets/tassie/stickers/tassie-with-glasses-1.png"),
+    require("../../assets/tassie/stickers/tassie-with-glasses-2.png"),
+  ],
+  tassieWithTearyEyes: [
+    require("../../assets/tassie/stickers/tassie-with-teary-eyes-1.png"),
+    require("../../assets/tassie/stickers/tassie-with-teary-eyes-2.png"),
+  ],
 };
 
 export const possibleTassieMoodNames = Object.keys(tassieMoods);
