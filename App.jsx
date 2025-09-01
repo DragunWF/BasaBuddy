@@ -13,6 +13,11 @@ export default function App() {
   useEffect(() => {
     async function initializeDatabase() {
       try {
+        /*
+          The method resetStorage() is primarily used for development and testing.
+          It is not recommended to use this method in production as it will delete all data.
+          Instead, use the init() method for production or for testing data persistence between sessions.
+        */
         await resetStorage();
         setDbInitialized(true);
       } catch (err) {
