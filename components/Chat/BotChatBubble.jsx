@@ -49,7 +49,13 @@ const BotChatBubble = ({ children, isText = true }) => {
       withTail={true}
       style={styles.chatBubble}
     >
-      {isText ? <Text style={styles.text}>{displayedText}</Text> : children}
+      {isText ? (
+        <Text style={styles.text} selectable={true}>
+          {displayedText}
+        </Text>
+      ) : (
+        children
+      )}
     </ChatBubble>
   );
 };
@@ -59,7 +65,13 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   text: {
-    color: mainColors.white,
+    color: mainColors.black, // Changed to black for better contrast
+    fontSize: 15,
+    lineHeight: 20,
+    textShadowColor: "rgba(255, 255, 255, 0.5)",
+    textShadowOffset: { width: 0, height: 0.5 },
+    textShadowRadius: 1,
+    letterSpacing: 0.2,
   },
 });
 

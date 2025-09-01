@@ -67,7 +67,7 @@ const ChatScreen = () => {
 
       // Get bot response
       const response = await getBotResponse(chatContext, trimmedMessage);
-      chatContext.addChat(response, false);
+      chatContext.addChat(JSON.stringify(response), false);
     } catch (err) {
       console.error("Error sending message:", err);
 
@@ -258,6 +258,16 @@ const ChatScreen = () => {
     [chatContext]
   );
 
+  const LoadingOverlay = () =>
+    isProcessingImage && (
+      <View style={styles.loadingOverlay}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#007AFF" />
+          <Text style={styles.loadingText}>Processing Image...</Text>
+        </View>
+      </View>
+    );
+
   // Initialize chat with better error handling
   useEffect(() => {
     let isMounted = true;
@@ -270,7 +280,7 @@ const ChatScreen = () => {
         const response = await getInitialBotResponse(chatContext);
 
         if (isMounted) {
-          chatContext.addChat(response, false);
+          chatContext.addChat(JSON.stringify(response), false);
           setHasInitialResponse(true);
           console.log("Initial response added successfully");
         }
@@ -293,17 +303,6 @@ const ChatScreen = () => {
       isMounted = false;
     };
   }, [chatContext, hasInitialResponse]);
-
-  // Loading overlay component
-  const LoadingOverlay = () =>
-    isProcessingImage && (
-      <View style={styles.loadingOverlay}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.loadingText}>Processing Image...</Text>
-        </View>
-      </View>
-    );
 
   return (
     <SafeAreaView style={styles.safeArea}>

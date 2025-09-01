@@ -8,7 +8,7 @@ export const mainColors = {
 
 export const chatBubbleColors = {
   player: "gray",
-  bot: mainColors.primary300,
+  bot: "rgba(251, 196, 95, 0.95)", // Slightly transparent version of primary300
   botActive: "gray",
 };
 
