@@ -3,19 +3,25 @@ import Model from "./model";
 class Profile extends Model {
   #firstName;
   #lastName;
-  #favoriteGenre;
+  #ageGroup;
   #preferredReadingTime;
   #readingSpeed;
+  #dailyGoal;
+  #preferredCategories;
+  profileImage;
 
-  constructor(firstName, lastName, favoriteGenre, readingTime, readingSpeed) {
-    super(Math.random() + new Date().toString()); // There is only one profile
+  constructor(firstName, lastName, ageGroup, readingTime, readingSpeed) {
+    super(Math.random() + new Date().toString());
     this.#firstName = firstName;
     this.#lastName = lastName;
-    this.#favoriteGenre = favoriteGenre;
+    this.#ageGroup = ageGroup;
     this.#preferredReadingTime = readingTime;
     this.#readingSpeed = readingSpeed;
+    this.#dailyGoal = null;
+    this.#preferredCategories = [];
   }
 
+  // Getters
   getFirstName() {
     return this.#firstName;
   }
@@ -24,8 +30,8 @@ class Profile extends Model {
     return this.#lastName;
   }
 
-  getFavoriteGenre() {
-    return this.#favoriteGenre;
+  getAgeGroup() {
+    return this.#ageGroup;
   }
 
   getPreferredReadingTime() {
@@ -34,6 +40,31 @@ class Profile extends Model {
 
   getReadingSpeed() {
     return this.#readingSpeed;
+  }
+
+  getDailyGoal() {
+    return this.#dailyGoal;
+  }
+
+  getPreferredCategories() {
+    return this.#preferredCategories;
+  }
+
+  getProfileImage() {
+    return this.profileImage;
+  }
+
+  // Setters
+  setDailyGoal(minutes) {
+    this.#dailyGoal = minutes;
+  }
+
+  setPreferredCategories(categories) {
+    this.#preferredCategories = categories;
+  }
+
+  setProfileImage(uri) {
+    this.profileImage = uri;
   }
 }
 

@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import Toast from "react-native-toast-message";
 import * as ImagePicker from "expo-image-picker";
+import { useFocusEffect } from "@react-navigation/native";
 
 import CustomBackground from "../components/Chat/CustomBackground";
 import MessageInput from "../components/Chat/MessageInput";
@@ -22,6 +23,7 @@ import {
   generateTassieInsights,
 } from "../helpers/chatbot/chatbot";
 import { performOCR } from "../services/ocrService";
+import { incrementMessageCount } from "../helpers/storage/chatStorage";
 
 const ChatScreen = () => {
   const chatContext = useContext(ChatContext);
@@ -64,10 +66,11 @@ const ChatScreen = () => {
     try {
       // Add user message immediately for better UX
       chatContext.addChat(trimmedMessage, true);
+      await incrementMessageCount();
 
       // Get bot response
       const response = await getBotResponse(chatContext, trimmedMessage);
-      chatContext.addChat(response, false);
+      chatContext.addChat(JSON.stringify(response), false);
     } catch (err) {
       console.error("Error sending message:", err);
 
@@ -258,6 +261,16 @@ const ChatScreen = () => {
     [chatContext]
   );
 
+  const LoadingOverlay = () =>
+    isProcessingImage && (
+      <View style={styles.loadingOverlay}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#007AFF" />
+          <Text style={styles.loadingText}>Processing Image...</Text>
+        </View>
+      </View>
+    );
+
   // Initialize chat with better error handling
   useEffect(() => {
     let isMounted = true;
@@ -270,7 +283,7 @@ const ChatScreen = () => {
         const response = await getInitialBotResponse(chatContext);
 
         if (isMounted) {
-          chatContext.addChat(response, false);
+          chatContext.addChat(JSON.stringify(response), false);
           setHasInitialResponse(true);
           console.log("Initial response added successfully");
         }
@@ -294,16 +307,25 @@ const ChatScreen = () => {
     };
   }, [chatContext, hasInitialResponse]);
 
-  // Loading overlay component
-  const LoadingOverlay = () =>
-    isProcessingImage && (
-      <View style={styles.loadingOverlay}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.loadingText}>Processing Image...</Text>
-        </View>
-      </View>
-    );
+  // Add useFocusEffect to refresh context when screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      const refreshChatContext = async () => {
+        try {
+          const response = await getInitialBotResponse(chatContext);
+          // Only update the prompt, don't add a new message
+          chatContext.setInitialChatbotPrompt(JSON.stringify(response));
+        } catch (error) {
+          console.error("Failed to refresh chat context:", error);
+        }
+      };
+
+      // Only refresh if we already had an initial response
+      if (hasInitialResponse) {
+        refreshChatContext();
+      }
+    }, [hasInitialResponse])
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>

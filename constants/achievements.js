@@ -2,6 +2,7 @@ export const ACHIEVEMENT_TRIGGERS = {
   LIKED_BOOKS_COUNT: "LIKED_BOOKS_COUNT",
   FINISHED_BOOKS_COUNT: "FINISHED_BOOKS_COUNT",
   COLLECTIONS_COUNT: "COLLECTIONS_COUNT",
+  TASSIE_MESSAGE_COUNT: "TASSIE_MESSAGE_COUNT", // TODO: Implement tassie achievements
 };
 
 export const initialAchievements = [
@@ -261,6 +262,96 @@ export const initialAchievements = [
     trigger: {
       type: ACHIEVEMENT_TRIGGERS.COLLECTIONS_COUNT,
       count: 25,
+    },
+  },
+  // 🐵 Tassie the Tarsier – Chatbot Achievements
+  {
+    id: 24,
+    title: "Hello Tassie!",
+    description: "Send your very first message to Tassie.",
+    expCount: 25,
+    completed: false,
+    trigger: {
+      type: ACHIEVEMENT_TRIGGERS.TASSIE_MESSAGE_COUNT,
+      count: 1,
+    },
+  },
+  {
+    id: 25,
+    title: "Getting Acquainted",
+    description: "Send 10 messages to Tassie.",
+    expCount: 60,
+    completed: false,
+    trigger: {
+      type: ACHIEVEMENT_TRIGGERS.TASSIE_MESSAGE_COUNT,
+      count: 10,
+    },
+  },
+  {
+    id: 26,
+    title: "Chatty Companion",
+    description: "Send 25 messages to Tassie.",
+    expCount: 90,
+    completed: false,
+    trigger: {
+      type: ACHIEVEMENT_TRIGGERS.TASSIE_MESSAGE_COUNT,
+      count: 25,
+    },
+  },
+  {
+    id: 27,
+    title: "Tarsier’s Friend",
+    description: "Send 50 messages to Tassie.",
+    expCount: 140,
+    completed: false,
+    trigger: {
+      type: ACHIEVEMENT_TRIGGERS.TASSIE_MESSAGE_COUNT,
+      count: 50,
+    },
+  },
+  {
+    id: 28,
+    title: "Trusted Confidant",
+    description: "Send 100 messages to Tassie.",
+    expCount: 220,
+    completed: false,
+    trigger: {
+      type: ACHIEVEMENT_TRIGGERS.TASSIE_MESSAGE_COUNT,
+      count: 100,
+    },
+  },
+  {
+    id: 29,
+    title: "Wise Whispers",
+    description: "Send 250 messages to Tassie.",
+    expCount: 350,
+    completed: false,
+    trigger: {
+      type: ACHIEVEMENT_TRIGGERS.TASSIE_MESSAGE_COUNT,
+      count: 250,
+    },
+  },
+  {
+    id: 30,
+    title: "Keeper of Lore",
+    description: "Send 500 messages to Tassie.",
+    expCount: 500,
+    completed: false,
+    trigger: {
+      type: ACHIEVEMENT_TRIGGERS.TASSIE_MESSAGE_COUNT,
+      count: 500,
+    },
+  },
+  {
+    id: 31,
+    title: "Symbiotic Sage",
+    description:
+      "Send 1000 messages to Tassie and unlock Tassie’s evolved form.",
+    expCount: 750,
+    completed: false,
+    trigger: {
+      type: ACHIEVEMENT_TRIGGERS.TASSIE_MESSAGE_COUNT,
+      count: 1000,
     },
   },
 ];

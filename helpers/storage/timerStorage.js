@@ -1,8 +1,6 @@
 import { getData, storeData, TIMER_KEYS } from "./storageCore";
 import { updateStreak } from "./streakStorage";
 
-// Add these keys to storageCore.js STORAGE_KEYS
-
 // Save a completed reading session
 export const saveReadingSession = async (minutes) => {
   try {
@@ -43,7 +41,7 @@ export const getTodayReadingTime = async () => {
 export const getDailyGoal = async () => {
   try {
     const goal = await getData(TIMER_KEYS.dailyGoal);
-    return goal || 5; // Default 5 minutes
+    return goal || 20; // Default 5 minutes
   } catch (error) {
     console.error("Error getting daily goal:", error);
     return 30;

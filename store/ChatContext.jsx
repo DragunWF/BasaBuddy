@@ -29,6 +29,13 @@ function ChatContextProvider({ children }) {
 
   function setInitialChatbotPrompt(prompt) {
     setChatbotPrompt(prompt);
+    // Optionally update the model's base context in the chat history
+    if (chatState.length > 0 && chatState[0].role === "model") {
+      dispatch({
+        type: ACTION_TYPE.UPDATE,
+        payload: { id: 0, data: { ...chatState[0], text: prompt } },
+      });
+    }
   }
 
   function addChat(message, isUser) {

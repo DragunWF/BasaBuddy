@@ -2,26 +2,50 @@ import { storeData, getData, STORAGE_KEYS } from "./storageCore";
 import { checkAndUnlockAchievements } from "../tools/achievementCog";
 import { ACHIEVEMENT_TRIGGERS } from "../../constants/achievements";
 
-export async function addToBooksRead(book) {
+async function ensureBookInLibrary(bookId) {
+  try {
+    const libraryBooks = (await getData(STORAGE_KEYS.libraryBooks)) || [];
+
+    // Check if book already exists in library
+    if (!libraryBooks.find((b) => b.bookId === bookId)) {
+      const newLibraryBook = {
+        id: Date.now() + Math.random(),
+        bookId: bookId,
+        collectionId: null,
+        addedAt: new Date().toISOString(),
+      };
+
+      libraryBooks.push(newLibraryBook);
+      await storeData(STORAGE_KEYS.libraryBooks, libraryBooks);
+    }
+  } catch (error) {
+    console.log("Error ensuring book in library:", error);
+  }
+}
+
+export async function addToBooksRead(bookId) {
   try {
     const booksRead = (await getData(STORAGE_KEYS.booksRead)) || [];
-    if (booksRead.find((b) => b.bookId === book.bookId)) {
+    if (booksRead.find((b) => b.bookId === bookId)) {
       return { success: false, error: "Book already marked as read" };
     }
+
     const newBook = {
-      id: Date.now(), // Simple ID generation
-      title: book.title,
-      author: book.author,
-      description: book.description,
+      id: Date.now() + Math.random(), // Simple ID generation
+      bookId: bookId,
+      collectionId: null,
       addedAt: new Date().toISOString(),
     };
 
     booksRead.push(newBook);
     await storeData(STORAGE_KEYS.booksRead, booksRead);
+    await ensureBookInLibrary(bookId);
     await checkAndUnlockAchievements(
       ACHIEVEMENT_TRIGGERS.FINISHED_BOOKS_COUNT,
       booksRead.length
     );
+
+    console.log({ success: true, book: newBook });
     return { success: true, book: newBook };
   } catch (error) {
     console.log("Error adding book to read:", error);
@@ -59,7 +83,7 @@ export async function addBookToCollection(bookId, collectionId) {
       return { success: false, error: "Book already in collection" };
     }
     const newSavedBook = {
-      id: Date.now(),
+      id: Date.now() + Math.random(),
       bookId: bookId,
       collectionId: collectionId,
       addedAt: new Date().toISOString(),
@@ -67,6 +91,8 @@ export async function addBookToCollection(bookId, collectionId) {
 
     savedBooks.push(newSavedBook);
     await storeData(STORAGE_KEYS.savedBooks, savedBooks);
+    await ensureBookInLibrary(bookId);
+
     return { success: true, savedBook: newSavedBook };
   } catch (error) {
     console.log("Error adding book to collection:", error);
@@ -82,7 +108,7 @@ export async function addBookToLibrary(bookId) {
     }
 
     const newSavedBook = {
-      id: Date.now(),
+      id: Date.now() + Math.random(),
       bookId: bookId,
       collectionId: null, // No specific collection
       addedAt: new Date().toISOString(),
@@ -99,7 +125,20 @@ export async function addBookToLibrary(bookId) {
 
 export async function getLibraryBooks() {
   try {
-    return (await getData(STORAGE_KEYS.libraryBooks)) || [];
+    const libraryBooks = (await getData(STORAGE_KEYS.libraryBooks)) || [];
+
+    // Remove duplicates by bookId, keeping the first occurrence
+    const uniqueBooks = libraryBooks.filter(
+      (book, index, self) =>
+        index === self.findIndex((b) => b.bookId === book.bookId)
+    );
+
+    // If duplicates were found, update the stored data
+    if (uniqueBooks.length !== libraryBooks.length) {
+      await storeData(STORAGE_KEYS.libraryBooks, uniqueBooks);
+    }
+
+    return uniqueBooks;
   } catch (error) {
     console.log("Error getting library books:", error);
     return [];
@@ -133,6 +172,7 @@ export async function addBookToLikedBooks(bookId) {
 
     likedBooks.push(newLikedBook);
     await storeData(STORAGE_KEYS.likedBooks, likedBooks);
+    await ensureBookInLibrary(bookId);
     await checkAndUnlockAchievements(
       ACHIEVEMENT_TRIGGERS.LIKED_BOOKS_COUNT,
       likedBooks.length
