@@ -23,29 +23,29 @@ async function ensureBookInLibrary(bookId) {
   }
 }
 
-export async function addToBooksRead(book) {
+export async function addToBooksRead(bookId) {
   try {
     const booksRead = (await getData(STORAGE_KEYS.booksRead)) || [];
-    if (booksRead.find((b) => b.bookId === book.bookId)) {
+    if (booksRead.find((b) => b.bookId === bookId)) {
       return { success: false, error: "Book already marked as read" };
     }
+
     const newBook = {
       id: Date.now() + Math.random(), // Simple ID generation
-      title: book.title,
-      author: book.author,
-      description: book.description,
-      bookId: book.bookId, // Make sure to store the bookId
+      bookId: bookId,
+      collectionId: null,
       addedAt: new Date().toISOString(),
     };
 
     booksRead.push(newBook);
     await storeData(STORAGE_KEYS.booksRead, booksRead);
-    await ensureBookInLibrary(book.bookId);
+    await ensureBookInLibrary(bookId);
     await checkAndUnlockAchievements(
       ACHIEVEMENT_TRIGGERS.FINISHED_BOOKS_COUNT,
       booksRead.length
     );
 
+    console.log({ success: true, book: newBook });
     return { success: true, book: newBook };
   } catch (error) {
     console.log("Error adding book to read:", error);
