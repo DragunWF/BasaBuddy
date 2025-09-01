@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { ScrollView, View, Text } from "react-native";
 import { CircularProgress } from "react-native-circular-progress";
 import { useFocusEffect } from "@react-navigation/native";
@@ -30,14 +30,19 @@ const StatusScreen = () => {
           const fetchedAchievements = await getAchievements();
           const displayedAchievements = [];
           for (let achievement of fetchedAchievements) {
-            displayedAchievements.push({
+            const formattedAchievement = {
               id: achievement.getId(),
               type: achievement.getCompleted() ? "completed" : "exp",
               value: achievement.getExpCount(),
               title: achievement.getTitle(),
               description: achievement.getDescription(),
               iconName: achievement.getCompleted() ? "checkmark" : null,
-            });
+            };
+            if (achievement.getCompleted()) {
+              displayedAchievements.unshift(formattedAchievement);
+            } else {
+              displayedAchievements.push(formattedAchievement);
+            }
           }
           setAchievements(displayedAchievements);
         } catch (error) {
