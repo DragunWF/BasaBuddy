@@ -1,162 +1,140 @@
 import { useState } from "react";
-import { StyleSheet, View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import Toast from "react-native-toast-message";
 
-import Button from "../components/ui/Button";
-import CustomTextInput from "../components/ui/CustomTextInput";
 import CustomDropdown from "../components/ui/CustomDropdown";
+import CustomTextInput from "../components/ui/CustomTextInput";
 import Profile from "../models/profile";
 import { createProfile } from "../helpers/storage/profileStorage";
 
-// Note: Set this to true if you're testing for a faster profile setup
-const isPrefilled = true;
+const AGE_GROUPS = [
+  "Child (under 12)",
+  "Teen (13-19)",
+  "Young Adult (20-29)",
+  "Adult (30-49)",
+  "Middle-aged (50-64)",
+  "Senior (65+)",
+];
 
-const ProfileSetupScreen = ({ navigation }) => {
-  const [firstName, setFirstName] = useState(isPrefilled ? "Jack" : "");
-  const [lastName, setLastName] = useState(isPrefilled ? "Sparrow" : "");
-  const [favoriteGenre, setFavoriteGenre] = useState(
-    isPrefilled ? "Fantasy" : ""
-  );
-  const [preferredReadingTime, setPreferredReadingTime] = useState(
-    isPrefilled ? "Morning" : ""
-  );
-  const [readingSpeed, setReadingSpeed] = useState(isPrefilled ? "Normal" : "");
+const READING_TIMES = ["Morning", "Afternoon", "Night"];
 
-  const readingTimeOptions = ["Morning", "Afternoon", "Evening", "Late Night"];
-  const readingSpeedOptions = ["Slow", "Normal", "Fast"];
+const READING_SPEEDS = ["Unsure", "Slow", "Normal", "Fast"];
 
-  const firstNameInputHandler = (enteredFirstName) => {
-    setFirstName(enteredFirstName);
-  };
+function ProfileSetupScreen({ navigation }) {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [ageGroup, setAgeGroup] = useState("");
+  const [preferredReadingTime, setPreferredReadingTime] = useState("");
+  const [readingSpeed, setReadingSpeed] = useState("");
 
-  const lastNameInputHandler = (enteredLastName) => {
-    setLastName(enteredLastName);
-  };
+  const handleSetup = async () => {
+    if (
+      !firstName ||
+      !lastName ||
+      !ageGroup ||
+      !preferredReadingTime ||
+      !readingSpeed
+    ) {
+      Toast.show({
+        type: "error",
+        text1: "Missing Information",
+        text2: "Please fill in all fields to continue",
+      });
+      return;
+    }
 
-  const favoriteGenreInputHandler = (enteredFavoriteGenre) => {
-    setFavoriteGenre(enteredFavoriteGenre);
-  };
+    const profile = new Profile(
+      firstName,
+      lastName,
+      ageGroup,
+      preferredReadingTime,
+      readingSpeed
+    );
 
-  const onSelectPreferredReadingTimeHandler = (selectedReadingTime) => {
-    setPreferredReadingTime(selectedReadingTime);
-  };
+    const result = await createProfile(profile);
 
-  const onSelectReadingSpeedHandler = (selectedReadingSpeed) => {
-    setReadingSpeed(selectedReadingSpeed);
-  };
-
-  const finishSetupHandler = async () => {
-    if (!firstName) {
-      showToastValidationEmptyMessage("First Name");
-    } else if (!lastName) {
-      showToastValidationEmptyMessage("Last Name");
-    } else if (!favoriteGenre) {
-      showToastValidationEmptyMessage("Favorite Genre");
-    } else if (!preferredReadingTime) {
-      showToastValidationEmptyMessage("Preferred Reading Time");
-    } else if (!readingSpeed) {
-      showToastValidationEmptyMessage("Reading Speed");
-    } else {
-      await createProfile(
-        new Profile(
-          firstName,
-          lastName,
-          favoriteGenre,
-          preferredReadingTime,
-          readingSpeed
-        )
-      );
+    if (result.success) {
       Toast.show({
         type: "success",
-        text1: "Finished Profile Setup!",
-        text2: "Your profile has been successfully set up!",
+        text1: "Profile Created",
+        text2: "Let's set up your reading goals!",
       });
       navigation.replace("ReadingGoals");
+    } else {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Could not create profile. Please try again.",
+      });
     }
   };
 
-  const showToastValidationEmptyMessage = (inputFieldName) => {
-    Toast.show({
-      type: "info",
-      text1: `Empty ${inputFieldName} Field!`,
-      text2: `Please enter your ${inputFieldName}.`,
-    });
-  };
-
   return (
-    <View style={styles.rootContainer}>
-      <ScrollView alwaysBounceVertical={false}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>Profile Setup</Text>
-        </View>
-        <View style={styles.textInputList}>
-          <CustomTextInput
-            style={styles.textInput}
-            onChangeText={firstNameInputHandler}
-            value={firstName}
-            label="First Name"
-            placeholder="Your first name"
-          />
-          <CustomTextInput
-            style={styles.textInput}
-            onChangeText={lastNameInputHandler}
-            value={lastName}
-            label="Last Name"
-            placeholder="Your last name"
-          />
-          <CustomTextInput
-            style={styles.textInput}
-            onChangeText={favoriteGenreInputHandler}
-            value={favoriteGenre}
-            label="Favorite Genre"
-            placeholder="Your favorite genre for books"
-          />
-          <CustomDropdown
-            label="Preferred Reading Time"
-            selectedValue={preferredReadingTime}
-            data={readingTimeOptions}
-            onSelect={onSelectPreferredReadingTimeHandler}
-          />
-          <CustomDropdown
-            label="Reading Speed"
-            selectedValue={readingSpeed}
-            data={readingSpeedOptions}
-            onSelect={onSelectReadingSpeedHandler}
-          />
-        </View>
-        <Button onPress={finishSetupHandler} style={styles.finishButton}>
-          Finish Setup
-        </Button>
-      </ScrollView>
-    </View>
-  );
-};
+    <ScrollView className="flex-1 bg-white px-6">
+      <Text className="text-3xl font-bold mt-8 mb-6">Profile Setup</Text>
 
-const styles = StyleSheet.create({
-  rootContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  titleContainer: {
-    marginTop: 18,
-    marginBottom: 12,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    textAlign: "left",
-  },
-  textInputList: {
-    flex: 1,
-  },
-  textInput: {
-    minWidth: "80%",
-  },
-  finishButton: {
-    minWidth: "75%",
-    marginTop: 22,
-  },
-});
+      <CustomTextInput
+        label="First Name"
+        value={firstName}
+        onChangeText={setFirstName}
+        placeholder="Enter your first name"
+      />
+
+      <CustomTextInput
+        label="Last Name"
+        value={lastName}
+        onChangeText={setLastName}
+        placeholder="Enter your last name"
+      />
+
+      <CustomDropdown
+        label="Age Group"
+        data={AGE_GROUPS}
+        selectedValue={ageGroup}
+        onSelect={setAgeGroup}
+      />
+
+      <CustomDropdown
+        label="Preferred Reading Time"
+        data={READING_TIMES}
+        selectedValue={preferredReadingTime}
+        onSelect={setPreferredReadingTime}
+      />
+
+      <CustomDropdown
+        label="Reading Speed"
+        data={READING_SPEEDS}
+        selectedValue={readingSpeed}
+        onSelect={setReadingSpeed}
+      />
+
+      <View className="mt-8 mb-6">
+        <TouchableOpacity
+          className={`py-4 rounded-lg ${
+            !firstName ||
+            !lastName ||
+            !ageGroup ||
+            !preferredReadingTime ||
+            !readingSpeed
+              ? "bg-gray-300"
+              : "bg-orange-400"
+          }`}
+          onPress={handleSetup}
+          disabled={
+            !firstName ||
+            !lastName ||
+            !ageGroup ||
+            !preferredReadingTime ||
+            !readingSpeed
+          }
+        >
+          <Text className="text-white text-center text-lg font-medium">
+            Continue
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  );
+}
 
 export default ProfileSetupScreen;

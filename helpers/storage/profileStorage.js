@@ -27,73 +27,74 @@ export async function createProfile(profile) {
       id: 1,
       firstName: profile.getFirstName(),
       lastName: profile.getLastName(),
-      favoriteGenre: profile.getFavoriteGenre(),
+      ageGroup: profile.getAgeGroup(),
       preferredReadingTime: profile.getPreferredReadingTime(),
       readingSpeed: profile.getReadingSpeed(),
-      profileImage: null, // Add this field
+      dailyGoal: null,
+      preferredCategories: [],
+      profileImage: null,
       createdAt: new Date().toISOString(),
     };
 
     await storeData(STORAGE_KEYS.profile, profileData);
     return { success: true, insertId: 1 };
   } catch (error) {
-    console.log("Error creating profile:", error);
+    console.error("Error creating profile:", error);
     return { success: false, error };
   }
 }
 
-export async function updateProfilePicture(imageUri) {
+export async function updateReadingGoals(dailyGoal, categories) {
   try {
     const existingProfile = await getData(STORAGE_KEYS.profile);
     if (!existingProfile) {
       throw new Error("Profile not found");
     }
 
-    // If there's an existing profile image, delete it
-    if (existingProfile.profileImage) {
-      try {
-        await FileSystem.deleteAsync(existingProfile.profileImage);
-      } catch (error) {
-        console.log("Error deleting old profile image:", error);
-      }
-    }
-
-    // Save the new image
-    const savedImageUri = await saveImageToFileSystem(imageUri);
-
     const updatedProfile = {
       ...existingProfile,
-      profileImage: savedImageUri,
+      dailyGoal,
+      preferredCategories: categories,
       updatedAt: new Date().toISOString(),
     };
 
     await storeData(STORAGE_KEYS.profile, updatedProfile);
-    return { success: true, imageUri: savedImageUri };
+    return { success: true };
   } catch (error) {
-    console.log("Error updating profile picture:", error);
+    console.error("Error updating reading goals:", error);
     return { success: false, error };
   }
 }
 
+// Update fetchProfile to include new fields
 export async function fetchProfile() {
   try {
     const profileData = await getData(STORAGE_KEYS.profile);
-
     if (!profileData) return null;
 
     const profile = new Profile(
       profileData.firstName,
       profileData.lastName,
-      profileData.favoriteGenre,
+      profileData.ageGroup,
       profileData.preferredReadingTime,
       profileData.readingSpeed
     );
 
-    profile.profileImage = profileData.profileImage;
+    if (profileData.dailyGoal) {
+      profile.setDailyGoal(profileData.dailyGoal);
+    }
+
+    if (profileData.preferredCategories) {
+      profile.setPreferredCategories(profileData.preferredCategories);
+    }
+
+    if (profileData.profileImage) {
+      profile.setProfileImage(profileData.profileImage);
+    }
 
     return profile;
   } catch (error) {
-    console.log("Error fetching profile:", error);
+    console.error("Error fetching profile:", error);
     return null;
   }
 }

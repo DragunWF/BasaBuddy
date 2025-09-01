@@ -8,6 +8,8 @@ import {
   Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { updateReadingGoals } from "../helpers/storage/profileStorage";
+import Toast from "react-native-toast-message";
 import Slider from "@react-native-community/slider";
 
 const CATEGORIES = [
@@ -55,7 +57,7 @@ const ReadingGoalsScreen = ({ navigation }) => {
     "Health",
   ]);
   const [showTimeSelector, setShowTimeSelector] = useState(false);
-  const timeOptions = [20, 25, 30, 35, 40];
+  const timeOptions = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
 
   // Create pan responder for swipe down to close
   const panResponder = React.useRef(
@@ -80,10 +82,41 @@ const ReadingGoalsScreen = ({ navigation }) => {
     }
   };
 
-  const handleSetup = () => {
-    // Save reading goals to user profile or context
-    // Then navigate to the main app
-    navigation.navigate("HomeNavigator");
+  const handleSetup = async () => {
+    if (!dailyGoal) {
+      Toast.show({
+        type: "error",
+        text1: "Missing Daily Goal",
+        text2: "Please select your daily reading goal",
+      });
+      return;
+    }
+
+    if (selectedCategories.length !== 3) {
+      Toast.show({
+        type: "error",
+        text1: "Categories Required",
+        text2: "Please select exactly 3 categories",
+      });
+      return;
+    }
+
+    const result = await updateReadingGoals(dailyGoal, selectedCategories);
+
+    if (result.success) {
+      Toast.show({
+        type: "success",
+        text1: "Goals Set",
+        text2: "Your reading goals have been saved!",
+      });
+      navigation.navigate("HomeNavigator");
+    } else {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Could not save your reading goals. Please try again.",
+      });
+    }
   };
 
   const handleTimeSelect = (time) => {

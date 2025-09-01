@@ -2,8 +2,9 @@
 export const chatbotPromptTemplates = {
   firstName: "8&#*@$a",
   lastName: "&^#&!)$",
-  favoriteGenre: "&$(haukd",
+  preferredCategories: "&$(haukd",
   preferredReadingTime: "*$&@)$",
+  ageGroup: "uidsahA&D",
   readingSpeed: "*$^!*$)",
   libraryBooks: "(dsjadj",
   finishedBooks: "4hdAD",
@@ -51,9 +52,10 @@ CONVERSATION BEHAVIOR:
 
 USER INFO:
 Name: ${chatbotPromptTemplates.firstName} ${chatbotPromptTemplates.lastName}
-Favorite Genre: ${chatbotPromptTemplates.favoriteGenre}
+Preferred Book Categories: ${chatbotPromptTemplates.preferredCategories}
 Preferred Reading Time: ${chatbotPromptTemplates.preferredReadingTime}
 Reading Speed: ${chatbotPromptTemplates.readingSpeed}
+Age Group: ${chatbotPromptTemplates.ageGroup}
 
 📚 Library Books (up to 5 most recent):
 ${chatbotPromptTemplates.libraryBooks}

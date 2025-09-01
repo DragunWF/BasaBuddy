@@ -63,8 +63,8 @@ async function getChatbotPrompt(profile) {
     profile.getLastName()
   );
   modifiedPrompt = modifiedPrompt.replace(
-    chatbotPromptTemplates.favoriteGenre,
-    profile.getFavoriteGenre()
+    chatbotPromptTemplates.preferredCategories,
+    profile.getPreferredCategories()
   );
   modifiedPrompt = modifiedPrompt.replace(
     chatbotPromptTemplates.preferredReadingTime,
@@ -73,6 +73,10 @@ async function getChatbotPrompt(profile) {
   modifiedPrompt = modifiedPrompt.replace(
     chatbotPromptTemplates.readingSpeed,
     profile.getReadingSpeed()
+  );
+  modifiedPrompt = modifiedPrompt.replace(
+    chatbotPromptTemplates.ageGroup,
+    profile.getAgeGroup()
   );
 
   // Plug in books data
