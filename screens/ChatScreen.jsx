@@ -23,6 +23,7 @@ import {
   generateTassieInsights,
 } from "../helpers/chatbot/chatbot";
 import { performOCR } from "../services/ocrService";
+import { incrementMessageCount } from "../helpers/storage/chatStorage";
 
 const ChatScreen = () => {
   const chatContext = useContext(ChatContext);
@@ -65,6 +66,7 @@ const ChatScreen = () => {
     try {
       // Add user message immediately for better UX
       chatContext.addChat(trimmedMessage, true);
+      await incrementMessageCount();
 
       // Get bot response
       const response = await getBotResponse(chatContext, trimmedMessage);

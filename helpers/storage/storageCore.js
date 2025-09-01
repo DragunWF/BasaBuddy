@@ -24,6 +24,7 @@ export const STORAGE_KEYS = {
   experience: "basabuddy_experience",
   readingSessions: "basabuddy_readingSessions",
   dailyGoal: "basabuddy_dailyGoal",
+  messageCount: "basabuddy_messageCount",
   ...STREAK_KEYS,
   ...TIMER_KEYS,
 };
