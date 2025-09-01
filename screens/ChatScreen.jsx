@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import Toast from "react-native-toast-message";
 import * as ImagePicker from "expo-image-picker";
+import { useFocusEffect } from "@react-navigation/native";
 
 import CustomBackground from "../components/Chat/CustomBackground";
 import MessageInput from "../components/Chat/MessageInput";
@@ -303,6 +304,26 @@ const ChatScreen = () => {
       isMounted = false;
     };
   }, [chatContext, hasInitialResponse]);
+
+  // Add useFocusEffect to refresh context when screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      const refreshChatContext = async () => {
+        try {
+          const response = await getInitialBotResponse(chatContext);
+          // Only update the prompt, don't add a new message
+          chatContext.setInitialChatbotPrompt(JSON.stringify(response));
+        } catch (error) {
+          console.error("Failed to refresh chat context:", error);
+        }
+      };
+
+      // Only refresh if we already had an initial response
+      if (hasInitialResponse) {
+        refreshChatContext();
+      }
+    }, [hasInitialResponse])
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
