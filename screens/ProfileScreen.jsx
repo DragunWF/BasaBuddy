@@ -1,9 +1,19 @@
+import * as ImagePicker from "expo-image-picker";
+
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import Toast from "react-native-toast-message";
+import { updateProfilePicture } from "../helpers/storage/profileStorage";
 
 import { fetchProfile } from "../helpers/storage/profileStorage";
 import { getLikedBooks, getBooksRead } from "../helpers/storage/bookStorage";
@@ -115,6 +125,84 @@ const ProfileScreen = () => {
     collections: userCollections,
   };
 
+  const requestPermissions = async () => {
+    const { status: cameraStatus } =
+      await ImagePicker.requestCameraPermissionsAsync();
+    const { status: libraryStatus } =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (cameraStatus !== "granted" || libraryStatus !== "granted") {
+      Toast.show({
+        type: "error",
+        text1: "Permission required",
+        text2:
+          "Please grant camera and photo library permissions to update your profile picture.",
+        position: "bottom",
+      });
+      return false;
+    }
+    return true;
+  };
+
+  const handleImageSelection = async (useCamera = false) => {
+    if (!(await requestPermissions())) return;
+
+    try {
+      const options = {
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.7,
+      };
+
+      const result = useCamera
+        ? await ImagePicker.launchCameraAsync(options)
+        : await ImagePicker.launchImageLibraryAsync(options);
+
+      if (!result.canceled && result.assets && result.assets[0]) {
+        const { success, imageUri } = await updateProfilePicture(
+          result.assets[0].uri
+        );
+        if (success) {
+          // Update the profile state correctly
+          const updatedProfile = profile;
+          updatedProfile.setProfileImage(imageUri);
+          setProfile(updatedProfile);
+
+          Toast.show({
+            type: "success",
+            text1: "Profile picture updated",
+            position: "bottom",
+          });
+        }
+      }
+    } catch (error) {
+      console.log("Error selecting image:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error updating profile picture",
+        position: "bottom",
+      });
+    }
+  };
+
+  const showImagePickerOptions = () => {
+    Alert.alert("Update Profile Picture", "Choose a new profile picture", [
+      {
+        text: "Take Photo",
+        onPress: () => handleImageSelection(true),
+      },
+      {
+        text: "Choose from Library",
+        onPress: () => handleImageSelection(false),
+      },
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+    ]);
+  };
+
   const handlePlusButtonPress = () => {
     navigation.navigate("HomeNavigator", {
       screen: "MainApp", // or whatever you called your bottom tab navigator inside HomeNavigator
@@ -157,8 +245,25 @@ const ProfileScreen = () => {
 
         {/* Profile Info */}
         <View className="items-center mt-2">
-          <View className="w-24 h-24 rounded-full bg-orange-400 mb-2" />
-          <Text className="text-xl font-bold">{userData.username}</Text>
+          <TouchableOpacity
+            onPress={showImagePickerOptions}
+            className="relative"
+          >
+            {profile?.getProfileImage() ? (
+              <Image
+                source={{ uri: profile.getProfileImage() }}
+                className="w-24 h-24 rounded-full"
+              />
+            ) : (
+              <View className="w-24 h-24 rounded-full bg-orange-400 items-center justify-center">
+                <Ionicons name="person" size={48} color="white" />
+              </View>
+            )}
+            <View className="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow">
+              <Ionicons name="camera" size={20} color="#FE9F1F" />
+            </View>
+          </TouchableOpacity>
+          <Text className="text-xl font-bold mt-2">{userData.username}</Text>
         </View>
 
         {/* Stats */}
