@@ -4,6 +4,7 @@ export const mainColors = {
   primary800: "#71330C",
   black: "#212121",
   white: "#fff",
+  gray: "#888888",
 };
 
 export const chatBubbleColors = {
