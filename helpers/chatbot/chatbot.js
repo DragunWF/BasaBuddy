@@ -47,6 +47,9 @@ export async function getBotResponse(chatbotContext, userMessage) {
   ];
 
   const response = await generateTextWithHistory(updatedHistory);
+
+  console.log("Tassie Response: ", response);
+
   return parseBotResponse(response);
 }
 

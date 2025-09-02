@@ -1,53 +1,60 @@
 import { StyleSheet, FlatList, Image, View } from "react-native";
+import { memo, useMemo } from "react";
 
 import UserChatBubble from "./UserChatBubble";
 import BotChatBubble from "./BotChatBubble";
 import { getTassieSticker, getTassieMood } from "../../helpers/chatbot/chatbot";
 
-const ChatHistory = ({ data }) => {
-  const renderChatBubble = (itemData) => {
-    const message = itemData.item;
+const MessageItem = memo(({ message }) => {
+  // Handle user messages
+  if (message.role === "user") {
+    const messageContent = message.imageSourceUri ? (
+      <Image source={{ uri: message.imageSourceUri }} style={styles.image} />
+    ) : (
+      message.text
+    );
 
-    // Handle user messages
-    if (message.role === "user") {
-      const messageContent = message.imageSourceUri ? (
-        <Image source={{ uri: message.imageSourceUri }} style={styles.image} />
-      ) : (
-        message.text
-      );
+    return (
+      <UserChatBubble isText={!message.imageSourceUri}>
+        {messageContent}
+      </UserChatBubble>
+    );
+  }
 
-      return (
-        <UserChatBubble isText={!message.imageSourceUri}>
-          {messageContent}
-        </UserChatBubble>
-      );
-    }
-
-    // Handle bot messages
-    let parsedMessage = message.text;
+  // Handle bot messages - memoize the parsed message and image selection
+  const { parsedMessage, imageToShow } = useMemo(() => {
+    let parsed = message.text;
     if (typeof message.text === "string" && message.text.startsWith("{")) {
-      parsedMessage = JSON.parse(message.text);
+      parsed = JSON.parse(message.text);
     }
 
     // Prioritize mood over sticker
-    let imageToShow = null;
-    if (parsedMessage.mood) {
-      imageToShow = getTassieMood(parsedMessage.mood);
-    } else if (parsedMessage.sticker) {
-      imageToShow = getTassieSticker(parsedMessage.sticker);
+    let image = null;
+    if (parsed.mood) {
+      image = getTassieMood(parsed.mood);
+    } else if (parsed.sticker) {
+      image = getTassieSticker(parsed.sticker);
     }
 
-    return (
-      <View>
-        <BotChatBubble isText={true}>{parsedMessage.response}</BotChatBubble>
+    return { parsedMessage: parsed, imageToShow: image };
+  }, [message.text]);
 
-        {imageToShow && (
-          <BotChatBubble isText={false}>
-            <Image source={imageToShow} style={styles.image} />
-          </BotChatBubble>
-        )}
-      </View>
-    );
+  return (
+    <View>
+      <BotChatBubble isText={true}>{parsedMessage.response}</BotChatBubble>
+
+      {imageToShow && (
+        <BotChatBubble isText={false}>
+          <Image source={imageToShow} style={styles.image} />
+        </BotChatBubble>
+      )}
+    </View>
+  );
+});
+
+const ChatHistory = ({ data }) => {
+  const renderChatBubble = (itemData) => {
+    return <MessageItem message={itemData.item} />;
   };
 
   return (
