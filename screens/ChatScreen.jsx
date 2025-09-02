@@ -289,11 +289,13 @@ const ChatScreen = () => {
         }
       } catch (error) {
         console.error("Failed to get initial response:", error);
-
         if (isMounted) {
-          // Fallback message if initial response fails
-          const fallbackMessage =
-            "Hi! I'm Tassie, your reading companion. How can I help you today?";
+          const fallbackMessage = JSON.stringify({
+            response:
+              "Hi! I'm Tassie, your reading companion. How can I help you today?",
+            mood: "",
+            sticker: "",
+          });
           chatContext.addChat(fallbackMessage, false);
           setHasInitialResponse(true);
         }
@@ -307,20 +309,17 @@ const ChatScreen = () => {
     };
   }, [chatContext, hasInitialResponse]);
 
-  // Add useFocusEffect to refresh context when screen is focused
+  // Update the useFocusEffect
   useFocusEffect(
     useCallback(() => {
       const refreshChatContext = async () => {
         try {
           const response = await getInitialBotResponse(chatContext);
-          // Only update the prompt, don't add a new message
-          chatContext.setInitialChatbotPrompt(JSON.stringify(response));
         } catch (error) {
           console.error("Failed to refresh chat context:", error);
         }
       };
 
-      // Only refresh if we already had an initial response
       if (hasInitialResponse) {
         refreshChatContext();
       }
