@@ -10,10 +10,11 @@ const ACTION_TYPE = {
 
 // For auto-completion and documentation purposes
 export const ChatContext = createContext({
-  initialChatbotPrompt: "",
+  initialPrompt: "",
   chatHistory: [],
   isGenerating: false,
   setIsGenerating: (value) => {},
+  updateInitialPrompt: (prompt) => {}, // renamed from setInitialPrompt
   addChat: (message, isUser) => {},
   addChatWithImage: (message, isUser, imageSource) => {},
   setChat: (data) => {},
@@ -24,18 +25,12 @@ export const ChatContext = createContext({
 
 function ChatContextProvider({ children }) {
   const [chatState, dispatch] = useReducer(dataReducer, []);
-  const [chatbotPrompt, setChatbotPrompt] = useState("");
+  const [initialPrompt, setInitialPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
 
-  function setInitialChatbotPrompt(prompt) {
-    setChatbotPrompt(prompt);
-    // Optionally update the model's base context in the chat history
-    if (chatState.length > 0 && chatState[0].role === "model") {
-      dispatch({
-        type: ACTION_TYPE.UPDATE,
-        payload: { id: 0, data: { ...chatState[0], text: prompt } },
-      });
-    }
+  function updateInitialPrompt(prompt) {
+    // renamed from setInitialPrompt
+    setInitialPrompt(prompt);
   }
 
   function addChat(message, isUser) {
@@ -73,11 +68,11 @@ function ChatContextProvider({ children }) {
   }
 
   const value = {
-    initialChatbotPrompt: chatbotPrompt,
+    initialPrompt,
     chatHistory: chatState,
     isGenerating,
     setIsGenerating,
-    setInitialChatbotPrompt,
+    updateInitialPrompt, // renamed from setInitialPrompt
     addChat,
     addChatWithImage,
     setChat,

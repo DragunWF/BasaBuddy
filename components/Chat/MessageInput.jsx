@@ -5,7 +5,7 @@ import { mainColors } from "../../constants/colors";
 import IconButton from "../ui/IconButton";
 import { ChatContext } from "../../store/ChatContext";
 
-const MessageInput = memo(function MessageInput({
+function MessageInput({
   message,
   onChange,
   onSendMessage,
@@ -15,6 +15,8 @@ const MessageInput = memo(function MessageInput({
 }) {
   const chatContext = useContext(ChatContext);
   const [inputHeight, setInputHeight] = useState(40);
+
+  const isDisabled = disabled || chatContext.isGenerating;
 
   const handleKeyPress = ({ nativeEvent }) => {
     if (nativeEvent.key === "Enter" && !nativeEvent.shiftKey) {
@@ -31,34 +33,33 @@ const MessageInput = memo(function MessageInput({
 
   return (
     <View>
-      {/* Tassie Image */}
-      {/*<View style={styles.tassieContainer}>
-        <Image
-          source={require("../../assets/tassie/tassie.png")}
-          style={styles.tassieImage}
-          resizeMode="contain"
-        />
-      </View>*/}
-
-      {/* Message Input */}
-      <View style={styles.inputContainer}>
+      <View
+        style={[
+          styles.inputContainer,
+          isDisabled && styles.inputContainerDisabled,
+        ]}
+      >
         <TextInput
-          style={[styles.textInput, { height: Math.max(40, inputHeight) }]}
+          style={[
+            styles.textInput,
+            { height: Math.max(40, inputHeight) },
+            isDisabled && styles.textInputDisabled,
+          ]}
           value={message}
           onChangeText={onChange}
-          placeholder="Type your message..."
-          placeholderTextColor={mainColors.black + "80"}
+          placeholder={isDisabled ? "Please wait..." : "Type your message..."}
+          placeholderTextColor={
+            isDisabled ? mainColors.gray : mainColors.black + "80"
+          }
           multiline={false} // disable multiline so Enter submits
           returnKeyType="send" // changes keyboard button to "Send"
           onSubmitEditing={() => {
-            if (message.trim().length > 0) {
+            if (!isDisabled && message.trim().length > 0) {
               onSendMessage();
               onChange(""); // clear input
             }
           }}
-          disabled={disabled}
-          textAlignVertical="center"
-          editable={!chatContext.isGenerating}
+          editable={!isDisabled}
         />
         <View style={styles.buttonListContainer}>
           <IconButton
@@ -66,28 +67,23 @@ const MessageInput = memo(function MessageInput({
             icon="camera"
             iconType="fontawesome"
             isLoading={isLoading}
+            disabled={isDisabled}
+            style={isDisabled && styles.buttonDisabled}
           />
           <IconButton
             onPress={onSendMessage}
             icon="send"
             isLoading={isLoading}
+            disabled={isDisabled || !message.trim()}
+            style={isDisabled && styles.buttonDisabled}
           />
         </View>
       </View>
     </View>
   );
-});
+}
 
 const styles = StyleSheet.create({
-  tassieContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 10,
-  },
-  tassieImage: {
-    width: 125,
-    height: 125,
-  },
   inputContainer: {
     flexDirection: "row",
     marginBottom: 7,
@@ -96,7 +92,9 @@ const styles = StyleSheet.create({
     backgroundColor: mainColors.white,
     borderRadius: 25,
     justifyContent: "space-between",
-    alignItems: "center", // center align all elements including placeholder text
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "transparent", // Add transparent border by default
   },
   textInput: {
     flex: 1,
@@ -110,6 +108,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 15,
   },
+  inputContainerDisabled: {
+    backgroundColor: mainColors.white, // Keep white background
+    borderColor: mainColors.gray + "40", // Light gray border
+  },
+  textInputDisabled: {
+    color: mainColors.gray + "A0", // Slightly more opaque gray (about 63%)
+  },
+  buttonDisabled: {
+    opacity: 0.6, // Increased opacity from 0.5
+  },
 });
 
-export default MessageInput;
+export default memo(MessageInput);

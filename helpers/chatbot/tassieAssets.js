@@ -21,40 +21,42 @@ export const tassieMoods = {
   ],
 };
 
+/*
+  Note: The keys are not in camelCase as the Tassie chatbot interprets snake case
+  better than camelCase when it comes to responding to the user's messages.
+*/
 export const tassieStickers = {
-  tassieFocused: [require("../../assets/tassie/stickers/tassie-focused-1.png")],
-  tassieHuggingBook: [
+  focused: [require("../../assets/tassie/stickers/tassie-focused-1.png")],
+  hug_book: [
     require("../../assets/tassie/stickers/tassie-hugging-book-1.png"),
     require("../../assets/tassie/stickers/tassie-hugging-book-2.png"),
   ],
-  tassieSmileWithStarryEyes: [
+  star_eyes: [
     require("../../assets/tassie/stickers/tassie-smiling-with-starry-eyes-1.png"),
     require("../../assets/tassie/stickers/tassie-smiling-with-starry-eyes-2.png"),
   ],
-  tassieSippingTea: [
-    require("../../assets/tassie/stickers/tassie-sipping-tea-1.png"),
-  ],
-  tassieSmirking: [
+  tea: [require("../../assets/tassie/stickers/tassie-sipping-tea-1.png")],
+  smirk: [
     require("../../assets/tassie/stickers/tassie-smirking-1.png"),
     require("../../assets/tassie/stickers/tassie-smirking-2.png"),
   ],
-  tassieCelebrating: [
+  celebrate: [
     require("../../assets/tassie/stickers/tassie-celebrating-1.png"),
     require("../../assets/tassie/stickers/tassie-celebrating-2.png"),
   ],
-  tassieEatingCookies: [
+  cookie: [
     require("../../assets/tassie/stickers/tassie-eating-cookies-1.png"),
     require("../../assets/tassie/stickers/tassie-eating-cookies-2.png"),
   ],
-  tassieSleeping: [
+  sleep: [
     require("../../assets/tassie/stickers/tassie-sleeping-1.png"),
     require("../../assets/tassie/stickers/tassie-sleeping-2.png"),
   ],
-  tassieWithGlasses: [
+  glasses: [
     require("../../assets/tassie/stickers/tassie-with-glasses-1.png"),
     require("../../assets/tassie/stickers/tassie-with-glasses-2.png"),
   ],
-  tassieWithTearyEyes: [
+  teary: [
     require("../../assets/tassie/stickers/tassie-with-teary-eyes-1.png"),
     require("../../assets/tassie/stickers/tassie-with-teary-eyes-2.png"),
   ],

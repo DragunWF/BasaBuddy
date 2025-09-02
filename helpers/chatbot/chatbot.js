@@ -30,8 +30,8 @@ import {
 export async function getInitialBotResponse(chatbotContext) {
   const userProfile = await fetchProfile();
   const fullModifiedPrompt = await getChatbotPrompt(userProfile);
+  chatbotContext.updateInitialPrompt(fullModifiedPrompt); // Use renamed method
   const response = await generateText(fullModifiedPrompt);
-  chatbotContext.setInitialChatbotPrompt(fullModifiedPrompt);
   return parseBotResponse(response);
 }
 
@@ -40,13 +40,22 @@ export async function getBotResponse(chatbotContext, userMessage) {
     role: "user",
     text: userMessage,
   };
-  const updatedHistory = [
-    { role: "model", text: chatbotContext.initialChatbotPrompt },
+
+  // Create the complete history array including the initial prompt as a user message
+  // since Gemini only supports user and model roles
+  const completeHistory = [
+    {
+      role: "user", // Changed from system to user since Gemini doesn't support system
+      text: chatbotContext.initialPrompt,
+    },
     ...chatbotContext.chatHistory,
     newMessage,
   ];
 
-  const response = await generateTextWithHistory(updatedHistory);
+  const response = await generateTextWithHistory(completeHistory);
+  console.log("Complete History with Initial Prompt:", completeHistory);
+  console.log("Tassie Response:", response);
+
   return parseBotResponse(response);
 }
 
