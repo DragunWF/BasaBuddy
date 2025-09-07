@@ -18,7 +18,7 @@ export default function App() {
           It is not recommended to use this method in production as it will delete all data.
           Instead, use the init() method for production or for testing data persistence between sessions.
         */
-        await resetStorage();
+        await init();
         setDbInitialized(true);
       } catch (err) {
         console.error(

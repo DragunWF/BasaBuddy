@@ -18,7 +18,7 @@ const TimerScreen = ({
   onResetTimer,
   onChangePomodoroTime,
 }) => {
-  const [dailyGoal, setDailyGoal] = useState(30); // In minutes
+  const [dailyGoal, setDailyGoal] = useState(20); // In minutes
   const [todayMinutes, setTodayMinutes] = useState(0);
 
   useFocusEffect(
@@ -58,12 +58,6 @@ const TimerScreen = ({
     }
     onResetTimer();
   };
-
-  // Calculate daily progress time
-  const dailyGoalMinutes = 30;
-  const dailyCompletedMinutes = Math.floor(
-    (dailyProgress / 100) * dailyGoalMinutes
-  );
 
   // Update daily progress calculation
   const dailyProgressPercent =
