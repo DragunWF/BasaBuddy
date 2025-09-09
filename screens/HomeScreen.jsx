@@ -18,11 +18,11 @@ function HomeScreen({ navigation }) {
 
   // Sample data for categories
   const categories = [
-    { id: "1", name: "Art", color: "#FF6B6B" },
-    { id: "2", name: "Biographies", color: "#4ECDC4" },
-    { id: "3", name: "Business", color: "#FFD166" },
-    { id: "4", name: "Comic", color: "#FF9F1C" },
-    { id: "5", name: "Cooking", color: "#F4A261" },
+    { id: "1", name: "Art", color: "#FF8C42" },
+    { id: "2", name: "Biographies", color: "#FE9F1F" },
+    { id: "3", name: "Business", color: "#FF7F00" },
+    { id: "4", name: "Comic", color: "#FF6B35" },
+    { id: "5", name: "Cooking", color: "#FF8500" },
     // Add more categories as needed
   ];
 
@@ -48,13 +48,20 @@ function HomeScreen({ navigation }) {
   };
 
   const handleCategoryPress = (category) => {
-    // Handle category selection
-    console.log("Selected category:", category.name);
+    // Navigate to CategoryDetailScreen with the selected category
+    navigation.navigate("CategoryDetail", { 
+      category: {
+        id: category.name.toLowerCase(),
+        name: category.name,
+        subject: category.name.toLowerCase(),
+        color: category.color
+      }
+    });
   };
 
   const handleViewAllPress = () => {
-    // Handle view all categories press
-    console.log("View all categories pressed");
+    // Navigate to Categories screen
+    navigation.navigate("Categories");
   };
 
   return (
