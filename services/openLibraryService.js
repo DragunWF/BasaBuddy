@@ -339,3 +339,70 @@ function processBookContent(content) {
 
   return chapters;
 }
+
+/**
+ * Get all available categories/subjects from OpenLibrary
+ * @returns {Promise<Array>} - Array of category objects with name and color
+ */
+export const getAllCategories = async () => {
+  try {
+    // OpenLibrary doesn't have a direct endpoint for all subjects, so we'll use a predefined list
+    // of popular subjects that are commonly available
+    const popularSubjects = [
+      'art', 'biographies', 'business', 'comic', 'cooking', 'education', 
+      'health', 'history', 'horror', 'kids', 'medical', 'romance', 
+      'fantasy', 'self-help', 'sport', 'travel'
+    ];
+
+    // Define colors for each category to match the orange and white theme
+    const categoryColors = {
+      'art': '#FF8C42',
+      'biographies': '#FE9F1F', 
+      'business': '#FF7F00',
+      'comic': '#FF6B35',
+      'cooking': '#FF8500',
+      'education': '#FF9500',
+      'health': '#FFA500',
+      'history': '#FFB347',
+      'horror': '#CC5500',
+      'kids': '#FFD700',
+      'medical': '#FF4500',
+      'romance': '#FF69B4',
+      'fantasy': '#DA70D6',
+      'self-help': '#FF7F50',
+      'sport': '#FF6347',
+      'travel': '#FF8C00'
+    };
+
+    // Create category objects with names, colors, and icons
+    const categories = popularSubjects.map((subject, index) => ({
+      id: subject,
+      name: subject.charAt(0).toUpperCase() + subject.slice(1),
+      color: categoryColors[subject] || '#74B9FF',
+      subject: subject
+    }));
+
+    return categories;
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    throw error;
+  }
+};
+
+/**
+ * Search categories by name
+ * @param {Array} categories - Array of all categories
+ * @param {string} searchQuery - Search query to filter categories
+ * @returns {Array} - Filtered array of categories
+ */
+export const searchCategories = (categories, searchQuery) => {
+  if (!searchQuery || searchQuery.trim() === '') {
+    return categories;
+  }
+
+  const query = searchQuery.toLowerCase().trim();
+  return categories.filter(category => 
+    category.name.toLowerCase().includes(query) ||
+    category.subject.toLowerCase().includes(query)
+  );
+};

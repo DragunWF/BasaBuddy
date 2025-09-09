@@ -82,36 +82,32 @@ function ExploreScreen({ navigation }) {
       id: "art",
       title: "Art",
       icon: {
-        component: <FontAwesome5 name="paint-brush" size={20} color="white" />,
-        color: "#FF5252",
+        component: <MaterialIcons name="palette" size={20} color="white" />,
+        color: "#FF8C42",
       },
     },
     {
-      id: "biography",
+      id: "biographies",
       title: "Biographies",
       icon: {
-        component: <FontAwesome5 name="user-tie" size={20} color="white" />,
-        color: "#FF9800",
+        component: <MaterialIcons name="person" size={20} color="white" />,
+        color: "#FE9F1F",
       },
     },
     {
       id: "business",
       title: "Business",
       icon: {
-        component: (
-          <MaterialIcons name="attach-money" size={20} color="white" />
-        ),
-        color: "#4CAF50",
+        component: <MaterialIcons name="business" size={20} color="white" />,
+        color: "#FF7F00",
       },
     },
     {
-      id: "comics",
+      id: "comic",
       title: "Comic",
       icon: {
-        component: (
-          <MaterialIcons name="bubble-chart" size={20} color="white" />
-        ),
-        color: "#FFC107",
+        component: <MaterialIcons name="auto-stories" size={20} color="white" />,
+        color: "#FF6B35",
       },
     },
     {
@@ -119,15 +115,15 @@ function ExploreScreen({ navigation }) {
       title: "Cooking",
       icon: {
         component: <MaterialIcons name="restaurant" size={20} color="white" />,
-        color: "#FF5722",
+        color: "#FF8500",
       },
     },
     {
       id: "fiction",
       title: "Fiction",
       icon: {
-        component: <FontAwesome5 name="book" size={20} color="white" />,
-        color: "#2196F3",
+        component: <MaterialIcons name="menu-book" size={20} color="white" />,
+        color: "#FF7F50",
       },
     },
   ];
