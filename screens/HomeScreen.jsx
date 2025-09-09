@@ -64,6 +64,11 @@ function HomeScreen({ navigation }) {
     navigation.navigate("Categories");
   };
 
+  const handleGreetingPress = () => {
+    // Navigate to Chat screen
+    navigation.navigate("Chat");
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100 pt-12">
       <ProfileHeader onProfilePress={handleProfilePress} />
@@ -76,6 +81,7 @@ function HomeScreen({ navigation }) {
             <CharacterCard
               name="Tassie the Tarsier"
               greetingText="Hi! I'm Tassie!"
+              onGreetingPress={handleGreetingPress}
             />
           </View>
           <View className="flex-1 ml-2">
