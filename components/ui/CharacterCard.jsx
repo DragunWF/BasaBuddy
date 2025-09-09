@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 
-const CharacterCard = ({ name, greetingText }) => {
+const CharacterCard = ({ name, greetingText, onGreetingPress }) => {
   return (
     <View className="bg-white rounded-2xl p-4 mb-4 relative overflow-hidden h-[278px] shadow-lg">
       <View className="mb-16">
@@ -14,7 +14,10 @@ const CharacterCard = ({ name, greetingText }) => {
       </View>
       
       <View className="items-center justify-center -mt-10">
-        <TouchableOpacity className="bg-orange-400 py-2 px-4 rounded-full">
+        <TouchableOpacity 
+          className="bg-orange-400 py-2 px-4 rounded-full"
+          onPress={onGreetingPress}
+        >
           <Text className="text-white font-bold">{greetingText}</Text>
         </TouchableOpacity>
       </View>
