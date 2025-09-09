@@ -44,7 +44,7 @@ function HomeScreen({ navigation }) {
 
   const handleProfilePress = () => {
     // Navigate to the ProfileScreen
-    navigation.navigate("ProfileScreen");
+    navigation.navigate("Profile");
   };
 
   const handleCategoryPress = (category) => {

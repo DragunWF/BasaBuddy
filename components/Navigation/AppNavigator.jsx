@@ -6,6 +6,7 @@ import BookDetailsScreen from "../../screens/BookDetailsScreen";
 import ReadingScreen from "../../screens/ReadingScreen";
 import ProfileScreen from "../../screens/ProfileScreen";
 import CollectionDetailsScreen from "../../screens/CollectionDetailsScreen";
+import SettingsScreen from "../../screens/SettingsScreen";
 import IntroStackNavigator from "./IntroStackNavigator";
 
 const Stack = createStackNavigator();
@@ -32,6 +33,8 @@ function AppNavigator() {
       <Stack.Screen name="Reading" component={ReadingScreen} />
 
       <Stack.Screen name="Profile" component={ProfileScreen} />
+
+      <Stack.Screen name="Settings" component={SettingsScreen} />
 
       <Stack.Screen name="CollectionDetails" component={CollectionDetailsScreen} />
     </Stack.Navigator>

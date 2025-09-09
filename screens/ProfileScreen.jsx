@@ -238,7 +238,10 @@ const ProfileScreen = () => {
           >
             <Text className="text-white font-bold text-lg">B</Text>
           </TouchableOpacity>
-          <TouchableOpacity className="w-10 h-10 justify-center items-center">
+          <TouchableOpacity 
+            className="w-10 h-10 justify-center items-center"
+            onPress={() => navigation.navigate('Settings')}
+          >
             <Ionicons name="settings-outline" size={24} color="#888" />
           </TouchableOpacity>
         </View>
