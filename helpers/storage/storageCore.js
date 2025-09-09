@@ -24,6 +24,7 @@ export const STORAGE_KEYS = {
   experience: "basabuddy_experience",
   readingSessions: "basabuddy_readingSessions",
   dailyGoal: "basabuddy_dailyGoal",
+  messageCount: "basabuddy_messageCount",
   ...STREAK_KEYS,
   ...TIMER_KEYS,
 };
@@ -43,7 +44,7 @@ const DEFAULT_VALUES = {
   achievements: initialAchievements,
   experience: 0,
   readingSessions: [],
-  dailyGoal: 1,
+  dailyGoal: 20,
 };
 
 // Helper function to get data from AsyncStorage

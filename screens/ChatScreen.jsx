@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import Toast from "react-native-toast-message";
 import * as ImagePicker from "expo-image-picker";
+import { useFocusEffect } from "@react-navigation/native";
 
 import CustomBackground from "../components/Chat/CustomBackground";
 import MessageInput from "../components/Chat/MessageInput";
@@ -22,6 +23,7 @@ import {
   generateTassieInsights,
 } from "../helpers/chatbot/chatbot";
 import { performOCR } from "../services/ocrService";
+import { incrementMessageCount } from "../helpers/storage/chatStorage";
 
 const ChatScreen = () => {
   const chatContext = useContext(ChatContext);
@@ -64,10 +66,11 @@ const ChatScreen = () => {
     try {
       // Add user message immediately for better UX
       chatContext.addChat(trimmedMessage, true);
+      await incrementMessageCount();
 
       // Get bot response
       const response = await getBotResponse(chatContext, trimmedMessage);
-      chatContext.addChat(response, false);
+      chatContext.addChat(JSON.stringify(response), false);
     } catch (err) {
       console.error("Error sending message:", err);
 
@@ -258,6 +261,16 @@ const ChatScreen = () => {
     [chatContext]
   );
 
+  const LoadingOverlay = () =>
+    isProcessingImage && (
+      <View style={styles.loadingOverlay}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#007AFF" />
+          <Text style={styles.loadingText}>Processing Image...</Text>
+        </View>
+      </View>
+    );
+
   // Initialize chat with better error handling
   useEffect(() => {
     let isMounted = true;
@@ -270,17 +283,19 @@ const ChatScreen = () => {
         const response = await getInitialBotResponse(chatContext);
 
         if (isMounted) {
-          chatContext.addChat(response, false);
+          chatContext.addChat(JSON.stringify(response), false);
           setHasInitialResponse(true);
           console.log("Initial response added successfully");
         }
       } catch (error) {
         console.error("Failed to get initial response:", error);
-
         if (isMounted) {
-          // Fallback message if initial response fails
-          const fallbackMessage =
-            "Hi! I'm Tassie, your reading companion. How can I help you today?";
+          const fallbackMessage = JSON.stringify({
+            response:
+              "Hi! I'm Tassie, your reading companion. How can I help you today?",
+            mood: "",
+            sticker: "",
+          });
           chatContext.addChat(fallbackMessage, false);
           setHasInitialResponse(true);
         }
@@ -294,16 +309,22 @@ const ChatScreen = () => {
     };
   }, [chatContext, hasInitialResponse]);
 
-  // Loading overlay component
-  const LoadingOverlay = () =>
-    isProcessingImage && (
-      <View style={styles.loadingOverlay}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.loadingText}>Processing Image...</Text>
-        </View>
-      </View>
-    );
+  // Update the useFocusEffect
+  useFocusEffect(
+    useCallback(() => {
+      const refreshChatContext = async () => {
+        try {
+          const response = await getInitialBotResponse(chatContext);
+        } catch (error) {
+          console.error("Failed to refresh chat context:", error);
+        }
+      };
+
+      if (hasInitialResponse) {
+        refreshChatContext();
+      }
+    }, [hasInitialResponse])
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>

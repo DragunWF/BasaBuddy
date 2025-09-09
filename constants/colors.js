@@ -4,11 +4,12 @@ export const mainColors = {
   primary800: "#71330C",
   black: "#212121",
   white: "#fff",
+  gray: "#888888",
 };
 
 export const chatBubbleColors = {
   player: "gray",
-  bot: mainColors.primary300,
+  bot: "rgba(251, 196, 95, 0.95)", // Slightly transparent version of primary300
   botActive: "gray",
 };
 

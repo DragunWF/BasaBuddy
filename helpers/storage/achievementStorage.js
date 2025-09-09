@@ -94,6 +94,11 @@ export async function tryUnlockAchievements() {
             unlockedAchievements.push(achievement);
           }
           break;
+        case ACHIEVEMENT_TRIGGERS.TASSIE_MESSAGE_COUNT:
+          if (collections.length >= requiredTrigger.count) {
+            achievement.completed = true;
+            unlockedAchievements.push(achievement);
+          }
         default:
           break;
       }

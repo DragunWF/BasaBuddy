@@ -1,1 +1,1 @@
-export const expRequiredToLevelUp = 40;
+export const expRequiredToLevelUp = 75;
