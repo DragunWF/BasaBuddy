@@ -1,13 +1,14 @@
-import React, { useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import Icon from 'react-native-vector-icons/Feather';
+import React, { useRef, useEffect } from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import Icon from "react-native-vector-icons/Feather";
+import { READING_TIMES } from "../../constants/profileSetupInfo";
 
 const ReadingTimeSheet = ({ visible, onClose, selectedTime, onSelectTime }) => {
   const bottomSheetRef = useRef(null);
-  const snapPoints = ['30%'];
+  const snapPoints = ["30%"];
 
-  const timeOptions = ['Morning', 'Afternoon', 'Evening'];
+  const timeOptions = READING_TIMES;
 
   useEffect(() => {
     if (visible) {
@@ -35,8 +36,8 @@ const ReadingTimeSheet = ({ visible, onClose, selectedTime, onSelectTime }) => {
       snapPoints={snapPoints}
       onChange={handleSheetChanges}
       enablePanDownToClose
-      backgroundStyle={{ backgroundColor: 'white' }}
-      handleIndicatorStyle={{ backgroundColor: '#D1D5DB', width: 40 }}
+      backgroundStyle={{ backgroundColor: "white" }}
+      handleIndicatorStyle={{ backgroundColor: "#D1D5DB", width: 40 }}
     >
       <BottomSheetView className="flex-1 px-6 pt-4">
         {timeOptions.map((time, index) => (
@@ -45,9 +46,11 @@ const ReadingTimeSheet = ({ visible, onClose, selectedTime, onSelectTime }) => {
             onPress={() => handleSelectTime(time)}
             className="flex-row items-center justify-between py-4"
           >
-            <Text 
+            <Text
               className={`text-base ${
-                selectedTime === time ? 'text-[#FE9F1F] font-semibold' : 'text-gray-900'
+                selectedTime === time
+                  ? "text-[#FE9F1F] font-semibold"
+                  : "text-gray-900"
               }`}
             >
               {time}

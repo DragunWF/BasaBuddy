@@ -1,13 +1,19 @@
-import React, { useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import Icon from 'react-native-vector-icons/Feather';
+import React, { useRef, useEffect } from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import Icon from "react-native-vector-icons/Feather";
+import { READING_SPEEDS } from "../../constants/profileSetupInfo";
 
-const ReadingSpeedSheet = ({ visible, onClose, selectedSpeed, onSelectSpeed }) => {
+const ReadingSpeedSheet = ({
+  visible,
+  onClose,
+  selectedSpeed,
+  onSelectSpeed,
+}) => {
   const bottomSheetRef = useRef(null);
-  const snapPoints = ['30%'];
+  const snapPoints = ["30%"];
 
-  const speedOptions = ['Fast', 'Normal', 'Slow'];
+  const speedOptions = READING_SPEEDS;
 
   useEffect(() => {
     if (visible) {
@@ -35,8 +41,8 @@ const ReadingSpeedSheet = ({ visible, onClose, selectedSpeed, onSelectSpeed }) =
       snapPoints={snapPoints}
       onChange={handleSheetChanges}
       enablePanDownToClose
-      backgroundStyle={{ backgroundColor: 'white' }}
-      handleIndicatorStyle={{ backgroundColor: '#D1D5DB', width: 40 }}
+      backgroundStyle={{ backgroundColor: "white" }}
+      handleIndicatorStyle={{ backgroundColor: "#D1D5DB", width: 40 }}
     >
       <BottomSheetView className="flex-1 px-6 pt-4">
         {speedOptions.map((speed, index) => (
@@ -45,9 +51,11 @@ const ReadingSpeedSheet = ({ visible, onClose, selectedSpeed, onSelectSpeed }) =
             onPress={() => handleSelectSpeed(speed)}
             className="flex-row items-center justify-between py-4"
           >
-            <Text 
+            <Text
               className={`text-base ${
-                selectedSpeed === speed ? 'text-[#FE9F1F] font-semibold' : 'text-gray-900'
+                selectedSpeed === speed
+                  ? "text-[#FE9F1F] font-semibold"
+                  : "text-gray-900"
               }`}
             >
               {speed}

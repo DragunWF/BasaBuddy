@@ -1,3 +1,16 @@
+export const AGE_GROUPS = [
+  "Child (under 12)",
+  "Teen (13-19)",
+  "Young Adult (20-29)",
+  "Adult (30-49)",
+  "Middle-aged (50-64)",
+  "Senior (65+)",
+];
+
+export const READING_SPEEDS = ["Unsure", "Slow", "Normal", "Fast"];
+
+export const READING_TIMES = ["Morning", "Afternoon", "Evening", "Night"];
+
 export const CATEGORIES = [
   "Arts",
   "Biography",
