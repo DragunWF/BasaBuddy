@@ -12,14 +12,17 @@ import ResetProfileModal from "../components/Settings/ResetProfileModal";
 import ReadingSpeedSheet from "../components/Settings/ReadingSpeedSheet";
 import ReadingTimeSheet from "../components/Settings/ReadingTimeSheet";
 import DailyGoalModal from "../components/Settings/DailyGoalModal";
+import ImportConfirmationModal from "../components/Settings/ImportConfirmationModal";
+import StatusModal from "../components/Settings/StatusModal";
 
 import {
   fetchProfile,
   updateProfile,
   resetProfile,
+  exportProfileData,
+  importProfileData,
 } from "../helpers/storage/profileStorage";
 import { getDailyGoal, setDailyGoal } from "../helpers/storage/timerStorage";
-import { resetStorage } from "../helpers/storage/storageCore";
 
 const SettingsScreen = ({ navigation }) => {
   // Profile state loaded from storage
@@ -43,6 +46,14 @@ const SettingsScreen = ({ navigation }) => {
   const [speedSheetVisible, setSpeedSheetVisible] = useState(false);
   const [timeSheetVisible, setTimeSheetVisible] = useState(false);
   const [dailyGoalModalVisible, setDailyGoalModalVisible] = useState(false);
+  const [importConfirmationVisible, setImportConfirmationVisible] =
+    useState(false);
+  const [statusModalVisible, setStatusModalVisible] = useState(false);
+  const [statusModalData, setStatusModalData] = useState({
+    type: "success",
+    title: "",
+    message: "",
+  });
 
   // Load profile data when component mounts
   useEffect(() => {
@@ -210,16 +221,90 @@ const SettingsScreen = ({ navigation }) => {
     }
   };
 
+  /**
+   * Show status modal with given parameters
+   * @param {string} type - 'success' or 'error'
+   * @param {string} title - Modal title
+   * @param {string} message - Modal message
+   */
+  const showStatusModal = (type, title, message) => {
+    setStatusModalData({ type, title, message });
+    setStatusModalVisible(true);
+  };
+
+  /**
+   * Handle profile import - shows confirmation first, then imports
+   */
   const handleImportProfile = () => {
-    // TODO: Implement profile import functionality
-    console.log("Import profile functionality to be implemented");
+    setImportConfirmationVisible(true);
   };
 
-  const handleExportProfile = () => {
-    // TODO: Implement profile export functionality
-    console.log("Export profile functionality to be implemented");
+  /**
+   * Handle confirmed import - actually performs the import
+   */
+  const handleConfirmedImport = async () => {
+    try {
+      const result = await importProfileData();
+
+      if (result.success) {
+        showStatusModal(
+          "success",
+          "Import Successful",
+          "Your profile data has been imported successfully. The app will reload with your imported data."
+        );
+
+        // Reload profile data after successful import
+        setTimeout(() => {
+          setStatusModalVisible(false);
+          loadProfileData();
+        }, 2000);
+      } else {
+        showStatusModal(
+          "error",
+          "Import Failed",
+          result.error ||
+            "Failed to import profile data. Please check that the file is a valid BasaBuddy export."
+        );
+      }
+    } catch (error) {
+      console.error("Error importing profile:", error);
+      showStatusModal(
+        "error",
+        "Import Failed",
+        "An unexpected error occurred while importing your profile data."
+      );
+    }
   };
 
+  /**
+   * Handle profile export - exports all user data to JSON file
+   */
+  const handleExportProfile = async () => {
+    try {
+      const result = await exportProfileData();
+
+      if (result.success) {
+        showStatusModal(
+          "success",
+          "Export Successful",
+          "Your profile data has been exported successfully. You can now share or save the file."
+        );
+      } else {
+        showStatusModal(
+          "error",
+          "Export Failed",
+          result.error || "Failed to export profile data. Please try again."
+        );
+      }
+    } catch (error) {
+      console.error("Error exporting profile:", error);
+      showStatusModal(
+        "error",
+        "Export Failed",
+        "An unexpected error occurred while exporting your profile data."
+      );
+    }
+  };
   const fullName = `${profile.firstName} ${profile.lastName}`.trim();
 
   return (
@@ -349,6 +434,20 @@ const SettingsScreen = ({ navigation }) => {
             onClose={() => setDailyGoalModalVisible(false)}
             currentGoal={profile.dailyGoal}
             onSave={handleDailyGoalSave}
+          />
+
+          <ImportConfirmationModal
+            visible={importConfirmationVisible}
+            onClose={() => setImportConfirmationVisible(false)}
+            onConfirm={handleConfirmedImport}
+          />
+
+          <StatusModal
+            visible={statusModalVisible}
+            onClose={() => setStatusModalVisible(false)}
+            type={statusModalData.type}
+            title={statusModalData.title}
+            message={statusModalData.message}
           />
         </SafeAreaView>
       </BottomSheetModalProvider>

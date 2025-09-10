@@ -2,7 +2,7 @@
 
 ## Overview
 
-I have successfully completed the integration for the Settings Screen with all the requested features. The implementation includes proper data persistence, user interface components, and navigation flow.
+I have successfully completed the integration for the Settings Screen with all the requested features, including comprehensive import/export functionality. The implementation includes proper data persistence, user interface components, navigation flow, and robust data validation.
 
 ## Features Implemented
 
@@ -61,6 +61,25 @@ I have successfully completed the integration for the Settings Screen with all t
 - **Data Integrity**: Ensures proper restoration of default state including initial achievements and default collections
 - **UI**: Bottom sheet with warning message and confirmation
 
+### 8. **Export Profile Data** ✅ **NEW**
+
+- **Component**: `StatusModal.jsx` for feedback
+- **Functionality**: Exports all user data to a JSON file and shares it via device sharing
+- **Data Included**: Profile, books, collections, achievements, reading sessions, experience, streak data, and all user-related data
+- **File Format**: Timestamped JSON file (e.g., `BasaBuddy_Profile_2025-09-10T10-30-00.json`)
+- **Sharing**: Uses Expo Sharing API to allow users to save/share the file
+- **UI**: Success/error feedback via status modal
+
+### 9. **Import Profile Data** ✅ **NEW**
+
+- **Component**: `ImportConfirmationModal.jsx` for warnings, `StatusModal.jsx` for feedback
+- **Functionality**: Imports profile data from a JSON file, completely overwriting current data
+- **File Selection**: Uses Expo DocumentPicker for JSON file selection
+- **Data Validation**: Comprehensive validation of imported data structure and types
+- **User Warning**: Clear warning that import will overwrite all current data
+- **Error Handling**: Detailed error messages for invalid file formats or missing data
+- **UI**: Warning modal → file picker → status feedback
+
 ## Technical Implementation Details
 
 ### **Data Storage Architecture**
@@ -79,15 +98,32 @@ I have successfully completed the integration for the Settings Screen with all t
    - Checkmark indicator for selected option
 
 2. **`DailyGoalModal.jsx`**
+
    - Modal for setting daily reading goal
    - Numeric input with validation (5-240 minutes)
    - Proper keyboard type for numbers
+
+3. **`ImportConfirmationModal.jsx`** **NEW**
+
+   - Warning modal for profile data import
+   - Clear warning about data overwrite
+   - Red warning styling with alert triangle icon
+   - Cancel/Confirm action buttons
+
+4. **`StatusModal.jsx`** **NEW**
+   - Reusable modal for success/error feedback
+   - Supports both success (green) and error (red) styling
+   - Dynamic icons and messages
+   - Used for import/export operation feedback
 
 ### **Enhanced Storage Functions**
 
 - **`updateProfile()`**: Now handles all profile fields including ageGroup, dailyGoal
 - **`resetProfile()`**: New function to completely reset user data to proper default values (mirrors `resetStorage()`)
 - **`fetchProfile()`**: Loads complete profile data including new fields
+- **`exportProfileData()`**: **NEW** - Exports all user data to JSON file with timestamp and sharing capability
+- **`importProfileData()`**: **NEW** - Imports and validates profile data from JSON file with comprehensive error handling
+- **`validateImportData()`**: **NEW** - Validates imported JSON structure and data types
 - **Default State Restoration**: Ensures achievements are restored to `initialAchievements` and all data returns to proper initial state
 
 ### **Profile Model Enhancements**
@@ -103,11 +139,88 @@ I have successfully completed the integration for the Settings Screen with all t
 - **Visual Feedback**: Selected options are highlighted in orange (#FE9F1F)
 - **Accessibility**: Proper labels and touch targets
 
+## Import/Export Data Architecture
+
+### **Export Process**
+
+1. **Data Collection**: Gathers all user data from AsyncStorage
+
+   - Profile information
+   - Books read, library books, saved books, liked books
+   - Collections and achievements
+   - Reading sessions and experience points
+   - Streak data and preferences
+
+2. **File Creation**: Creates timestamped JSON file
+
+   - Format: `BasaBuddy_Profile_YYYY-MM-DDTHH-MM-SS.json`
+   - Includes metadata (export timestamp, app version)
+   - Pretty-formatted JSON for readability
+
+3. **Sharing**: Uses Expo Sharing API
+   - Allows saving to device storage
+   - Supports sharing via other apps
+   - Cross-platform compatibility
+
+### **Import Process**
+
+1. **User Warning**: Shows confirmation modal with clear warnings
+
+   - Explains data will be overwritten
+   - Cannot be undone
+   - Recommends exporting current data first
+
+2. **File Selection**: Uses Expo DocumentPicker
+
+   - Filters for JSON files only
+   - Secure file access
+   - Handles cancellation gracefully
+
+3. **Data Validation**: Comprehensive validation system
+
+   - Checks JSON structure validity
+   - Validates required fields presence
+   - Verifies data types for each field
+   - Provides detailed error messages
+
+4. **Data Import**: Overwrites existing data
+   - Updates all storage keys
+   - Maintains data consistency
+   - Preserves app initialization state
+   - Provides success feedback
+
+### **Validation Rules**
+
+- **Required Fields**: profile, booksRead, collections, libraryBooks, savedBooks, likedBooks, achievements, experience, readingSessions
+- **Data Type Validation**: Arrays for collections/books, numbers for experience/goals, objects for profile
+- **Profile Structure**: Validates firstName, lastName, ageGroup, preferredReadingTime, readingSpeed, dailyGoal
+- **Error Handling**: Clear error messages for debugging and user feedback
+
 ## Code Documentation
 
 ### **Key Functions**
 
 ```javascript
+// Export all user data to JSON file
+const handleExportProfile = async () => {
+  // Gathers all user data
+  // Creates timestamped JSON file
+  // Shares via device sharing
+};
+
+// Import data with user confirmation
+const handleImportProfile = () => {
+  // Shows warning modal first
+  // Then proceeds to file selection
+};
+
+// Confirmed import process
+const handleConfirmedImport = async () => {
+  // Selects JSON file
+  // Validates data structure
+  // Imports and overwrites current data
+};
+
 // Load profile data from storage
 const loadProfileData = async () => {
   // Fetches profile and daily goal from storage

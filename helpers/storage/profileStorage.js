@@ -1,4 +1,6 @@
 import * as FileSystem from "expo-file-system";
+import * as DocumentPicker from "expo-document-picker";
+import * as Sharing from "expo-sharing";
 import { storeData, getData, STORAGE_KEYS } from "./storageCore";
 import { initialAchievements } from "../../constants/achievements";
 import Profile from "../../models/profile";
@@ -190,5 +192,237 @@ export async function resetProfile() {
   } catch (error) {
     console.error("Error resetting profile:", error);
     return { success: false, error };
+  }
+}
+
+/**
+ * Export all user profile data to a JSON file
+ * Includes profile, books, collections, achievements, reading sessions, and all user-related data
+ * @returns {Promise<{success: boolean, filePath?: string, error?: any}>}
+ */
+export async function exportProfileData() {
+  try {
+    // Gather all user data from storage
+    const exportData = {
+      profile: await getData(STORAGE_KEYS.profile),
+      booksRead: await getData(STORAGE_KEYS.booksRead),
+      collections: await getData(STORAGE_KEYS.collections),
+      libraryBooks: await getData(STORAGE_KEYS.libraryBooks),
+      savedBooks: await getData(STORAGE_KEYS.savedBooks),
+      likedBooks: await getData(STORAGE_KEYS.likedBooks),
+      achievements: await getData(STORAGE_KEYS.achievements),
+      experience: await getData(STORAGE_KEYS.experience),
+      readingSessions: await getData(STORAGE_KEYS.readingSessions),
+      dailyGoal: await getData(STORAGE_KEYS.dailyGoal),
+      messageCount: await getData(STORAGE_KEYS.messageCount),
+      streakData: await getData(STORAGE_KEYS.streakData),
+      lastReadDate: await getData(STORAGE_KEYS.lastReadDate),
+      exportedAt: new Date().toISOString(),
+      appVersion: "1.0.0", // You can update this as needed
+    };
+
+    // Create filename with timestamp
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const fileName = `BasaBuddy_Profile_${timestamp}.json`;
+    const filePath = `${FileSystem.documentDirectory}${fileName}`;
+
+    // Write JSON data to file
+    await FileSystem.writeAsStringAsync(
+      filePath,
+      JSON.stringify(exportData, null, 2)
+    );
+
+    // Share the file using the device's sharing functionality
+    if (await Sharing.isAvailableAsync()) {
+      await Sharing.shareAsync(filePath, {
+        mimeType: "application/json",
+        dialogTitle: "Export BasaBuddy Profile Data",
+      });
+    }
+
+    return { success: true, filePath };
+  } catch (error) {
+    console.error("Error exporting profile data:", error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * Validate imported profile data structure
+ * Ensures the JSON contains all required fields and proper data types
+ * @param {Object} data - The imported JSON data
+ * @returns {Object} - Validation result with success status and errors if any
+ */
+function validateImportData(data) {
+  const errors = [];
+  const requiredFields = [
+    "profile",
+    "booksRead",
+    "collections",
+    "libraryBooks",
+    "savedBooks",
+    "likedBooks",
+    "achievements",
+    "experience",
+    "readingSessions",
+  ];
+
+  // Check if data is an object
+  if (!data || typeof data !== "object") {
+    return { isValid: false, errors: ["Invalid JSON format"] };
+  }
+
+  // Check required fields exist
+  requiredFields.forEach((field) => {
+    if (!(field in data)) {
+      errors.push(`Missing required field: ${field}`);
+    }
+  });
+
+  // Validate data types
+  if (data.profile && typeof data.profile !== "object") {
+    errors.push("Profile must be an object");
+  }
+
+  if (data.booksRead && !Array.isArray(data.booksRead)) {
+    errors.push("booksRead must be an array");
+  }
+
+  if (data.collections && !Array.isArray(data.collections)) {
+    errors.push("collections must be an array");
+  }
+
+  if (data.libraryBooks && !Array.isArray(data.libraryBooks)) {
+    errors.push("libraryBooks must be an array");
+  }
+
+  if (data.savedBooks && !Array.isArray(data.savedBooks)) {
+    errors.push("savedBooks must be an array");
+  }
+
+  if (data.likedBooks && !Array.isArray(data.likedBooks)) {
+    errors.push("likedBooks must be an array");
+  }
+
+  if (data.achievements && !Array.isArray(data.achievements)) {
+    errors.push("achievements must be an array");
+  }
+
+  if (data.readingSessions && !Array.isArray(data.readingSessions)) {
+    errors.push("readingSessions must be an array");
+  }
+
+  if (data.experience !== undefined && typeof data.experience !== "number") {
+    errors.push("experience must be a number");
+  }
+
+  // Validate profile structure if it exists
+  if (data.profile) {
+    const profileFields = [
+      "firstName",
+      "lastName",
+      "ageGroup",
+      "preferredReadingTime",
+      "readingSpeed",
+    ];
+    profileFields.forEach((field) => {
+      if (
+        data.profile[field] !== undefined &&
+        typeof data.profile[field] !== "string"
+      ) {
+        errors.push(`Profile ${field} must be a string`);
+      }
+    });
+
+    if (
+      data.profile.dailyGoal !== undefined &&
+      typeof data.profile.dailyGoal !== "number"
+    ) {
+      errors.push("Profile dailyGoal must be a number");
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors: errors,
+  };
+}
+
+/**
+ * Import profile data from a JSON file
+ * This will completely overwrite all existing user data
+ * @returns {Promise<{success: boolean, error?: any}>}
+ */
+export async function importProfileData() {
+  try {
+    // Open document picker to select JSON file
+    const result = await DocumentPicker.getDocumentAsync({
+      type: "application/json",
+      copyToCacheDirectory: true,
+      multiple: false,
+    });
+
+    if (result.canceled) {
+      return { success: false, error: "Import cancelled by user" };
+    }
+
+    // Read the file content
+    const fileUri = result.assets[0].uri;
+    const fileContent = await FileSystem.readAsStringAsync(fileUri);
+
+    // Parse JSON
+    let importData;
+    try {
+      importData = JSON.parse(fileContent);
+    } catch (parseError) {
+      return { success: false, error: "Invalid JSON file format" };
+    }
+
+    // Validate the imported data
+    const validation = validateImportData(importData);
+    if (!validation.isValid) {
+      return {
+        success: false,
+        error: `Invalid profile data format: ${validation.errors.join(", ")}`,
+      };
+    }
+
+    // Import all the data to storage
+    await storeData(STORAGE_KEYS.profile, importData.profile);
+    await storeData(STORAGE_KEYS.booksRead, importData.booksRead || []);
+    await storeData(
+      STORAGE_KEYS.collections,
+      importData.collections || [
+        { id: 1, title: "Want to Read" },
+        { id: 2, title: "Currently Reading" },
+      ]
+    );
+    await storeData(STORAGE_KEYS.libraryBooks, importData.libraryBooks || []);
+    await storeData(STORAGE_KEYS.savedBooks, importData.savedBooks || []);
+    await storeData(STORAGE_KEYS.likedBooks, importData.likedBooks || []);
+    await storeData(
+      STORAGE_KEYS.achievements,
+      importData.achievements || initialAchievements
+    );
+    await storeData(STORAGE_KEYS.experience, importData.experience || 0);
+    await storeData(
+      STORAGE_KEYS.readingSessions,
+      importData.readingSessions || []
+    );
+    await storeData(STORAGE_KEYS.dailyGoal, importData.dailyGoal || 20);
+    await storeData(STORAGE_KEYS.messageCount, importData.messageCount || 0);
+    await storeData(STORAGE_KEYS.streakData, importData.streakData || null);
+    await storeData(STORAGE_KEYS.lastReadDate, importData.lastReadDate || null);
+
+    // Keep app as initialized
+    await storeData(STORAGE_KEYS.initialized, true);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error importing profile data:", error);
+    return {
+      success: false,
+      error: error.message || "Failed to import profile data",
+    };
   }
 }
