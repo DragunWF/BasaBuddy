@@ -55,9 +55,10 @@ I have successfully completed the integration for the Settings Screen with all t
 ### 7. **Reset Profile Data** ✅
 
 - **Component**: `ResetProfileModal.jsx` (already existed, updated functionality)
-- **Functionality**: Completely resets all user data and navigates to onboarding
-- **Storage**: Clears profile, achievements, reading sessions, streak data, etc.
+- **Functionality**: Completely resets all user data to default initial values and navigates to onboarding
+- **Storage**: Resets profile to null, restores achievements to `initialAchievements`, resets all user data to default values (mirrors `resetStorage()` function)
 - **Navigation**: Uses `navigation.reset()` to go back to intro flow
+- **Data Integrity**: Ensures proper restoration of default state including initial achievements and default collections
 - **UI**: Bottom sheet with warning message and confirmation
 
 ## Technical Implementation Details
@@ -85,8 +86,9 @@ I have successfully completed the integration for the Settings Screen with all t
 ### **Enhanced Storage Functions**
 
 - **`updateProfile()`**: Now handles all profile fields including ageGroup, dailyGoal
-- **`resetProfile()`**: New function to completely reset user data
+- **`resetProfile()`**: New function to completely reset user data to proper default values (mirrors `resetStorage()`)
 - **`fetchProfile()`**: Loads complete profile data including new fields
+- **Default State Restoration**: Ensures achievements are restored to `initialAchievements` and all data returns to proper initial state
 
 ### **Profile Model Enhancements**
 
