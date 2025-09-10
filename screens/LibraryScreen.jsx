@@ -21,6 +21,7 @@ import {
   getLibraryBooks,
   getLikedBooks,
   getBooksRead,
+  getBooksInCollection,
 } from "../helpers/storage/bookStorage";
 import { getBookDetails } from "../services/openLibraryService";
 import {
@@ -71,15 +72,38 @@ function LibraryScreen({ navigation }) {
         }
       };
       const fetchCollections = async () => {
+        // Fetch all collections and add cover images from the first book in each collection
         try {
           const collections = await getCollections();
           const displayedCollections = [];
           for (let collection of collections) {
+            // Get books in this collection to find the first book for cover image
+            const booksInCollection = await getBooksInCollection(
+              collection.getId()
+            );
+            let coverImage = null;
+
+            // If collection has books, get the first book's details for cover image
+            if (booksInCollection.length > 0) {
+              try {
+                const firstBook = await getBookDetails(
+                  booksInCollection[0].bookId
+                );
+                coverImage = firstBook.coverUrl;
+              } catch (error) {
+                console.log(
+                  "Error fetching first book details for cover:",
+                  error
+                );
+              }
+            }
+
             displayedCollections.push({
               id: collection.getId(),
               title: collection.getTitle(),
               author: "You",
               bookCount: await getCollectionBookCount(collection.getId()),
+              coverImage: coverImage, // Added cover image from first book in collection
             });
           }
           setUserCollections(displayedCollections);
@@ -229,6 +253,7 @@ function LibraryScreen({ navigation }) {
           title: newCollection.getTitle(),
           author: author,
           bookCount: 0,
+          coverImage: null, // New collections start with no cover image
         };
         setUserCollections((prev) => [...prev, formattedCollection]);
         setShowCreateModal(false);
