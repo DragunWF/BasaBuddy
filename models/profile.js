@@ -55,6 +55,26 @@ class Profile extends Model {
   }
 
   // Setters
+  setFirstName(firstName) {
+    this.#firstName = firstName;
+  }
+
+  setLastName(lastName) {
+    this.#lastName = lastName;
+  }
+
+  setAgeGroup(ageGroup) {
+    this.#ageGroup = ageGroup;
+  }
+
+  setPreferredReadingTime(time) {
+    this.#preferredReadingTime = time;
+  }
+
+  setReadingSpeed(speed) {
+    this.#readingSpeed = speed;
+  }
+
   setDailyGoal(minutes) {
     this.#dailyGoal = minutes;
   }
