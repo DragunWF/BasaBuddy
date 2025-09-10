@@ -74,7 +74,7 @@ function CollectionDetailsScreen({ navigation, route }) {
   };
 
   const addBookToCollectionHandler = () => {
-    navigation.navigate("Explore");
+    navigation.navigate("MainApp", { screen: "Explore" });
   };
 
   const renderBookItem = ({ item }) => (
