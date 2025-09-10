@@ -7,6 +7,7 @@ import {
   Modal,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import Toast from "react-native-toast-message";
@@ -44,6 +45,10 @@ function LibraryScreen({ navigation }) {
   const [likedBooksCount, setLikedBooksCount] = useState(0);
   const [finishedBooksCount, setFinishedBooksCount] = useState(0);
 
+  // Loading states
+  const [isLoadingBooks, setIsLoadingBooks] = useState(true);
+  const [isLoadingCollections, setIsLoadingCollections] = useState(true);
+
   // State for modals
   const [showOptionsModal, setShowOptionsModal] = useState(false);
   const [showRenameModal, setShowRenameModal] = useState(false);
@@ -58,6 +63,7 @@ function LibraryScreen({ navigation }) {
     useCallback(() => {
       const fetchLibraryBooks = async () => {
         try {
+          setIsLoadingBooks(true);
           // Fetch all books from library
           const books = await getLibraryBooks();
           const onlineBooks = [];
@@ -102,11 +108,14 @@ function LibraryScreen({ navigation }) {
             text1: "Error fetching library books",
             position: "bottom",
           });
+        } finally {
+          setIsLoadingBooks(false);
         }
       };
       const fetchCollections = async () => {
         // Fetch all collections and add cover images from the first book in each collection
         try {
+          setIsLoadingCollections(true);
           const collections = await getCollections();
           const displayedCollections = [];
           for (let collection of collections) {
@@ -147,6 +156,8 @@ function LibraryScreen({ navigation }) {
             text1: "Error fetching collections",
             position: "bottom",
           });
+        } finally {
+          setIsLoadingCollections(false);
         }
       };
       const fetchSpecialCollections = async () => {
@@ -194,6 +205,14 @@ function LibraryScreen({ navigation }) {
 
   const allBooks = [...userBooks, ...localBooks];
   const allCollections = [...userCollections];
+
+  // Loading indicator component
+  const LoadingIndicator = ({ message }) => (
+    <View className="flex-1 justify-center items-center py-20">
+      <ActivityIndicator size="large" color="white" />
+      <Text className="text-white text-base mt-4 opacity-90">{message}</Text>
+    </View>
+  );
 
   const handleBookPress = (book) => {
     if (book.isLocal) {
@@ -342,15 +361,33 @@ function LibraryScreen({ navigation }) {
 
           {activeTab === "books" ? (
             /* Books Grid */
-            <View className="flex-row flex-wrap justify-between">
-              {allBooks.map((book) => (
-                <View key={book.id} className="w-[48%]">
-                  <BookCard book={book} onPress={() => handleBookPress(book)} />
-                </View>
-              ))}
-            </View>
+            isLoadingBooks ? (
+              <LoadingIndicator message="Loading your books..." />
+            ) : allBooks.length > 0 ? (
+              <View className="flex-row flex-wrap justify-between">
+                {allBooks.map((book) => (
+                  <View key={book.id} className="w-[48%]">
+                    <BookCard
+                      book={book}
+                      onPress={() => handleBookPress(book)}
+                    />
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <View className="flex-1 justify-center items-center py-20">
+                <Text className="text-white text-lg font-semibold mb-2">
+                  No Books Yet
+                </Text>
+                <Text className="text-white text-base opacity-90 text-center">
+                  Start building your library by adding books!
+                </Text>
+              </View>
+            )
+          ) : /* Collections List */
+          isLoadingCollections ? (
+            <LoadingIndicator message="Loading your collections..." />
           ) : (
-            /* Collections List */
             <View>
               {/* Special Collections */}
               <View className="flex-row justify-between mb-4">
