@@ -174,6 +174,8 @@ export async function generateTassieInsights(text) {
     text
   );
   const polishedScannedText = await generateText(modifiedPolishPrompt);
+  const libraryBooks = await getLibraryBooks();
+
   console.info("Polished Scanned Text: ", polishedScannedText);
 
   let modifiedInsightsPrompt = tassieInsightsPrompt;
@@ -183,7 +185,7 @@ export async function generateTassieInsights(text) {
   );
   modifiedInsightsPrompt = modifiedInsightsPrompt.replace(
     tassieInsightsPromptTemplates.text,
-    dummyBooksRead // Replace this in the future
+    toBookListPromptString(await getBookListFromIds(libraryBooks), 5)
   );
   modifiedInsightsPrompt = modifiedInsightsPrompt.replace(
     tassieInsightsPromptTemplates.userGenre,
@@ -218,6 +220,9 @@ export function getTassieSticker(stickerName) {
 async function getBookListFromIds(books) {
   const bookList = [];
   for (let book of books) {
+    if (book.bookId.startsWith("local_")) {
+      continue; // Skip local books
+    }
     const bookDetails = await getBookDetails(book.bookId);
     bookList.push(bookDetails);
   }

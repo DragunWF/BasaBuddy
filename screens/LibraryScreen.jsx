@@ -22,6 +22,7 @@ import {
   getLikedBooks,
   getBooksRead,
   getBooksInCollection,
+  getLocalBooks,
 } from "../helpers/storage/bookStorage";
 import { getBookDetails } from "../services/openLibraryService";
 import {
@@ -36,6 +37,7 @@ import { fetchProfile } from "../helpers/storage/profileStorage";
 function LibraryScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState("books");
   const [userBooks, setUserBooks] = useState([]);
+  const [localBooks, setLocalBooks] = useState([]);
   const [userCollections, setUserCollections] = useState([]);
   const [author, setAuthor] = useState("User");
 
@@ -56,12 +58,43 @@ function LibraryScreen({ navigation }) {
     useCallback(() => {
       const fetchLibraryBooks = async () => {
         try {
+          // Fetch all books from library
           const books = await getLibraryBooks();
-          const displayedBooks = [];
+          const onlineBooks = [];
+          const localBooksFromLibrary = [];
+
           for (let book of books) {
-            displayedBooks.push(await getBookDetails(book.bookId));
+            // Check if this is a local book (has full book data) or online book (just bookId reference)
+            if (book.isLocal || book.title) {
+              // This is a local book with full data
+              localBooksFromLibrary.push(book);
+            } else {
+              // This is an online book reference, fetch details from API
+              try {
+                const bookDetails = await getBookDetails(book.bookId);
+                onlineBooks.push(bookDetails);
+              } catch (error) {
+                console.log(
+                  "Error fetching details for book:",
+                  book.bookId,
+                  error
+                );
+                // Skip this book if API call fails
+              }
+            }
           }
-          setUserBooks(displayedBooks || []);
+
+          setUserBooks(onlineBooks || []);
+
+          // Fetch local books separately and merge with local books from library
+          const localBooksData = await getLocalBooks();
+          // Remove duplicates by bookId
+          const allLocalBooks = [...localBooksFromLibrary, ...localBooksData];
+          const uniqueLocalBooks = allLocalBooks.filter(
+            (book, index, self) =>
+              index === self.findIndex((b) => b.bookId === book.bookId)
+          );
+          setLocalBooks(uniqueLocalBooks || []);
         } catch (error) {
           console.log("Error fetching library books:", error);
           Toast.show({
@@ -159,11 +192,18 @@ function LibraryScreen({ navigation }) {
     }, [])
   );
 
-  const allBooks = [...userBooks];
+  const allBooks = [...userBooks, ...localBooks];
   const allCollections = [...userCollections];
 
   const handleBookPress = (book) => {
-    navigation.navigate("BookDetails", { bookId: book.id });
+    if (book.isLocal) {
+      navigation.navigate("Reading", {
+        book: book,
+        isLocalPdf: true,
+      });
+    } else {
+      navigation.navigate("BookDetails", { bookId: book.id });
+    }
   };
 
   const handleCollectionPress = (collection) => {
@@ -224,7 +264,11 @@ function LibraryScreen({ navigation }) {
   };
 
   const handleBookAdded = (newBook) => {
-    setUserBooks((prevBooks) => [...prevBooks, newBook]);
+    if (newBook.isLocal) {
+      setLocalBooks((prevBooks) => [...prevBooks, newBook]);
+    } else {
+      setUserBooks((prevBooks) => [...prevBooks, newBook]);
+    }
   };
 
   // --- New and Updated Handlers ---

@@ -1,6 +1,7 @@
 import { storeData, getData, STORAGE_KEYS } from "./storageCore";
 import { checkAndUnlockAchievements } from "../tools/achievementCog";
 import { ACHIEVEMENT_TRIGGERS } from "../../constants/achievements";
+import * as FileSystem from "expo-file-system";
 
 async function ensureBookInLibrary(bookId) {
   try {
@@ -201,6 +202,123 @@ export async function removeBookFromLiked(bookId) {
     return { success: true };
   } catch (error) {
     console.log("Error removing book from liked books:", error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * Add a local PDF book to the library
+ * Creates a book object for locally uploaded PDFs
+ * @param {Object} bookData - Book data including title, filePath, etc.
+ * @returns {Promise<{success: boolean, book?: Object, error?: any}>}
+ */
+export async function addLocalBookToLibrary(bookData) {
+  try {
+    const libraryBooks = (await getData(STORAGE_KEYS.libraryBooks)) || [];
+
+    // Create a unique book ID for local books
+    const bookId = `local_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
+
+    const newBook = {
+      id: Date.now() + Math.random(),
+      bookId: bookId,
+      title: bookData.title,
+      author: bookData.author || "Unknown Author",
+      filePath: bookData.filePath,
+      fileName: bookData.fileName,
+      fileSize: bookData.fileSize,
+      coverUrl: bookData.coverUrl || null,
+      description: bookData.description || "Local PDF book uploaded by user.",
+      subjects: bookData.subjects || ["User Upload"],
+      publishDate: bookData.publishDate || new Date().getFullYear().toString(),
+      isLocal: true,
+      addedAt: new Date().toISOString(),
+      collectionId: null,
+    };
+
+    libraryBooks.push(newBook);
+    await storeData(STORAGE_KEYS.libraryBooks, libraryBooks);
+
+    return { success: true, book: newBook };
+  } catch (error) {
+    console.error("Error adding local book to library:", error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * Get all local books from library
+ * @returns {Promise<Array>} - Array of local book objects
+ */
+export async function getLocalBooks() {
+  try {
+    const libraryBooks = (await getData(STORAGE_KEYS.libraryBooks)) || [];
+    return libraryBooks.filter((book) => book.isLocal === true);
+  } catch (error) {
+    console.error("Error getting local books:", error);
+    return [];
+  }
+}
+
+/**
+ * Get local book by ID
+ * @param {string} bookId - Local book ID
+ * @returns {Promise<Object|null>} - Book object or null if not found
+ */
+export async function getLocalBookById(bookId) {
+  try {
+    const libraryBooks = (await getData(STORAGE_KEYS.libraryBooks)) || [];
+    return (
+      libraryBooks.find(
+        (book) => book.bookId === bookId && book.isLocal === true
+      ) || null
+    );
+  } catch (error) {
+    console.error("Error getting local book by ID:", error);
+    return null;
+  }
+}
+
+/**
+ * Remove local book from library and delete file
+ * @param {string} bookId - Local book ID
+ * @returns {Promise<{success: boolean, error?: any}>}
+ */
+export async function removeLocalBook(bookId) {
+  try {
+    const libraryBooks = (await getData(STORAGE_KEYS.libraryBooks)) || [];
+    const bookIndex = libraryBooks.findIndex(
+      (book) => book.bookId === bookId && book.isLocal === true
+    );
+
+    if (bookIndex === -1) {
+      return { success: false, error: "Book not found" };
+    }
+
+    const book = libraryBooks[bookIndex];
+
+    // Delete the file if it exists
+    if (book.filePath) {
+      try {
+        const fileInfo = await FileSystem.getInfoAsync(book.filePath);
+        if (fileInfo.exists) {
+          await FileSystem.deleteAsync(book.filePath);
+        }
+      } catch (fileError) {
+        console.warn("Could not delete file:", fileError);
+        // Continue with removing from library even if file deletion fails
+      }
+    }
+
+    // Remove from library
+    libraryBooks.splice(bookIndex, 1);
+    await storeData(STORAGE_KEYS.libraryBooks, libraryBooks);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error removing local book:", error);
     return { success: false, error };
   }
 }
