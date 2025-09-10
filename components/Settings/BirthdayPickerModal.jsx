@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Modal } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity, Modal } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const BirthdayPickerModal = ({ visible, onClose, currentDate, onSave }) => {
   const [selectedDate, setSelectedDate] = useState(new Date(currentDate));
@@ -16,12 +16,12 @@ const BirthdayPickerModal = ({ visible, onClose, currentDate, onSave }) => {
   };
 
   const formatDate = (date) => {
-    const options = { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    const options = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     };
-    return date.toLocaleDateString('en-US', options);
+    return date.toLocaleDateString("en-US", options);
   };
 
   return (
@@ -36,11 +36,11 @@ const BirthdayPickerModal = ({ visible, onClose, currentDate, onSave }) => {
           <Text className="text-lg font-semibold text-gray-900 mb-2">
             Change birthday
           </Text>
-          
+
           <Text className="text-sm text-gray-600 mb-6">
             {formatDate(selectedDate)}
           </Text>
-          
+
           <View className="mb-8">
             <DateTimePicker
               value={selectedDate}
@@ -56,15 +56,14 @@ const BirthdayPickerModal = ({ visible, onClose, currentDate, onSave }) => {
               textColor="#000000"
             />
           </View>
-          
+
           <View className="flex-row justify-end space-x-4">
-            <TouchableOpacity
-              onPress={handleCancel}
-              className="px-6 py-2"
-            >
-              <Text className="text-[#FE9F1F] text-base font-medium">Cancel</Text>
+            <TouchableOpacity onPress={handleCancel} className="px-6 py-2">
+              <Text className="text-[#FE9F1F] text-base font-medium">
+                Cancel
+              </Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity
               onPress={handleSave}
               className="bg-[#FE9F1F] px-6 py-2 rounded-lg"

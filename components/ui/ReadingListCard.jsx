@@ -1,6 +1,7 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Image } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import { Ionicons } from "@expo/vector-icons";
 
 const ReadingListCard = ({
   collection,
@@ -32,9 +33,21 @@ const ReadingListCard = ({
           </View>
         </View>
       ) : (
-        // Regular collection card with image placeholder
+        // Regular collection card with cover image from first book or placeholder
         <View className="flex-row items-center mb-3">
-          <View className="w-16 h-20 bg-gray-300 rounded-lg mr-4" />
+          {collection?.coverImage ? (
+            // Display cover image of the first book in the collection
+            <Image
+              source={{ uri: collection.coverImage }}
+              className="w-16 h-20 rounded-lg mr-4"
+              resizeMode="cover"
+            />
+          ) : (
+            // Fallback to book icon when no cover image available
+            <View className="w-16 h-20 bg-gray-300 rounded-lg mr-4 items-center justify-center">
+              {/* <Ionicons name="book" size={24} color="#FE9F1F" /> */}
+            </View>
+          )}
           <View className="flex-1">
             <Text className="text-black font-semibold text-base mb-1">
               {collection?.title || "Collection Title"}

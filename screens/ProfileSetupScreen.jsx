@@ -6,19 +6,11 @@ import CustomDropdown from "../components/ui/CustomDropdown";
 import CustomTextInput from "../components/ui/CustomTextInput";
 import Profile from "../models/profile";
 import { createProfile } from "../helpers/storage/profileStorage";
-
-const AGE_GROUPS = [
-  "Child (under 12)",
-  "Teen (13-19)",
-  "Young Adult (20-29)",
-  "Adult (30-49)",
-  "Middle-aged (50-64)",
-  "Senior (65+)",
-];
-
-const READING_TIMES = ["Morning", "Afternoon", "Night"];
-
-const READING_SPEEDS = ["Unsure", "Slow", "Normal", "Fast"];
+import {
+  AGE_GROUPS,
+  READING_SPEEDS,
+  READING_TIMES,
+} from "../constants/profileSetupInfo";
 
 function ProfileSetupScreen({ navigation }) {
   const [firstName, setFirstName] = useState("");

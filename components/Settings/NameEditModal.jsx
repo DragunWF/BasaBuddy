@@ -1,7 +1,13 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Modal } from 'react-native';
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, Modal } from "react-native";
 
-const NameEditModal = ({ visible, onClose, currentFirstName, currentLastName, onSave }) => {
+const NameEditModal = ({
+  visible,
+  onClose,
+  currentFirstName,
+  currentLastName,
+  onSave,
+}) => {
   const [firstName, setFirstName] = useState(currentFirstName);
   const [lastName, setLastName] = useState(currentLastName);
 
@@ -28,7 +34,7 @@ const NameEditModal = ({ visible, onClose, currentFirstName, currentLastName, on
           <Text className="text-lg font-semibold text-gray-900 mb-6">
             Change name
           </Text>
-          
+
           <View className="mb-4">
             <Text className="text-sm text-gray-600 mb-2">First name</Text>
             <TextInput
@@ -38,7 +44,7 @@ const NameEditModal = ({ visible, onClose, currentFirstName, currentLastName, on
               placeholder="Enter first name"
             />
           </View>
-          
+
           <View className="mb-8">
             <Text className="text-sm text-gray-600 mb-2">Last name</Text>
             <TextInput
@@ -48,15 +54,14 @@ const NameEditModal = ({ visible, onClose, currentFirstName, currentLastName, on
               placeholder="Enter last name"
             />
           </View>
-          
+
           <View className="flex-row justify-end space-x-4">
-            <TouchableOpacity
-              onPress={handleCancel}
-              className="px-6 py-2"
-            >
-              <Text className="text-[#FE9F1F] text-base font-medium">Cancel</Text>
+            <TouchableOpacity onPress={handleCancel} className="px-6 py-2">
+              <Text className="text-[#FE9F1F] text-base font-medium">
+                Cancel
+              </Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity
               onPress={handleSave}
               className="bg-[#FE9F1F] px-6 py-2 rounded-lg"

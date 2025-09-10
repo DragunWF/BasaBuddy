@@ -8,6 +8,7 @@ import {
   Alert,
   ActivityIndicator,
   Text,
+  Modal,
 } from "react-native";
 import Toast from "react-native-toast-message";
 import * as ImagePicker from "expo-image-picker";
@@ -34,6 +35,7 @@ const ChatScreen = () => {
   const [isProcessingImage, setIsProcessingImage] = useState(false);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [hasInitialResponse, setHasInitialResponse] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
 
   // Memoized validation function
   const isValidMessage = useMemo(() => {
@@ -271,6 +273,26 @@ const ChatScreen = () => {
       </View>
     );
 
+  // Chat initialization loading modal
+  const ChatInitializingModal = () => (
+    <Modal
+      visible={isInitializing}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={() => {}}
+    >
+      <View style={styles.initializingOverlay}>
+        <View style={styles.initializingContainer}>
+          <ActivityIndicator size="large" color="#FE9F1F" />
+          <Text style={styles.initializingTitle}>Initializing Chat</Text>
+          <Text style={styles.initializingText}>
+            Tassie is getting ready to chat with you...
+          </Text>
+        </View>
+      </View>
+    </Modal>
+  );
+
   // Initialize chat with better error handling
   useEffect(() => {
     let isMounted = true;
@@ -279,6 +301,7 @@ const ChatScreen = () => {
       if (hasInitialResponse) return;
 
       try {
+        setIsInitializing(true);
         console.log("Fetching initial bot response...");
         const response = await getInitialBotResponse(chatContext);
 
@@ -298,6 +321,10 @@ const ChatScreen = () => {
           });
           chatContext.addChat(fallbackMessage, false);
           setHasInitialResponse(true);
+        }
+      } finally {
+        if (isMounted) {
+          setIsInitializing(false);
         }
       }
     };
@@ -351,6 +378,7 @@ const ChatScreen = () => {
         </KeyboardAvoidingView>
 
         <LoadingOverlay />
+        <ChatInitializingModal />
       </CustomBackground>
     </SafeAreaView>
   );
@@ -391,6 +419,42 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
     textAlign: "center",
+  },
+  initializingOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  initializingContainer: {
+    backgroundColor: "white",
+    padding: 30,
+    borderRadius: 20,
+    alignItems: "center",
+    minWidth: 250,
+    maxWidth: 300,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  initializingTitle: {
+    marginTop: 15,
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
+  },
+  initializingText: {
+    marginTop: 8,
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
+    lineHeight: 20,
   },
 });
 

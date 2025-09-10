@@ -106,7 +106,9 @@ function ExploreScreen({ navigation }) {
       id: "comic",
       title: "Comic",
       icon: {
-        component: <MaterialIcons name="auto-stories" size={20} color="white" />,
+        component: (
+          <MaterialIcons name="auto-stories" size={20} color="white" />
+        ),
         color: "#FF6B35",
       },
     },
@@ -195,10 +197,6 @@ function ExploreScreen({ navigation }) {
       <View className="flex-1">
         {/* Header with search */}
         <View className="bg-[#FE9F1F] pt-10 pb-4 px-4">
-          <View className="flex-row items-center mb-2">
-            <Text className="text-white text-2xl font-bold">B</Text>
-          </View>
-
           <View className="flex-row bg-white rounded-full px-2 items-center shadow-sm">
             <TextInput
               className="flex-1 py-2 px-3 text-gray-800"

@@ -33,7 +33,7 @@ const ProfileHeader = ({ onProfilePress }) => {
       <View className="h-12 w-12 justify-center items-center">
         <Image
           source={require("../../assets/logo.png")}
-          className="h-12 w-12"
+          className="h-15 w-15"
           resizeMode="contain"
         />
       </View>

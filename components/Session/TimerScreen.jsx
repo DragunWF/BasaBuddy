@@ -3,6 +3,7 @@ import { ScrollView, View, Text, TouchableOpacity } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { CircularProgress } from "react-native-circular-progress";
+import Slider from "@react-native-community/slider";
 import {
   saveReadingSession,
   getTodayReadingTime,
@@ -71,6 +72,17 @@ const TimerScreen = ({
       .padStart(2, "0")}`;
   };
 
+  /**
+   * Handle slider value changes for Pomodoro timer
+   * Converts slider value to minutes and updates the timer
+   * @param {number} value - Slider value in minutes (5-60)
+   */
+  const handleSliderChange = (value) => {
+    // Round to nearest 5-minute increment for better UX
+    const roundedValue = Math.round(value / 5) * 5;
+    onChangePomodoroTime(roundedValue);
+  };
+
   return (
     <ScrollView className="flex-1 px-6">
       <View className="items-center mt-8">
@@ -92,47 +104,84 @@ const TimerScreen = ({
                   Pomodoro
                 </Text>
 
-                {/* Time Display with contained controls */}
-                <View className="flex-row items-center justify-center w-48">
-                  <TouchableOpacity
-                    onPress={() =>
-                      onChangePomodoroTime(Math.max(5, pomodoroMinutes - 5))
-                    }
-                    disabled={isTimerRunning}
-                    className="p-2"
-                  >
-                    <Ionicons
-                      name="remove"
-                      size={24}
-                      color={isTimerRunning ? "#D1D5DB" : "#374151"}
-                    />
-                  </TouchableOpacity>
+                {/* Time Display - Simplified without controls */}
+                <Text className="text-gray-800 text-5xl font-bold">
+                  {formatTime(pomodoroTime)}
+                </Text>
 
-                  <Text className="text-gray-800 text-5xl font-bold mx-4">
-                    {formatTime(pomodoroTime)}
-                  </Text>
-
-                  <TouchableOpacity
-                    onPress={() =>
-                      onChangePomodoroTime(Math.min(60, pomodoroMinutes + 5))
-                    }
-                    disabled={isTimerRunning}
-                    className="p-2"
-                  >
-                    <Ionicons
-                      name="add"
-                      size={24}
-                      color={isTimerRunning ? "#D1D5DB" : "#374151"}
-                    />
-                  </TouchableOpacity>
-                </View>
+                {/* Timer duration label */}
+                <Text className="text-gray-600 text-sm mt-2">
+                  {pomodoroMinutes} minutes
+                </Text>
               </View>
             )}
           </CircularProgress>
         </View>
 
+        {/* Timer Duration Slider */}
+        <View className="w-full bg-white rounded-2xl p-6 mt-6 shadow-lg">
+          <Text className="text-gray-800 text-lg font-semibold mb-4 text-center">
+            Timer Duration
+          </Text>
+
+          {/* Slider with minute markers */}
+          <View className="px-4">
+            <Slider
+              style={{ width: "100%", height: 40 }}
+              minimumValue={5}
+              maximumValue={60}
+              step={1}
+              value={pomodoroMinutes}
+              onValueChange={handleSliderChange}
+              minimumTrackTintColor="#FE9F1F"
+              maximumTrackTintColor="#E5E7EB"
+              thumbStyle={{
+                backgroundColor: "#FE9F1F",
+                width: 24,
+                height: 24,
+              }}
+              trackStyle={{
+                height: 6,
+                borderRadius: 3,
+              }}
+              disabled={isTimerRunning}
+            />
+
+            {/* Slider labels */}
+            <View className="flex-row justify-between mt-2 px-1">
+              <Text className="text-gray-500 text-xs">5 min</Text>
+              <Text className="text-gray-600 text-sm font-medium">
+                {pomodoroMinutes} min
+              </Text>
+              <Text className="text-gray-500 text-xs">60 min</Text>
+            </View>
+          </View>
+
+          {/* Quick preset buttons */}
+          <View className="flex-row justify-center space-x-3 mt-4">
+            {[15, 25, 45].map((preset) => (
+              <TouchableOpacity
+                key={preset}
+                onPress={() => onChangePomodoroTime(preset)}
+                disabled={isTimerRunning}
+                className={`px-4 py-2 rounded-full ${
+                  pomodoroMinutes === preset ? "bg-orange-500" : "bg-gray-200"
+                } ${isTimerRunning ? "opacity-50" : ""}`}
+              >
+                <Text
+                  className={`text-sm font-medium ${
+                    pomodoroMinutes === preset ? "text-white" : "text-gray-600"
+                  }`}
+                >
+                  {preset}m
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
         {/* Daily Progress */}
-        <View className="w-full bg-white rounded-2xl p-6 mt-8 shadow-lg">
+        <View className="w-full bg-white rounded-2xl p-6 mt-6 shadow-lg">
           <View className="flex-row items-center justify-between mb-4">
             <View className="flex-1">
               <Text className="text-gray-600">Daily Progress</Text>

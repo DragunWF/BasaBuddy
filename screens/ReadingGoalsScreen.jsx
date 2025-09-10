@@ -8,46 +8,10 @@ import {
   Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { updateReadingGoals } from "../helpers/storage/profileStorage";
 import Toast from "react-native-toast-message";
-import Slider from "@react-native-community/slider";
 
-const CATEGORIES = [
-  "Arts",
-  "Biography",
-  "Business",
-  "Cooking",
-  "Comic",
-  "Travel",
-  "Education",
-  "Health",
-  "History",
-  "Horror",
-  "Kids",
-  "Medical",
-  "Romance",
-  "Fantasy",
-  "Self-Help",
-  "Sports",
-  "Science",
-  "Technology",
-  "Philosophy",
-  "Psychology",
-  "Religion",
-  "Poetry",
-  "Drama",
-  "Mystery",
-  "Thriller",
-  "Science Fiction",
-  "Adventure",
-  "Politics",
-  "Classic Literature",
-  "Young Adult",
-  "Memoir",
-  "Short Stories",
-  "Essays",
-  "Humor",
-];
+import { updateReadingGoals } from "../helpers/storage/profileStorage";
+import { CATEGORIES } from "../constants/profileSetupInfo";
 
 const ReadingGoalsScreen = ({ navigation }) => {
   const [dailyGoal, setDailyGoal] = useState(null);

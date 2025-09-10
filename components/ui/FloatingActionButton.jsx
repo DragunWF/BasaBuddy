@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { View, TouchableOpacity, Alert, Text, Animated } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import * as DocumentPicker from "expo-document-picker";
+import * as FileSystem from "expo-file-system";
+import BookNameInputModal from "./BookNameInputModal";
+import { addLocalBookToLibrary } from "../../helpers/storage/bookStorage";
 
 const FloatingActionButton = ({
   activeTab,
@@ -11,6 +14,8 @@ const FloatingActionButton = ({
   const [isUploading, setIsUploading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [animation] = useState(new Animated.Value(0));
+  const [isNameModalVisible, setIsNameModalVisible] = useState(false);
+  const [selectedPdfFile, setSelectedPdfFile] = useState(null);
 
   const handlePDFUpload = async () => {
     try {
@@ -21,42 +26,108 @@ const FloatingActionButton = ({
         copyToCacheDirectory: true,
       });
 
-      if (result.type === "success") {
-        // Extract book title from filename (remove .pdf extension)
-        const bookTitle = result.name.replace(/\.pdf$/i, "");
+      console.log("DocumentPicker result:", result); // Debug log
 
-        // Create book object
-        const newBook = {
-          id: Date.now(), // Simple ID generation
-          title: bookTitle,
-          author: "Unknown Author",
-          filePath: result.uri,
-          fileName: result.name,
-          fileSize: result.size,
-          dateAdded: new Date().toISOString(),
-          coverUrl: null,
-          isLocal: true,
-        };
-
-        // Call the callback to add the book
-        if (onBookAdded) {
-          onBookAdded(newBook);
-        }
-
-        Alert.alert(
-          "Success",
-          `"${bookTitle}" has been added to your library!`,
-          [{ text: "OK" }]
-        );
+      if (!result.canceled && result.assets && result.assets[0]) {
+        const file = result.assets[0];
+        console.log("Selected file:", file); // Debug log
+        setSelectedPdfFile(file);
+        setIsNameModalVisible(true);
+      } else if (result.type === "success") {
+        // Fallback for older versions
+        console.log("Using fallback for older version"); // Debug log
+        setSelectedPdfFile(result);
+        setIsNameModalVisible(true);
+      } else {
+        console.log("User canceled or no file selected"); // Debug log
       }
     } catch (error) {
       console.error("Error picking document:", error);
-      Alert.alert("Error", "Failed to upload the PDF. Please try again.", [
-        { text: "OK" },
-      ]);
+      Alert.alert("Error", "Failed to select PDF file. Please try again.");
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const handleSaveBookName = async (bookName) => {
+    if (!selectedPdfFile) {
+      console.log("No selected PDF file"); // Debug log
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      console.log("Saving book with name:", bookName); // Debug log
+      console.log("Selected PDF file:", selectedPdfFile); // Debug log
+
+      // Copy PDF to app directory
+      const fileExtension = selectedPdfFile.name.split(".").pop();
+      const fileName = `${Date.now()}.${fileExtension}`;
+      const destinationUri = `${FileSystem.documentDirectory}books/${fileName}`;
+
+      console.log("Destination URI:", destinationUri); // Debug log
+
+      // Create books directory if it doesn't exist
+      const booksDir = `${FileSystem.documentDirectory}books/`;
+      await FileSystem.makeDirectoryAsync(booksDir, { intermediates: true });
+
+      // Copy the file
+      await FileSystem.copyAsync({
+        from: selectedPdfFile.uri,
+        to: destinationUri,
+      });
+
+      console.log("File copied successfully"); // Debug log
+
+      // Save to library
+      const bookData = {
+        title: bookName,
+        fileName: fileName,
+        filePath: destinationUri,
+        originalName: selectedPdfFile.name,
+        dateAdded: new Date().toISOString(),
+        fileSize: selectedPdfFile.size,
+      };
+
+      console.log("Saving book data:", bookData); // Debug log
+
+      const saveResult = await addLocalBookToLibrary(bookData);
+      console.log("Save result:", saveResult); // Debug log
+
+      // Create book object for callback
+      const newBook = {
+        id: `local_${Date.now()}`,
+        title: bookName,
+        author: "Unknown Author",
+        filePath: destinationUri,
+        fileName: fileName,
+        fileSize: selectedPdfFile.size,
+        dateAdded: new Date().toISOString(),
+        coverUrl: null,
+        isLocal: true,
+      };
+
+      console.log("Calling onBookAdded with:", newBook); // Debug log
+
+      // Call the callback to add the book
+      if (onBookAdded) {
+        onBookAdded(newBook);
+      }
+
+      setIsNameModalVisible(false);
+      setSelectedPdfFile(null);
+      Alert.alert("Success", `"${bookName}" has been added to your library!`);
+    } catch (error) {
+      console.error("Error saving PDF:", error);
+      Alert.alert("Error", "Failed to save the PDF. Please try again.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleCancelBookName = () => {
+    setIsNameModalVisible(false);
+    setSelectedPdfFile(null);
   };
 
   const handleAddCollection = () => {
@@ -130,13 +201,14 @@ const FloatingActionButton = ({
           action: handleAddCollection,
           color: "#96CEB4",
         },
-        {
-          icon: "import-export",
-          label: "Import Collection",
-          action: () =>
-            Alert.alert("Import", "Import collection feature coming soon!"),
-          color: "#FFEAA7",
-        },
+        // Note: This is disabled for now but it is still open for future integrations.
+        // {
+        //   icon: "import-export",
+        //   label: "Import Collection",
+        //   action: () =>
+        //     Alert.alert("Import", "Import collection feature coming soon!"),
+        //   color: "#FFEAA7",
+        // },
       ];
     }
   };
@@ -210,6 +282,14 @@ const FloatingActionButton = ({
           />
         </Animated.View>
       </TouchableOpacity>
+
+      {/* Book Name Input Modal */}
+      <BookNameInputModal
+        visible={isNameModalVisible}
+        fileName={selectedPdfFile?.name || ""}
+        onSave={handleSaveBookName}
+        onCancel={handleCancelBookName}
+      />
     </View>
   );
 };

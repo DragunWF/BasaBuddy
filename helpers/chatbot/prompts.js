@@ -30,6 +30,9 @@ CRITICAL RULES:
 - Keep every reply 1-3 sentences max. Texting style, not long speeches.
 - Output ONLY in JSON (format shown below).
 - "response" is ALWAYS required. Never leave it empty.
+- NEVER use markdown formatting like **bold**, *italic*, or other special characters for emphasis.
+- Use plain text only - no asterisks, underscores, or other formatting symbols.
+- For emphasis, use ALL CAPS sparingly or rely on word choice and punctuation.
 - You MUST choose **either a mood OR a sticker OR neither** in one response. 
   - NEVER include both at the same time.
   - If using a mood, "sticker" must be "".
@@ -82,7 +85,7 @@ ${chatbotPromptTemplates.likedBooks}
 JSON OUTPUT FORMAT (always follow this exactly):
 \`\`\`json
 {
-  "response": "Your response here",
+  "response": "Your response here in plain text with no formatting",
   "mood": "Your mood here, or \"\" if none",
   "sticker": "Your sticker here, or \"\" if none"
 }

@@ -27,36 +27,81 @@ import {
   possibleTassieStickerNames,
 } from "./tassieAssets";
 
-export async function getInitialBotResponse(chatbotContext) {
-  const userProfile = await fetchProfile();
-  const fullModifiedPrompt = await getChatbotPrompt(userProfile);
-  chatbotContext.updateInitialPrompt(fullModifiedPrompt); // Use renamed method
-  const response = await generateText(fullModifiedPrompt);
-  return parseBotResponse(response);
+function cleanMarkdownFormatting(text) {
+  if (!text || typeof text !== "string") return text;
+
+  return (
+    text
+      // Remove bold formatting (**text** or __text__)
+      .replace(/\*\*(.*?)\*\*/g, "$1")
+      .replace(/__(.*?)__/g, "$1")
+      // Remove italic formatting (*text* or _text_)
+      .replace(/\*(.*?)\*/g, "$1")
+      .replace(/_(.*?)_/g, "$1")
+      // Remove other common markdown symbols
+      .replace(/`(.*?)`/g, "$1")
+      // Clean up any remaining asterisks or underscores that might be used for emphasis
+      .replace(/[\*_]/g, "")
+  );
 }
 
-export async function getBotResponse(chatbotContext, userMessage) {
-  const newMessage = {
-    role: "user",
-    text: userMessage,
+// Add retry mechanism for JSON parsing
+async function generateResponseWithRetry(
+  promptOrHistory,
+  maxRetries = 3,
+  isInitialPrompt = false
+) {
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`Attempt ${attempt}/${maxRetries} to generate response`);
+
+      let response;
+      if (isInitialPrompt) {
+        response = await generateText(promptOrHistory);
+      } else {
+        response = await generateTextWithHistory(promptOrHistory);
+      }
+
+      console.log(`Raw response attempt ${attempt}:`, response);
+
+      // Try to parse the response
+      const parsedResponse = parseBotResponse(response);
+
+      // Clean any markdown formatting from the response text
+      if (parsedResponse.response) {
+        parsedResponse.response = cleanMarkdownFormatting(
+          parsedResponse.response
+        );
+      }
+
+      console.log(
+        `Successfully parsed response on attempt ${attempt}:`,
+        parsedResponse
+      );
+      return parsedResponse;
+    } catch (error) {
+      console.error(`Attempt ${attempt} failed:`, error.message);
+      lastError = error;
+
+      // If this is not the last attempt, wait a bit before retrying
+      if (attempt < maxRetries) {
+        console.log(`Waiting before retry...`);
+        await new Promise((resolve) => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
+      }
+    }
+  }
+
+  // If all retries failed, return a fallback response
+  console.error(`All ${maxRetries} attempts failed. Last error:`, lastError);
+
+  return {
+    response:
+      "Sorry, I'm having trouble responding right now. Can you try asking again?",
+    mood: "",
+    sticker: "",
   };
-
-  // Create the complete history array including the initial prompt as a user message
-  // since Gemini only supports user and model roles
-  const completeHistory = [
-    {
-      role: "user", // Changed from system to user since Gemini doesn't support system
-      text: chatbotContext.initialPrompt,
-    },
-    ...chatbotContext.chatHistory,
-    newMessage,
-  ];
-
-  const response = await generateTextWithHistory(completeHistory);
-  console.log("Complete History with Initial Prompt:", completeHistory);
-  console.log("Tassie Response:", response);
-
-  return parseBotResponse(response);
 }
 
 async function getChatbotPrompt(profile) {
@@ -129,6 +174,8 @@ export async function generateTassieInsights(text) {
     text
   );
   const polishedScannedText = await generateText(modifiedPolishPrompt);
+  const libraryBooks = await getLibraryBooks();
+
   console.info("Polished Scanned Text: ", polishedScannedText);
 
   let modifiedInsightsPrompt = tassieInsightsPrompt;
@@ -138,7 +185,7 @@ export async function generateTassieInsights(text) {
   );
   modifiedInsightsPrompt = modifiedInsightsPrompt.replace(
     tassieInsightsPromptTemplates.text,
-    dummyBooksRead // Replace this in the future
+    toBookListPromptString(await getBookListFromIds(libraryBooks), 5)
   );
   modifiedInsightsPrompt = modifiedInsightsPrompt.replace(
     tassieInsightsPromptTemplates.userGenre,
@@ -173,6 +220,9 @@ export function getTassieSticker(stickerName) {
 async function getBookListFromIds(books) {
   const bookList = [];
   for (let book of books) {
+    if (book.bookId.startsWith("local_")) {
+      continue; // Skip local books
+    }
     const bookDetails = await getBookDetails(book.bookId);
     bookList.push(bookDetails);
   }
@@ -192,4 +242,37 @@ function toBookListPromptString(bookList, limit = 5) {
     }
   }
   return bookListNames.join("\n");
+}
+
+export async function getInitialBotResponse(chatbotContext) {
+  const userProfile = await fetchProfile();
+  const fullModifiedPrompt = await getChatbotPrompt(userProfile);
+  chatbotContext.updateInitialPrompt(fullModifiedPrompt);
+
+  return await generateResponseWithRetry(fullModifiedPrompt, 3, true);
+}
+
+export async function getBotResponse(chatbotContext, userMessage) {
+  const newMessage = {
+    role: "user",
+    text: userMessage,
+  };
+
+  // Create the complete history array including the initial prompt as a user message
+  // since Gemini only supports user and model roles
+  const completeHistory = [
+    {
+      role: "user", // Changed from system to user since Gemini doesn't support system
+      text: chatbotContext.initialPrompt,
+    },
+    ...chatbotContext.chatHistory,
+    newMessage,
+  ];
+
+  console.log("Complete History with Initial Prompt:", completeHistory);
+
+  const response = await generateResponseWithRetry(completeHistory, 3, false);
+  console.log("Final Tassie Response:", response);
+
+  return response;
 }

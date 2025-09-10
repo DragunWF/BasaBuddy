@@ -204,12 +204,7 @@ const ProfileScreen = () => {
   };
 
   const handlePlusButtonPress = () => {
-    navigation.navigate("HomeNavigator", {
-      screen: "MainApp", // or whatever you called your bottom tab navigator inside HomeNavigator
-      params: {
-        screen: "Explore",
-      },
-    });
+    navigation.navigate("MainApp", { screen: "Explore" });
   };
 
   const handleBackPress = () => {
@@ -238,9 +233,9 @@ const ProfileScreen = () => {
           >
             <Text className="text-white font-bold text-lg">B</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             className="w-10 h-10 justify-center items-center"
-            onPress={() => navigation.navigate('Settings')}
+            onPress={() => navigation.navigate("Settings")}
           >
             <Ionicons name="settings-outline" size={24} color="#888" />
           </TouchableOpacity>
@@ -335,10 +330,15 @@ const ProfileScreen = () => {
           {userData.collections.map((collection) => (
             <View
               key={collection.id}
-              className="bg-white rounded-xl shadow-md mb-4 overflow-hidden"
+              className="bg-white rounded-xl shadow-lg mb-4 overflow-hidden border border-gray-200" // Enhanced shadow for more depth
             >
               <View className="flex-row">
-                <View className="w-24 h-24 bg-gray-200" />
+                {/* Book icon styled with white circular background and shadow for better integration. Replace with collection cover in future. */}
+                <View className="w-24 h-24 bg-gray-200 items-center justify-center">
+                  <View className="w-16 h-16 bg-white rounded-full items-center justify-center shadow">
+                    <Ionicons name="book" size={32} color="#FE9F1F" />
+                  </View>
+                </View>
                 <View className="p-3 flex-1">
                   <Text className="font-bold text-lg">{collection.title}</Text>
                   <Text className="text-gray-500">By {collection.creator}</Text>

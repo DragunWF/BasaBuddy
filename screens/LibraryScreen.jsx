@@ -7,6 +7,7 @@ import {
   Modal,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import Toast from "react-native-toast-message";
@@ -21,6 +22,8 @@ import {
   getLibraryBooks,
   getLikedBooks,
   getBooksRead,
+  getBooksInCollection,
+  getLocalBooks,
 } from "../helpers/storage/bookStorage";
 import { getBookDetails } from "../services/openLibraryService";
 import {
@@ -35,11 +38,16 @@ import { fetchProfile } from "../helpers/storage/profileStorage";
 function LibraryScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState("books");
   const [userBooks, setUserBooks] = useState([]);
+  const [localBooks, setLocalBooks] = useState([]);
   const [userCollections, setUserCollections] = useState([]);
   const [author, setAuthor] = useState("User");
 
   const [likedBooksCount, setLikedBooksCount] = useState(0);
   const [finishedBooksCount, setFinishedBooksCount] = useState(0);
+
+  // Loading states
+  const [isLoadingBooks, setIsLoadingBooks] = useState(true);
+  const [isLoadingCollections, setIsLoadingCollections] = useState(true);
 
   // State for modals
   const [showOptionsModal, setShowOptionsModal] = useState(false);
@@ -55,12 +63,44 @@ function LibraryScreen({ navigation }) {
     useCallback(() => {
       const fetchLibraryBooks = async () => {
         try {
+          setIsLoadingBooks(true);
+          // Fetch all books from library
           const books = await getLibraryBooks();
-          const displayedBooks = [];
+          const onlineBooks = [];
+          const localBooksFromLibrary = [];
+
           for (let book of books) {
-            displayedBooks.push(await getBookDetails(book.bookId));
+            // Check if this is a local book (has full book data) or online book (just bookId reference)
+            if (book.isLocal || book.title) {
+              // This is a local book with full data
+              localBooksFromLibrary.push(book);
+            } else {
+              // This is an online book reference, fetch details from API
+              try {
+                const bookDetails = await getBookDetails(book.bookId);
+                onlineBooks.push(bookDetails);
+              } catch (error) {
+                console.log(
+                  "Error fetching details for book:",
+                  book.bookId,
+                  error
+                );
+                // Skip this book if API call fails
+              }
+            }
           }
-          setUserBooks(displayedBooks || []);
+
+          setUserBooks(onlineBooks || []);
+
+          // Fetch local books separately and merge with local books from library
+          const localBooksData = await getLocalBooks();
+          // Remove duplicates by bookId
+          const allLocalBooks = [...localBooksFromLibrary, ...localBooksData];
+          const uniqueLocalBooks = allLocalBooks.filter(
+            (book, index, self) =>
+              index === self.findIndex((b) => b.bookId === book.bookId)
+          );
+          setLocalBooks(uniqueLocalBooks || []);
         } catch (error) {
           console.log("Error fetching library books:", error);
           Toast.show({
@@ -68,18 +108,44 @@ function LibraryScreen({ navigation }) {
             text1: "Error fetching library books",
             position: "bottom",
           });
+        } finally {
+          setIsLoadingBooks(false);
         }
       };
       const fetchCollections = async () => {
+        // Fetch all collections and add cover images from the first book in each collection
         try {
+          setIsLoadingCollections(true);
           const collections = await getCollections();
           const displayedCollections = [];
           for (let collection of collections) {
+            // Get books in this collection to find the first book for cover image
+            const booksInCollection = await getBooksInCollection(
+              collection.getId()
+            );
+            let coverImage = null;
+
+            // If collection has books, get the first book's details for cover image
+            if (booksInCollection.length > 0) {
+              try {
+                const firstBook = await getBookDetails(
+                  booksInCollection[0].bookId
+                );
+                coverImage = firstBook.coverUrl;
+              } catch (error) {
+                console.log(
+                  "Error fetching first book details for cover:",
+                  error
+                );
+              }
+            }
+
             displayedCollections.push({
               id: collection.getId(),
               title: collection.getTitle(),
               author: "You",
               bookCount: await getCollectionBookCount(collection.getId()),
+              coverImage: coverImage, // Added cover image from first book in collection
             });
           }
           setUserCollections(displayedCollections);
@@ -90,6 +156,8 @@ function LibraryScreen({ navigation }) {
             text1: "Error fetching collections",
             position: "bottom",
           });
+        } finally {
+          setIsLoadingCollections(false);
         }
       };
       const fetchSpecialCollections = async () => {
@@ -135,11 +203,26 @@ function LibraryScreen({ navigation }) {
     }, [])
   );
 
-  const allBooks = [...userBooks];
+  const allBooks = [...userBooks, ...localBooks];
   const allCollections = [...userCollections];
 
+  // Loading indicator component
+  const LoadingIndicator = ({ message }) => (
+    <View className="flex-1 justify-center items-center py-20">
+      <ActivityIndicator size="large" color="white" />
+      <Text className="text-white text-base mt-4 opacity-90">{message}</Text>
+    </View>
+  );
+
   const handleBookPress = (book) => {
-    navigation.navigate("BookDetails", { bookId: book.id });
+    if (book.isLocal) {
+      navigation.navigate("Reading", {
+        book: book,
+        isLocalPdf: true,
+      });
+    } else {
+      navigation.navigate("BookDetails", { bookId: book.id });
+    }
   };
 
   const handleCollectionPress = (collection) => {
@@ -200,7 +283,11 @@ function LibraryScreen({ navigation }) {
   };
 
   const handleBookAdded = (newBook) => {
-    setUserBooks((prevBooks) => [...prevBooks, newBook]);
+    if (newBook.isLocal) {
+      setLocalBooks((prevBooks) => [...prevBooks, newBook]);
+    } else {
+      setUserBooks((prevBooks) => [...prevBooks, newBook]);
+    }
   };
 
   // --- New and Updated Handlers ---
@@ -229,6 +316,7 @@ function LibraryScreen({ navigation }) {
           title: newCollection.getTitle(),
           author: author,
           bookCount: 0,
+          coverImage: null, // New collections start with no cover image
         };
         setUserCollections((prev) => [...prev, formattedCollection]);
         setShowCreateModal(false);
@@ -273,15 +361,33 @@ function LibraryScreen({ navigation }) {
 
           {activeTab === "books" ? (
             /* Books Grid */
-            <View className="flex-row flex-wrap justify-between">
-              {allBooks.map((book) => (
-                <View key={book.id} className="w-[48%]">
-                  <BookCard book={book} onPress={() => handleBookPress(book)} />
-                </View>
-              ))}
-            </View>
+            isLoadingBooks ? (
+              <LoadingIndicator message="Loading your books..." />
+            ) : allBooks.length > 0 ? (
+              <View className="flex-row flex-wrap justify-between">
+                {allBooks.map((book) => (
+                  <View key={book.id} className="w-[48%]">
+                    <BookCard
+                      book={book}
+                      onPress={() => handleBookPress(book)}
+                    />
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <View className="flex-1 justify-center items-center py-20">
+                <Text className="text-white text-lg font-semibold mb-2">
+                  No Books Yet
+                </Text>
+                <Text className="text-white text-base opacity-90 text-center">
+                  Start building your library by adding books!
+                </Text>
+              </View>
+            )
+          ) : /* Collections List */
+          isLoadingCollections ? (
+            <LoadingIndicator message="Loading your collections..." />
           ) : (
-            /* Collections List */
             <View>
               {/* Special Collections */}
               <View className="flex-row justify-between mb-4">
