@@ -166,7 +166,7 @@ Generate 1-2 sharp, engaging insights about this text that would make someone go
 - Plot elements that hint at deeper meaning
 - Surprising details that reveal character or world-building
 
-**Your Personality Based on User's Genre:**
+**Your Personality Based on User's Genres:**
 ${
   tassieInsightsPromptTemplates.userGenre
     ? `

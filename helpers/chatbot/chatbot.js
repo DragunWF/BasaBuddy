@@ -189,7 +189,7 @@ export async function generateTassieInsights(text) {
   );
   modifiedInsightsPrompt = modifiedInsightsPrompt.replace(
     tassieInsightsPromptTemplates.userGenre,
-    profile.getFavoriteGenre()
+    profile.getPreferredCategories()
   );
   const insights = await generateText(modifiedInsightsPrompt);
   console.info("Tassie Insights: ", insights);

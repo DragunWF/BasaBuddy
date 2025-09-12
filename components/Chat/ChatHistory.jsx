@@ -21,11 +21,41 @@ const MessageItem = memo(({ message }) => {
     );
   }
 
-  // Handle bot messages - memoize the parsed message and image selection
+  // Handle bot messages - enhanced parsing with fallback for plain text
   const { parsedMessage, imageToShow } = useMemo(() => {
     let parsed = message.text;
-    if (typeof message.text === "string" && message.text.startsWith("{")) {
-      parsed = JSON.parse(message.text);
+
+    // Try to parse as JSON
+    if (typeof message.text === "string") {
+      if (message.text.startsWith("{")) {
+        try {
+          parsed = JSON.parse(message.text);
+        } catch (error) {
+          console.warn("Failed to parse bot message as JSON:", error);
+          // Fallback: treat as plain text response
+          parsed = {
+            response: message.text,
+            mood: "",
+            sticker: "",
+          };
+        }
+      } else {
+        // Handle plain text responses (like insights)
+        parsed = {
+          response: message.text,
+          mood: "",
+          sticker: "",
+        };
+      }
+    }
+
+    // Ensure parsed message has required structure
+    if (!parsed.response) {
+      parsed = {
+        response: parsed.response || parsed.text || message.text || "...",
+        mood: parsed.mood || "",
+        sticker: parsed.sticker || "",
+      };
     }
 
     // Prioritize mood over sticker

@@ -220,7 +220,14 @@ const ChatScreen = () => {
             const tassieInsights = await generateTassieInsights(extractedText);
             console.log("Insights generated successfully");
 
-            chatContext.addChat(tassieInsights, false);
+            // Format insights as proper JSON for ChatHistory component
+            const formattedInsights = JSON.stringify({
+              response: tassieInsights,
+              mood: "",
+              sticker: "",
+            });
+
+            chatContext.addChat(formattedInsights, false);
 
             Toast.show({
               type: "success",
@@ -249,7 +256,7 @@ const ChatScreen = () => {
           });
         }
       } catch (error) {
-        console.error("Error in image selection:", error);
+        console.error("Error in selection:", error);
         Toast.show({
           type: "error",
           text1: "Image Error",
