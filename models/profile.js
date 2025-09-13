@@ -8,6 +8,7 @@ class Profile extends Model {
   #readingSpeed;
   #dailyGoal;
   #preferredCategories;
+  #favoriteGenre;
   profileImage;
 
   constructor(firstName, lastName, ageGroup, readingTime, readingSpeed) {
@@ -19,6 +20,7 @@ class Profile extends Model {
     this.#readingSpeed = readingSpeed;
     this.#dailyGoal = null;
     this.#preferredCategories = [];
+    this.#favoriteGenre = null;
   }
 
   // Getters
@@ -54,6 +56,10 @@ class Profile extends Model {
     return this.profileImage;
   }
 
+  getFavoriteGenre() {
+    return this.#favoriteGenre || "Fiction"; // Default fallback
+  }
+
   // Setters
   setFirstName(firstName) {
     this.#firstName = firstName;
@@ -85,6 +91,10 @@ class Profile extends Model {
 
   setProfileImage(uri) {
     this.profileImage = uri;
+  }
+
+  setFavoriteGenre(genre) {
+    this.#favoriteGenre = genre;
   }
 }
 
