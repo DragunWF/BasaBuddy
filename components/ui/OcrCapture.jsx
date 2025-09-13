@@ -47,15 +47,14 @@ const OcrCapture = ({ onTextExtracted, onError }) => {
     try {
       setProcessingStep('Extracting text from image...');
       
-      // Convert image to FormData for the existing OCR service
-      const formData = new FormData();
-      formData.append('image', {
+      // Create imageAsset object like in ChatScreen
+      const imageAsset = {
         uri: imageUri,
         type: 'image/jpeg',
         name: 'image.jpg',
-      });
+      };
       
-      const text = await performOCR(formData);
+      const text = await performOCR(imageAsset);
       return text;
     } catch (error) {
       console.error('OCR API service error:', error);
