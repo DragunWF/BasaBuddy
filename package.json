@@ -47,8 +47,7 @@
     "tailwindcss": "^3.4.17",
     "expo-intent-launcher": "~12.1.5",
     "expo-camera": "~16.1.7",
-    "expo-speech": "~13.1.7",
-    "react-native-text-recognition": "^0.2.4"
+    "expo-speech": "~13.1.7"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

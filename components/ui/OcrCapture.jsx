@@ -49,9 +49,9 @@ const OcrCapture = ({ onTextExtracted, onError }) => {
     throw new Error('Tesseract not supported in React Native');
   };
 
-  const processImageWithFallback = async (imageUri) => {
+  const processImageWithAPIService = async (imageUri) => {
     try {
-      setProcessingStep('Using backup text recognition...');
+      setProcessingStep('Extracting text from image...');
       
       // Convert image to FormData for the existing OCR service
       const formData = new FormData();
@@ -64,7 +64,7 @@ const OcrCapture = ({ onTextExtracted, onError }) => {
       const text = await performOCR(formData);
       return text;
     } catch (error) {
-      console.error('Fallback OCR error:', error);
+      console.error('OCR API service error:', error);
       throw error;
     }
   };
@@ -76,18 +76,13 @@ const OcrCapture = ({ onTextExtracted, onError }) => {
     try {
       let extractedText = '';
       
-      // Try Tesseract.js first (offline, more reliable)
+      // Use the existing OCR API service directly (React Native compatible)
       try {
-        extractedText = await processImageWithTesseract(imageUri);
-      } catch (tesseractError) {
-        console.log('Tesseract failed, trying fallback OCR service...');
-        
-        // Fallback to existing OCR service
-        try {
-          extractedText = await processImageWithFallback(imageUri);
-        } catch (fallbackError) {
-          throw new Error('Both OCR methods failed');
-        }
+        setProcessingStep('Reading text from image...');
+        extractedText = await processImageWithAPIService(imageUri);
+      } catch (ocrError) {
+        console.error('OCR service failed:', ocrError);
+        throw new Error('OCR service failed');
       }
       
       if (!extractedText || extractedText.length < 3) {
