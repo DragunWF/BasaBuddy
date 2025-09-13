@@ -11,7 +11,6 @@ import {
   tassieInsightsPrompt,
   tassieInsightsPromptTemplates,
 } from "./prompts";
-import { dummyBooksRead } from "../tools/dummyData";
 
 import {
   getLibraryBooks,
