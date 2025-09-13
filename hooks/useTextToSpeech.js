@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
+import * as Speech from 'expo-speech';
 
 const useTextToSpeech = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -8,58 +9,9 @@ const useTextToSpeech = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   
-  const utteranceRef = useRef(null);
   const textChunksRef = useRef([]);
   const currentChunkIndexRef = useRef(0);
-  const selectedVoiceRef = useRef(null);
-
-  // Initialize and select the cutest voice available
-  useEffect(() => {
-    const initializeVoice = () => {
-      if ('speechSynthesis' in window) {
-        const voices = speechSynthesis.getVoices();
-        
-        // Priority order for cute voices
-        const cuteVoicePreferences = [
-          // Female voices that tend to sound cute
-          'Samantha', 'Victoria', 'Princess', 'Kathy', 'Vicki',
-          // Google voices
-          'Google UK English Female', 'Google US English Female',
-          // Microsoft voices
-          'Microsoft Zira Desktop', 'Microsoft Hazel Desktop',
-          // Fallback to any female voice
-          voices.find(voice => voice.name.toLowerCase().includes('female')),
-          voices.find(voice => voice.gender === 'female'),
-          // Final fallback to first available voice
-          voices[0]
-        ];
-
-        for (const preference of cuteVoicePreferences) {
-          let voice = null;
-          if (typeof preference === 'string') {
-            voice = voices.find(v => v.name === preference);
-          } else if (preference) {
-            voice = preference;
-          }
-          
-          if (voice) {
-            selectedVoiceRef.current = voice;
-            break;
-          }
-        }
-      }
-    };
-
-    // Initialize immediately if voices are available
-    initializeVoice();
-    
-    // Also listen for voiceschanged event (some browsers load voices asynchronously)
-    speechSynthesis.addEventListener('voiceschanged', initializeVoice);
-    
-    return () => {
-      speechSynthesis.removeEventListener('voiceschanged', initializeVoice);
-    };
-  }, []);
+  const isSpeakingRef = useRef(false);
 
   // Split text into manageable chunks to avoid synthesis cutoffs
   const splitTextIntoChunks = (text, maxLength = 200) => {
