@@ -18,22 +18,24 @@ import Toast from "react-native-toast-message";
  */
 
 /**
- * Initialize a 6-day reading streak for September 2025
+ * Initialize a 7-day reading streak ending today (September 14, 2025)
  *
  * Creates:
- * - Reading streak of 6 consecutive days (Sept 1-6, 2025)
+ * - Reading streak of 7 consecutive days (Sept 8-14, 2025)
  * - Reading sessions for each day (30-45 minutes per day)
  * - Daily goal achievement for streak calculation
- * - Last read date set to Sept 6, 2025
+ * - Last read date set to today (Sept 14, 2025)
  *
  * @returns {Promise<boolean>} Success status of initialization
  */
 export async function initializeDemoReadingStreak() {
   try {
-    // Define the 6-day streak period (September 1-6, 2025)
-    const streakStartDate = new Date("2025-09-01");
-    const streakEndDate = new Date("2025-09-06");
-    const streakDays = 6;
+    // Define the 7-day streak period ending today (September 8-14, 2025)
+    const today = new Date("2025-09-14");
+    const streakDays = 7;
+    const streakStartDate = new Date(today);
+    streakStartDate.setDate(today.getDate() - (streakDays - 1)); // Go back 6 days to get 7 total
+    const streakEndDate = today;
 
     // Create reading sessions for each day of the streak
     const readingSessions = [];
@@ -90,7 +92,7 @@ export async function initializeDemoReadingStreak() {
     Toast.show({
       type: "success",
       text1: "Demo Streak Initialized!",
-      text2: `6-day reading streak created for September 2025`,
+      text2: `7-day reading streak created (Sept 8-14, 2025)`,
       visibilityTime: 3000,
     });
 

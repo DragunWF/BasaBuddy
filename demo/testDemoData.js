@@ -1,44 +1,35 @@
 // Test file for demo data utils
-import { generateInitialReadingStreak } from "./demoDataUtils";
+import { initializeDemoReadingStreak } from "./demoDataUtils";
 import { getData, STREAK_KEYS } from "../helpers/storage/storageCore";
 
 export const testDemoStreak = async () => {
   try {
-    console.log("Testing generateInitialReadingStreak function...");
+    console.log("Testing initializeDemoReadingStreak function...");
 
     // Generate the initial streak
-    await generateInitialReadingStreak();
+    await initializeDemoReadingStreak();
 
     // Verify the streak data was stored correctly
-    const streakData = await getData(STREAK_KEYS.STREAK_DATA);
-    const streakCount = await getData(STREAK_KEYS.CURRENT_STREAK);
-    const lastReadDate = await getData(STREAK_KEYS.LAST_READ_DATE);
+    const streakData = await getData(STREAK_KEYS.streakData);
+    const lastReadDate = await getData(STREAK_KEYS.lastReadDate);
 
     console.log("Streak Data:", streakData);
-    console.log("Current Streak Count:", streakCount);
     console.log("Last Read Date:", lastReadDate);
 
-    // Verify we have 6 days of streak data for September 2025
-    if (streakData && Array.isArray(streakData)) {
-      console.log(`Generated ${streakData.length} streak entries`);
+    // Verify we have 7 days of streak data ending today
+    if (streakData) {
+      console.log(`Current streak: ${streakData.currentStreak} days`);
+      console.log(`Total days: ${streakData.totalDays} days`);
 
-      // Check dates are in September 2025
-      const septemberDates = streakData.filter((entry) => {
-        const date = new Date(entry.date);
-        return date.getFullYear() === 2025 && date.getMonth() === 8; // September is month 8
-      });
-
-      console.log(`Found ${septemberDates.length} September 2025 entries`);
-
-      if (septemberDates.length === 6) {
+      if (streakData.currentStreak === 7 && streakData.totalDays === 7) {
         console.log(
-          "✅ Demo streak test PASSED - 6 September 2025 entries created"
+          "✅ Demo streak test PASSED - 7-day streak created successfully"
         );
         return true;
       } else {
         console.log(
-          "❌ Demo streak test FAILED - Expected 6 entries, got",
-          septemberDates.length
+          "❌ Demo streak test FAILED - Expected 7-day streak, got",
+          streakData.currentStreak
         );
         return false;
       }
