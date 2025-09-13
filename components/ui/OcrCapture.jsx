@@ -43,12 +43,6 @@ const OcrCapture = ({ onTextExtracted, onError }) => {
     return true;
   };
 
-  const processImageWithTesseract = async (imageUri) => {
-    // Tesseract.js doesn't work in React Native due to Web Workers
-    // Skip to fallback OCR service
-    throw new Error('Tesseract not supported in React Native');
-  };
-
   const processImageWithAPIService = async (imageUri) => {
     try {
       setProcessingStep('Extracting text from image...');
