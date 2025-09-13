@@ -14,6 +14,8 @@
 
 **BasaBuddy** is Team Hackademics' submission to the **Readers Rising Hackathon 2025** organized by the National Book Development Board of the Philippines. This React Native mobile application aims to promote literacy and reading culture in the Philippines by providing an engaging platform that connects readers with books and learning resources.
 
+This hackathon took place on **September 13, 2025 to September 14, 2025**.
+
 ---
 
 ## Tech Stack
@@ -21,7 +23,7 @@
 - **React Native** - Cross-platform mobile development
 - **Expo** - Development platform and build tools
 - **JavaScript** - Programming language
-- **SQLite** - Offline relational database
+- **Async Storage** - Offline local storage for both iOS and Android.
 
 ---
 
