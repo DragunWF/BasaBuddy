@@ -1,311 +1,126 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
-  Modal,
-  ScrollView,
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { mainColors } from '../../constants/colors';
-import { useTextToSpeech } from '../../hooks/useTextToSpeech';
 
 const TTSControls = ({ 
-  text, 
-  style, 
-  showProgress = true, 
-  showSettings = true,
-  compact = false 
+  isPlaying, 
+  isPaused, 
+  isLoading, 
+  progress, 
+  onPlay, 
+  onPause, 
+  onStop, 
+  onTogglePlayPause,
+  disabled = false 
 }) => {
-  const {
-    isPlaying,
-    isPaused,
-    isLoading,
-    settings,
-    availableVoices,
-    error,
-    progress,
-    isSupported,
-    speak,
-    pause,
-    resume,
-    stop,
-    togglePlayPause,
-    updateRate,
-    updatePitch,
-    updateVolume,
-    updateVoice,
-    clearError,
-  } = useTextToSpeech();
-
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
-
-  if (!isSupported) {
-    return (
-      <View style={[{ opacity: 0.5 }, style]}>
-        <TouchableOpacity 
-          className="flex-row items-center justify-center p-2 bg-gray-200 rounded-full"
-          disabled
-        >
-          <Ionicons name="volume-mute" size={20} color={mainColors.gray} />
-          {!compact && (
-            <Text className="ml-2 text-gray-500 text-sm">TTS not supported</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
-  const handlePlayPress = () => {
-    clearError();
-    if (!isPlaying && !isPaused) {
-      speak(text);
-    } else {
-      togglePlayPause();
-    }
-  };
-
-  const handleStopPress = () => {
-    stop();
-  };
-
   const getPlayButtonIcon = () => {
     if (isLoading) return null;
-    if (isPlaying && !isPaused) return 'pause';
+    if (isPlaying) return 'pause';
     return 'play';
   };
 
-  const renderCompactControls = () => (
-    <View style={[{ flexDirection: 'row', alignItems: 'center' }, style]}>
-      <TouchableOpacity
-        onPress={handlePlayPress}
-        className="p-2 bg-white rounded-full shadow-sm border border-gray-200"
-        disabled={isLoading || !text?.trim()}
-      >
-        {isLoading ? (
-          <ActivityIndicator size="small" color={mainColors.primary500} />
-        ) : (
-          <Ionicons 
-            name={getPlayButtonIcon()} 
-            size={20} 
-            color={!text?.trim() ? mainColors.gray : mainColors.primary500} 
-          />
-        )}
-      </TouchableOpacity>
+  const getPlayButtonColor = () => {
+    if (disabled) return '#ccc';
+    return '#FE9F1F';
+  };
 
-      {(isPlaying || isPaused) && (
-        <TouchableOpacity
-          onPress={handleStopPress}
-          className="ml-2 p-2 bg-white rounded-full shadow-sm border border-gray-200"
-        >
-          <Ionicons name="stop" size={20} color={mainColors.primary500} />
-        </TouchableOpacity>
-      )}
-
-      {showSettings && (
-        <TouchableOpacity
-          onPress={() => setShowSettingsModal(true)}
-          className="ml-2 p-2 bg-white rounded-full shadow-sm border border-gray-200"
-        >
-          <Ionicons name="settings" size={18} color={mainColors.gray} />
-        </TouchableOpacity>
-      )}
-    </View>
-  );
-
-  const renderFullControls = () => (
-    <View style={[{ padding: 12, backgroundColor: 'white', borderRadius: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 }, style]}>
-      {/* Main Controls */}
-      <View className="flex-row items-center justify-between mb-3">
-        <View className="flex-row items-center">
-          <TouchableOpacity
-            onPress={handlePlayPress}
-            className="p-3 bg-[#FE9F1F] rounded-full mr-3"
-            disabled={isLoading || !text?.trim()}
-            style={{ opacity: (!text?.trim() || isLoading) ? 0.5 : 1 }}
-          >
-            {isLoading ? (
-              <ActivityIndicator size="small" color="white" />
-            ) : (
-              <Ionicons name={getPlayButtonIcon()} size={24} color="white" />
-            )}
-          </TouchableOpacity>
-
-          {(isPlaying || isPaused) && (
-            <TouchableOpacity
-              onPress={handleStopPress}
-              className="p-3 bg-gray-500 rounded-full mr-3"
-            >
-              <Ionicons name="stop" size={24} color="white" />
-            </TouchableOpacity>
-          )}
-
-          <View>
-            <Text className="font-semibold text-gray-800">
-              {isLoading ? 'Loading...' : 
-               isPlaying && !isPaused ? 'Playing' :
-               isPaused ? 'Paused' : 'Ready to play'}
-            </Text>
-            {text && (
-              <Text className="text-sm text-gray-500" numberOfLines={1}>
-                {text.length > 50 ? `${text.substring(0, 50)}...` : text}
-              </Text>
-            )}
-          </View>
-        </View>
-
-        {showSettings && (
-          <TouchableOpacity
-            onPress={() => setShowSettingsModal(true)}
-            className="p-2"
-          >
-            <Ionicons name="settings" size={24} color={mainColors.gray} />
-          </TouchableOpacity>
-        )}
-      </View>
-
+  return (
+    <View className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
       {/* Progress Bar */}
-      {showProgress && (isPlaying || isPaused) && (
-        <View className="mb-2">
-          <View className="h-2 bg-gray-200 rounded-full overflow-hidden">
+      {progress > 0 && (
+        <View className="mb-4">
+          <View className="bg-gray-200 rounded-full h-2">
             <View 
-              className="h-full bg-[#FE9F1F] rounded-full transition-all duration-300"
+              className="bg-[#FE9F1F] h-2 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </View>
+          <Text className="text-xs text-gray-500 mt-1 text-center">
+            {Math.round(progress)}% complete
+          </Text>
         </View>
       )}
 
-      {/* Error Display */}
-      {error && (
-        <View className="mt-2 p-2 bg-red-50 rounded-lg border border-red-200">
-          <Text className="text-red-600 text-sm">{error}</Text>
-        </View>
-      )}
+      {/* Control Buttons */}
+      <View className="flex-row items-center justify-center space-x-4">
+        {/* Play/Pause Button */}
+        <TouchableOpacity
+          onPress={onTogglePlayPause}
+          disabled={disabled || isLoading}
+          className={`w-16 h-16 rounded-full items-center justify-center ${
+            disabled ? 'bg-gray-200' : 'bg-[#FE9F1F]'
+          }`}
+          activeOpacity={0.8}
+        >
+          {isLoading ? (
+            <ActivityIndicator size="small" color="white" />
+          ) : (
+            <Ionicons 
+              name={getPlayButtonIcon()} 
+              size={28} 
+              color={disabled ? '#999' : 'white'} 
+            />
+          )}
+        </TouchableOpacity>
+
+        {/* Stop Button */}
+        <TouchableOpacity
+          onPress={onStop}
+          disabled={disabled || (!isPlaying && !isPaused)}
+          className={`w-12 h-12 rounded-full items-center justify-center border-2 ${
+            disabled || (!isPlaying && !isPaused)
+              ? 'border-gray-300 bg-gray-100' 
+              : 'border-[#FE9F1F] bg-white'
+          }`}
+          activeOpacity={0.8}
+        >
+          <Ionicons 
+            name="stop" 
+            size={20} 
+            color={
+              disabled || (!isPlaying && !isPaused) 
+                ? '#ccc' 
+                : '#FE9F1F'
+            } 
+          />
+        </TouchableOpacity>
+      </View>
+
+      {/* Status Text */}
+      <View className="mt-3 items-center">
+        {isLoading && (
+          <Text className="text-sm text-gray-600">
+            Preparing to read...
+          </Text>
+        )}
+        {isPlaying && (
+          <Text className="text-sm text-[#FE9F1F] font-medium">
+            🎵 Tassie is reading...
+          </Text>
+        )}
+        {isPaused && (
+          <Text className="text-sm text-gray-600">
+            Paused - tap play to continue
+          </Text>
+        )}
+        {!isPlaying && !isPaused && !isLoading && progress === 0 && (
+          <Text className="text-sm text-gray-500">
+            Ready to read
+          </Text>
+        )}
+        {progress === 100 && !isPlaying && (
+          <Text className="text-sm text-green-600 font-medium">
+            ✅ Finished reading!
+          </Text>
+        )}
+      </View>
     </View>
   );
-
-  return (
-    <>
-      {compact ? renderCompactControls() : renderFullControls()}
-
-      {/* Settings Modal */}
-      <Modal
-        visible={showSettingsModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowSettingsModal(false)}
-      >
-        <View className="flex-1 bg-black bg-opacity-50 justify-center items-center px-4">
-          <View className="bg-white rounded-xl w-full max-w-sm max-h-96">
-            <View className="p-4 border-b border-gray-200">
-              <Text className="text-lg font-bold text-center">Voice Settings</Text>
-            </View>
-
-            <ScrollView className="p-4">
-              {/* Voice Selection */}
-              <View className="mb-6">
-                <Text className="text-base font-semibold mb-3">Voice</Text>
-                <ScrollView className="max-h-32 border border-gray-200 rounded-lg">
-                  {availableVoices.map((voice, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => updateVoice(voice)}
-                      className={`p-3 border-b border-gray-100 ${
-                        settings.voice?.name === voice.name ? 'bg-orange-50' : ''
-                      }`}
-                    >
-                      <Text className={`text-sm ${
-                        settings.voice?.name === voice.name ? 'text-[#FE9F1F] font-semibold' : 'text-gray-700'
-                      }`}>
-                        {voice.name} ({voice.lang})
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-
-              {/* Rate Control */}
-              <View className="mb-6">
-                <Text className="text-base font-semibold mb-2">
-                  Speed: {settings.rate.toFixed(1)}x
-                </Text>
-                <View className="flex-row justify-between items-center">
-                  <TouchableOpacity
-                    onPress={() => updateRate(Math.max(0.5, settings.rate - 0.1))}
-                    className="bg-gray-200 p-2 rounded-full"
-                  >
-                    <Text className="text-lg font-bold">-</Text>
-                  </TouchableOpacity>
-                  <Text className="mx-4 text-lg">{settings.rate.toFixed(1)}x</Text>
-                  <TouchableOpacity
-                    onPress={() => updateRate(Math.min(2.0, settings.rate + 0.1))}
-                    className="bg-gray-200 p-2 rounded-full"
-                  >
-                    <Text className="text-lg font-bold">+</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* Pitch Control */}
-              <View className="mb-6">
-                <Text className="text-base font-semibold mb-2">
-                  Pitch: {settings.pitch.toFixed(1)}
-                </Text>
-                <View className="flex-row justify-between items-center">
-                  <TouchableOpacity
-                    onPress={() => updatePitch(Math.max(0.5, settings.pitch - 0.1))}
-                    className="bg-gray-200 p-2 rounded-full"
-                  >
-                    <Text className="text-lg font-bold">-</Text>
-                  </TouchableOpacity>
-                  <Text className="mx-4 text-lg">{settings.pitch.toFixed(1)}</Text>
-                  <TouchableOpacity
-                    onPress={() => updatePitch(Math.min(2.0, settings.pitch + 0.1))}
-                    className="bg-gray-200 p-2 rounded-full"
-                  >
-                    <Text className="text-lg font-bold">+</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* Volume Control */}
-              <View className="mb-4">
-                <Text className="text-base font-semibold mb-2">
-                  Volume: {Math.round(settings.volume * 100)}%
-                </Text>
-                <View className="flex-row justify-between items-center">
-                  <TouchableOpacity
-                    onPress={() => updateVolume(Math.max(0.0, settings.volume - 0.1))}
-                    className="bg-gray-200 p-2 rounded-full"
-                  >
-                    <Text className="text-lg font-bold">-</Text>
-                  </TouchableOpacity>
-                  <Text className="mx-4 text-lg">{Math.round(settings.volume * 100)}%</Text>
-                  <TouchableOpacity
-                    onPress={() => updateVolume(Math.min(1.0, settings.volume + 0.1))}
-                    className="bg-gray-200 p-2 rounded-full"
-                  >
-                    <Text className="text-lg font-bold">+</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </ScrollView>
-
-            <TouchableOpacity
-              className="p-4 border-t border-gray-200"
-              onPress={() => setShowSettingsModal(false)}
-            >
-              <Text className="text-center text-[#FE9F1F] font-semibold">Done</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-    </>
-  );
 };
-
-TTSControls.displayName = 'TTSControls';
 
 export default TTSControls;

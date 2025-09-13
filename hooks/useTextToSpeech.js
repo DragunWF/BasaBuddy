@@ -1,244 +1,218 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import ttsService from '../services/textToSpeechService';
+import { useState, useEffect, useRef } from 'react';
 
-export const useTextToSpeech = () => {
+const useTextToSpeech = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [currentText, setCurrentText] = useState('');
-  const [availableVoices, setAvailableVoices] = useState([]);
-  const [settings, setSettings] = useState({
-    rate: 1.0,
-    pitch: 1.0,
-    volume: 1.0,
-    voice: null,
-  });
-  const [error, setError] = useState(null);
   const [progress, setProgress] = useState(0);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   
-  const currentSpeechRef = useRef(null);
-  const progressIntervalRef = useRef(null);
+  const utteranceRef = useRef(null);
+  const textChunksRef = useRef([]);
+  const currentChunkIndexRef = useRef(0);
+  const selectedVoiceRef = useRef(null);
 
-  // Initialize TTS service and load voices
+  // Initialize and select the cutest voice available
   useEffect(() => {
-    const initializeTTS = async () => {
-      try {
-        // Wait a bit for voices to load
-        setTimeout(() => {
-          const voices = ttsService.getAvailableVoices();
-          setAvailableVoices(voices);
+    const initializeVoice = () => {
+      if ('speechSynthesis' in window) {
+        const voices = speechSynthesis.getVoices();
+        
+        // Priority order for cute voices
+        const cuteVoicePreferences = [
+          // Female voices that tend to sound cute
+          'Samantha', 'Victoria', 'Princess', 'Kathy', 'Vicki',
+          // Google voices
+          'Google UK English Female', 'Google US English Female',
+          // Microsoft voices
+          'Microsoft Zira Desktop', 'Microsoft Hazel Desktop',
+          // Fallback to any female voice
+          voices.find(voice => voice.name.toLowerCase().includes('female')),
+          voices.find(voice => voice.gender === 'female'),
+          // Final fallback to first available voice
+          voices[0]
+        ];
+
+        for (const preference of cuteVoicePreferences) {
+          let voice = null;
+          if (typeof preference === 'string') {
+            voice = voices.find(v => v.name === preference);
+          } else if (preference) {
+            voice = preference;
+          }
           
-          const currentSettings = ttsService.getSettings();
-          setSettings(currentSettings);
-        }, 100);
-      } catch (err) {
-        setError('Failed to initialize text-to-speech');
-        console.error('TTS initialization error:', err);
+          if (voice) {
+            selectedVoiceRef.current = voice;
+            break;
+          }
+        }
       }
     };
 
-    initializeTTS();
-  }, []);
-
-  // Update TTS service settings when local settings change
-  useEffect(() => {
-    ttsService.updateSettings(settings);
-  }, [settings]);
-
-  // Cleanup on unmount
-  useEffect(() => {
+    // Initialize immediately if voices are available
+    initializeVoice();
+    
+    // Also listen for voiceschanged event (some browsers load voices asynchronously)
+    speechSynthesis.addEventListener('voiceschanged', initializeVoice);
+    
     return () => {
-      stop();
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-      }
+      speechSynthesis.removeEventListener('voiceschanged', initializeVoice);
     };
   }, []);
 
-  const startProgressTracking = useCallback(() => {
-    setProgress(0);
-    progressIntervalRef.current = setInterval(() => {
-      if (ttsService.isSpeaking() && !ttsService.isPaused()) {
-        setProgress(prev => Math.min(prev + 1, 95)); // Don't go to 100% until actually finished
+  // Split text into manageable chunks to avoid synthesis cutoffs
+  const splitTextIntoChunks = (text, maxLength = 200) => {
+    const sentences = text.match(/[^\.!?]+[\.!?]+/g) || [text];
+    const chunks = [];
+    let currentChunk = '';
+
+    for (const sentence of sentences) {
+      if (currentChunk.length + sentence.length <= maxLength) {
+        currentChunk += sentence;
+      } else {
+        if (currentChunk) chunks.push(currentChunk.trim());
+        currentChunk = sentence;
       }
-    }, 100);
-  }, []);
-
-  const stopProgressTracking = useCallback(() => {
-    if (progressIntervalRef.current) {
-      clearInterval(progressIntervalRef.current);
-      progressIntervalRef.current = null;
     }
-    setProgress(100);
-    setTimeout(() => setProgress(0), 500); // Reset after a brief delay
-  }, []);
+    
+    if (currentChunk) chunks.push(currentChunk.trim());
+    return chunks.filter(chunk => chunk.length > 0);
+  };
 
-  const speak = useCallback(async (text) => {
-    if (!text || !text.trim()) {
-      setError('No text provided to speak');
+  const speakChunk = (chunkIndex) => {
+    if (chunkIndex >= textChunksRef.current.length) {
+      // Finished speaking all chunks
+      setIsPlaying(false);
+      setIsPaused(false);
+      setProgress(100);
       return;
     }
 
-    try {
-      setIsLoading(true);
+    const chunk = textChunksRef.current[chunkIndex];
+    const utterance = new SpeechSynthesisUtterance(chunk);
+    
+    // Configure the utterance for Tassie's cute voice
+    if (selectedVoiceRef.current) {
+      utterance.voice = selectedVoiceRef.current;
+    }
+    
+    // Make it sound cute and friendly
+    utterance.rate = 0.9; // Slightly slower for clarity
+    utterance.pitch = 1.2; // Higher pitch for cuteness
+    utterance.volume = 0.8;
+
+    utterance.onstart = () => {
+      setIsPlaying(true);
+      setIsPaused(false);
       setError(null);
-      setCurrentText(text);
+    };
 
-      const speechOptions = {
-        onStart: () => {
-          setIsPlaying(true);
-          setIsPaused(false);
-          setIsLoading(false);
-          startProgressTracking();
-        },
-        onEnd: () => {
-          setIsPlaying(false);
-          setIsPaused(false);
-          stopProgressTracking();
-        },
-        onError: (error) => {
-          setError(`Speech error: ${error.message || error.error || 'Unknown error'}`);
-          setIsPlaying(false);
-          setIsPaused(false);
-          setIsLoading(false);
-          stopProgressTracking();
-        },
-        onPause: () => {
-          setIsPaused(true);
-        },
-        onResume: () => {
-          setIsPaused(false);
-        },
-      };
+    utterance.onend = () => {
+      currentChunkIndexRef.current++;
+      const newProgress = ((currentChunkIndexRef.current) / textChunksRef.current.length) * 100;
+      setProgress(newProgress);
+      
+      // Continue to next chunk
+      setTimeout(() => speakChunk(currentChunkIndexRef.current), 100);
+    };
 
-      // Use chunked speaking for long text
-      if (text.length > 200) {
-        currentSpeechRef.current = ttsService.speakLongText(text, speechOptions);
-      } else {
-        currentSpeechRef.current = ttsService.speak(text, speechOptions);
-      }
-
-      await currentSpeechRef.current;
-    } catch (err) {
-      setError(`Failed to speak text: ${err.message}`);
+    utterance.onerror = (event) => {
+      console.error('Speech synthesis error:', event);
+      setError('Sorry, I had trouble speaking that part!');
       setIsPlaying(false);
       setIsPaused(false);
-      setIsLoading(false);
-      stopProgressTracking();
-    }
-  }, [startProgressTracking, stopProgressTracking]);
+    };
 
-  const pause = useCallback(() => {
-    try {
-      const success = ttsService.pause();
-      if (success) {
-        setIsPaused(true);
-      }
-      return success;
-    } catch (err) {
-      setError(`Failed to pause speech: ${err.message}`);
-      return false;
-    }
-  }, []);
+    utteranceRef.current = utterance;
+    speechSynthesis.speak(utterance);
+  };
 
-  const resume = useCallback(() => {
-    try {
-      const success = ttsService.resume();
-      if (success) {
-        setIsPaused(false);
-      }
-      return success;
-    } catch (err) {
-      setError(`Failed to resume speech: ${err.message}`);
-      return false;
+  const speak = (text) => {
+    if (!text || !text.trim()) {
+      setError('No text to read!');
+      return;
     }
-  }, []);
 
-  const stop = useCallback(() => {
-    try {
-      const success = ttsService.stop();
+    if (!('speechSynthesis' in window)) {
+      setError('Speech synthesis not supported in this browser');
+      return;
+    }
+
+    stop(); // Stop any current speech
+    
+    setIsLoading(true);
+    setCurrentText(text);
+    setProgress(0);
+    setError(null);
+    
+    // Split text into chunks
+    textChunksRef.current = splitTextIntoChunks(text);
+    currentChunkIndexRef.current = 0;
+    
+    setIsLoading(false);
+    speakChunk(0);
+  };
+
+  const pause = () => {
+    if (speechSynthesis.speaking && !speechSynthesis.paused) {
+      speechSynthesis.pause();
+      setIsPaused(true);
       setIsPlaying(false);
-      setIsPaused(false);
-      setCurrentText('');
-      stopProgressTracking();
-      
-      if (currentSpeechRef.current) {
-        currentSpeechRef.current = null;
-      }
-      
-      return success;
-    } catch (err) {
-      setError(`Failed to stop speech: ${err.message}`);
-      return false;
     }
-  }, [stopProgressTracking]);
+  };
 
-  const togglePlayPause = useCallback(() => {
-    if (isPlaying && !isPaused) {
+  const resume = () => {
+    if (speechSynthesis.paused) {
+      speechSynthesis.resume();
+      setIsPaused(false);
+      setIsPlaying(true);
+    }
+  };
+
+  const stop = () => {
+    speechSynthesis.cancel();
+    setIsPlaying(false);
+    setIsPaused(false);
+    setProgress(0);
+    currentChunkIndexRef.current = 0;
+    textChunksRef.current = [];
+    utteranceRef.current = null;
+  };
+
+  const togglePlayPause = () => {
+    if (isPlaying) {
       pause();
     } else if (isPaused) {
       resume();
     } else if (currentText) {
       speak(currentText);
     }
-  }, [isPlaying, isPaused, currentText, pause, resume, speak]);
+  };
 
-  const updateSettings = useCallback((newSettings) => {
-    setSettings(prev => ({
-      ...prev,
-      ...newSettings,
-    }));
-  }, []);
-
-  const updateVoice = useCallback((voice) => {
-    updateSettings({ voice });
-  }, [updateSettings]);
-
-  const updateRate = useCallback((rate) => {
-    updateSettings({ rate: Math.max(0.1, Math.min(10, rate)) });
-  }, [updateSettings]);
-
-  const updatePitch = useCallback((pitch) => {
-    updateSettings({ pitch: Math.max(0, Math.min(2, pitch)) });
-  }, [updateSettings]);
-
-  const updateVolume = useCallback((volume) => {
-    updateSettings({ volume: Math.max(0, Math.min(1, volume)) });
-  }, [updateSettings]);
-
-  const clearError = useCallback(() => {
-    setError(null);
-  }, []);
-
-  const isSupported = ttsService.isSupported();
+  // Get the selected voice info for display
+  const getVoiceInfo = () => {
+    return selectedVoiceRef.current ? {
+      name: selectedVoiceRef.current.name,
+      lang: selectedVoiceRef.current.lang
+    } : null;
+  };
 
   return {
-    // State
-    isPlaying,
-    isPaused,
-    isLoading,
-    currentText,
-    availableVoices,
-    settings,
-    error,
-    progress,
-    isSupported,
-    
-    // Actions
     speak,
     pause,
     resume,
     stop,
     togglePlayPause,
-    
-    // Settings
-    updateSettings,
-    updateVoice,
-    updateRate,
-    updatePitch,
-    updateVolume,
-    
-    // Utilities
-    clearError,
+    isPlaying,
+    isPaused,
+    progress,
+    error,
+    isLoading,
+    currentText,
+    isSupported: 'speechSynthesis' in window,
+    voiceInfo: getVoiceInfo()
   };
 };
+
+export default useTextToSpeech;

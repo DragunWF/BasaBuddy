@@ -1,292 +1,227 @@
-# Text-to-Speech (TTS) Integration Documentation
+# Tassie Reader - Photo-to-Speech Integration
 
 ## Overview
 
-The BasaBuddy app now includes a comprehensive text-to-speech feature that allows users to have any text content read aloud. This feature is designed to enhance the reading experience and provide accessibility support.
-
-## Architecture
-
-### Core Components
-
-1. **TextToSpeechService** (`services/textToSpeechService.js`)
-   - Cross-platform TTS service supporting both web (Web Speech API) and native (Expo Speech)
-   - Handles voice management, settings, and speech synthesis
-   - Provides text chunking for long content
-
-2. **useTextToSpeech Hook** (`hooks/useTextToSpeech.js`)
-   - React hook that manages TTS state and functionality
-   - Provides easy-to-use interface for components
-   - Handles progress tracking and error management
-
-3. **TTSControls Component** (`components/ui/TTSControls.jsx`)
-   - Reusable UI component for TTS controls
-   - Supports both compact and full display modes
-   - Includes voice settings modal with pitch, rate, and volume controls
-
-4. **ReadingIndicator Component** (`components/ui/ReadingIndicator.jsx`)
-   - Visual indicator showing when text is being read
-   - Animated progress display
-   - Positioned as overlay on reading content
+The Tassie Reader feature allows users to take photos of text passages from books and have Tassie (the AI tarsier assistant) read them aloud using a fixed, cute voice. This feature seamlessly integrates OCR (Optical Character Recognition) with Text-to-Speech (TTS) functionality.
 
 ## Features
 
-### Core Functionality
-- ✅ Play, pause, resume, and stop controls
-- ✅ Adjustable voice settings (pitch, rate, volume)
-- ✅ Voice selection from available system voices
-- ✅ Long text chunking for better performance
-- ✅ Cross-platform support (Web and React Native)
+### 🔍 OCR Integration
+- **Primary**: Tesseract.js for offline, reliable text extraction
+- **Fallback**: Existing OCR API service for enhanced accuracy
+- **Error Handling**: Graceful fallbacks with user-friendly messages
+- **Image Sources**: Camera capture or photo library selection
 
-### UI/UX Features
-- ✅ Consistent design with app's color scheme (#FE9F1F primary)
-- ✅ Compact and full control modes
-- ✅ Visual reading progress indicator
-- ✅ Responsive layout for mobile and desktop
-- ✅ Accessibility support
-- ✅ Error handling with user-friendly messages
+### 🎵 Text-to-Speech (TTS)
+- **Fixed Voice**: Automatically selects the cutest available voice for Tassie
+- **Voice Characteristics**: Higher pitch (1.2), slower rate (0.9) for clarity
+- **Text Chunking**: Handles long passages by splitting into manageable chunks
+- **Playback Controls**: Play, pause, resume, and stop functionality
+- **Progress Tracking**: Visual progress bar and percentage completion
 
-### Integration Points
-- ✅ Reading Screen - TTS controls in header toolbar
-- ✅ Chat Screen - TTS controls for bot responses
-- ✅ Visual indicators during active reading
+### 🎨 UI/UX Features
+- **Tassie Branding**: Mascot avatar and personality elements
+- **Animations**: Pulsing avatar and sound wave animations during playback
+- **Responsive Design**: Works on mobile and desktop
+- **Dark Mode Support**: Consistent with app's design system
+- **Accessibility**: Screen reader compatible controls
 
-## Usage Examples
+## Component Architecture
 
-### Basic Usage in a Component
+### Core Components
 
-```jsx
-import React from 'react';
-import { View, Text } from 'react-native';
-import TTSControls from '../components/ui/TTSControls';
-
-const MyReadingComponent = () => {
-  const textContent = "This is the text that will be read aloud.";
-  
-  return (
-    <View>
-      <Text>{textContent}</Text>
-      <TTSControls 
-        text={textContent}
-        compact={false}
-        showSettings={true}
-      />
-    </View>
-  );
-};
+#### `useTextToSpeech` Hook
+```javascript
+// Location: /hooks/useTextToSpeech.js
+// Manages speech synthesis with cute voice selection and chunking
+const { speak, pause, resume, stop, isPlaying, progress } = useTextToSpeech();
 ```
 
-### Using the Hook Directly
-
-```jsx
-import React from 'react';
-import { View, TouchableOpacity, Text } from 'react-native';
-import { useTextToSpeech } from '../hooks/useTextToSpeech';
-
-const CustomTTSComponent = () => {
-  const {
-    isPlaying,
-    isPaused,
-    speak,
-    stop,
-    updateRate,
-    settings
-  } = useTextToSpeech();
-
-  const handleSpeak = () => {
-    speak("Hello, this is a test message!");
-  };
-
-  return (
-    <View>
-      <TouchableOpacity onPress={handleSpeak}>
-        <Text>Speak</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={stop}>
-        <Text>Stop</Text>
-      </TouchableOpacity>
-      <Text>Rate: {settings.rate}</Text>
-    </View>
-  );
-};
+#### `OcrCapture` Component
+```javascript
+// Location: /components/ui/OcrCapture.jsx
+// Handles photo capture and text extraction
+<OcrCapture onTextExtracted={handleText} onError={handleError} />
 ```
 
-## Component Props
+#### `TTSControls` Component
+```javascript
+// Location: /components/ui/TTSControls.jsx
+// Playback controls with progress indication
+<TTSControls isPlaying={isPlaying} onTogglePlayPause={toggle} />
+```
 
-### TTSControls
+#### `ReadingIndicator` Component
+```javascript
+// Location: /components/ui/ReadingIndicator.jsx
+// Animated indicator showing Tassie is speaking
+<ReadingIndicator isReading={isPlaying} voiceInfo={voiceInfo} />
+```
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `text` | string | required | Text content to be read aloud |
-| `compact` | boolean | false | Whether to show compact controls |
-| `showSettings` | boolean | true | Whether to show settings button |
-| `showProgress` | boolean | true | Whether to show progress bar |
-| `style` | object | {} | Additional styles for the component |
+#### `TassieReader` Component
+```javascript
+// Location: /components/ui/TassieReader.jsx
+// Main integration component combining OCR + TTS
+<TassieReader onClose={handleClose} />
+```
 
-### ReadingIndicator
+## Integration with ReadingScreen
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `isVisible` | boolean | required | Whether the indicator should be visible |
-| `progress` | number | 0 | Reading progress (0-100) |
-| `style` | object | {} | Additional styles for the component |
-
-## Hook API
-
-### useTextToSpeech Returns
+The feature is integrated into the existing ReadingScreen via a camera button in the header:
 
 ```javascript
+// Camera button in header
+<TouchableOpacity onPress={() => setShowTassieReader(true)}>
+  <Ionicons name="camera" size={20} color="#FE9F1F" />
+</TouchableOpacity>
+
+// Modal presentation
+<Modal visible={showTassieReader} animationType="slide">
+  <TassieReader onClose={() => setShowTassieReader(false)} />
+</Modal>
+```
+
+## Dependencies
+
+### New Dependencies Added
+```json
 {
-  // State
-  isPlaying: boolean,
-  isPaused: boolean,
-  isLoading: boolean,
-  currentText: string,
-  availableVoices: array,
-  settings: object,
-  error: string,
-  progress: number,
-  isSupported: boolean,
-  
-  // Actions
-  speak: (text) => Promise,
-  pause: () => boolean,
-  resume: () => boolean,
-  stop: () => boolean,
-  togglePlayPause: () => void,
-  
-  // Settings
-  updateSettings: (settings) => void,
-  updateVoice: (voice) => void,
-  updateRate: (rate) => void,
-  updatePitch: (pitch) => void,
-  updateVolume: (volume) => void,
-  
-  // Utilities
-  clearError: () => void
+  "tesseract.js": "^5.1.1",
+  "expo-camera": "~16.1.7"
 }
 ```
 
-## Platform Differences
+### Required Permissions
+- Camera access for photo capture
+- Media library access for photo selection
 
-### Web (React Native Web)
-- Uses Web Speech Synthesis API
-- Full pause/resume support
-- Extensive voice selection
-- Real-time progress tracking
+## Voice Selection Algorithm
 
-### Native (iOS/Android)
-- Uses Expo Speech API
-- Stop-only (no pause/resume due to API limitations)
-- System voice selection
-- Basic progress simulation
+The TTS system automatically selects the cutest available voice using this priority order:
 
-## Styling and Theming
-
-The TTS components follow the app's design system:
-
-- Primary color: `#FE9F1F` (orange)
-- Secondary colors: Various grays from `mainColors`
-- Consistent border radius: 12px for containers, full for buttons
-- Shadow effects for elevated components
-- Responsive sizing and spacing
+1. **Named Cute Voices**: Samantha, Victoria, Princess, Kathy, Vicki
+2. **Google Voices**: UK/US English Female voices
+3. **Microsoft Voices**: Zira, Hazel Desktop voices
+4. **Generic Female**: Any voice marked as female
+5. **Fallback**: First available voice
 
 ## Error Handling
 
-The TTS system includes comprehensive error handling:
+### OCR Errors
+- **Primary Failure**: Falls back to API-based OCR service
+- **Complete Failure**: User-friendly message with retry option
+- **No Text Found**: "Couldn't read that clearly" message
+- **Poor Image Quality**: Suggestions for better lighting
 
-- Platform compatibility checks
-- API availability validation
-- Network error handling
-- User-friendly error messages
-- Graceful degradation when TTS is unavailable
+### TTS Errors
+- **Browser Support**: Detects and warns about unsupported browsers
+- **Voice Loading**: Handles asynchronous voice loading
+- **Synthesis Errors**: Graceful error messages with retry options
+
+## User Flow
+
+1. **Access**: User taps camera icon in ReadingScreen header
+2. **Capture**: Choose between camera or photo library
+3. **Processing**: Visual feedback during OCR processing
+4. **Review**: Extracted text displayed with edit option
+5. **Playback**: Automatic reading with manual controls
+6. **Interaction**: Play, pause, stop, and retry options
 
 ## Performance Considerations
 
-- Text chunking for long content (default: 200 characters)
-- Lazy loading of voice lists
-- Efficient state management
-- Memory cleanup on component unmount
-- Optimized re-renders with React.memo and useCallback
+### OCR Optimization
+- Image quality optimization before processing
+- Chunked processing for large images
+- Fallback mechanisms for reliability
 
-## Testing
+### TTS Optimization
+- Text chunking to prevent synthesis cutoffs
+- Voice caching for consistent experience
+- Progress tracking for long passages
 
-### Manual Testing Checklist
+## Browser Compatibility
 
-- [ ] Play button starts speech
-- [ ] Pause button pauses speech (web only)
-- [ ] Stop button stops speech and resets
-- [ ] Settings modal opens and closes
-- [ ] Voice selection works
-- [ ] Rate/pitch/volume sliders work
-- [ ] Progress indicator shows during playback
-- [ ] Error messages display appropriately
-- [ ] Works on both mobile and desktop
-- [ ] Integrates properly in Reading and Chat screens
+### Supported Browsers
+- ✅ Chrome (desktop/mobile)
+- ✅ Safari (desktop/mobile)
+- ✅ Edge (desktop/mobile)
+- ✅ Firefox (limited voice options)
 
-### Browser Compatibility
+### Features by Platform
+- **iOS**: Native voice integration
+- **Android**: Google TTS voices
+- **Desktop**: System voice selection
 
-- ✅ Chrome 71+
-- ✅ Firefox 62+
-- ✅ Safari 14.1+
-- ✅ Edge 79+
+## Accessibility Features
 
-### Mobile Compatibility
+- Screen reader compatible controls
+- High contrast visual indicators
+- Keyboard navigation support
+- Voice feedback for actions
+- Clear error messaging
 
-- ✅ iOS 13+
-- ✅ Android 8.0+
+## Customization Options
+
+### Voice Characteristics
+```javascript
+utterance.rate = 0.9;     // Slightly slower for clarity
+utterance.pitch = 1.2;    // Higher pitch for cuteness
+utterance.volume = 0.8;   // Comfortable volume level
+```
+
+### Text Processing
+```javascript
+const splitTextIntoChunks = (text, maxLength = 200) => {
+  // Splits by sentences, respects maxLength
+  // Prevents synthesis cutoffs
+};
+```
+
+## Testing Guidelines
+
+### OCR Testing
+- Test various lighting conditions
+- Try different text sizes and fonts
+- Test with handwritten vs printed text
+- Verify fallback mechanisms
+
+### TTS Testing
+- Test across different browsers
+- Verify voice consistency
+- Test long passages (chunking)
+- Validate error handling
+
+### UI/UX Testing
+- Test modal presentation/dismissal
+- Verify animations and feedback
+- Test accessibility features
+- Validate responsive design
 
 ## Future Enhancements
 
-- [ ] Highlight text as it's being read
-- [ ] Bookmark/resume functionality
-- [ ] Speed reading modes
-- [ ] Custom voice training
-- [ ] Offline voice support
-- [ ] Reading statistics and analytics
+### Potential Improvements
+- Language detection and multi-language support
+- Voice speed adjustment controls
+- Text highlighting during reading
+- Bookmark and save extracted text
+- Integration with reading progress tracking
+
+### Performance Optimizations
+- Image preprocessing for better OCR
+- Voice preloading for faster startup
+- Caching of frequently used voices
+- Offline voice synthesis options
 
 ## Troubleshooting
 
 ### Common Issues
+1. **No voice available**: Check browser compatibility
+2. **OCR fails**: Verify image quality and lighting
+3. **Synthesis stops**: Text chunking handles long passages
+4. **Permissions denied**: Guide user through permission settings
 
-1. **TTS not working on mobile**
-   - Ensure `expo-speech` is properly installed
-   - Check device volume settings
-   - Verify app permissions
-
-2. **No voices available**
-   - Wait for voices to load (async on some browsers)
-   - Check browser/OS language settings
-   - Try refreshing the page/app
-
-3. **Choppy playback**
-   - Reduce text chunk size
-   - Check device performance
-   - Close other audio applications
-
-4. **Settings not persisting**
-   - Settings are session-based currently
-   - Consider implementing AsyncStorage for persistence
-
-## Dependencies
-
-```json
-{
-  "expo-speech": "~12.1.0",
-  "@react-native-community/slider": "^4.5.7"
-}
-```
-
-## File Structure
-
-```
-├── services/
-│   └── textToSpeechService.js
-├── hooks/
-│   └── useTextToSpeech.js
-├── components/
-│   └── ui/
-│       ├── TTSControls.jsx
-│       └── ReadingIndicator.jsx
-└── docs/
-    └── TTS_INTEGRATION_DOCS.md
-```
+### Debug Information
+- Voice selection details available via `voiceInfo`
+- OCR processing steps logged to console
+- TTS errors captured and displayed to user
+- Performance metrics available for optimization
