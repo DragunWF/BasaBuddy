@@ -78,4 +78,6 @@ const ReadingIndicator = ({ isVisible, progress = 0, style }) => {
   );
 };
 
+ReadingIndicator.displayName = 'ReadingIndicator';
+
 export default ReadingIndicator;

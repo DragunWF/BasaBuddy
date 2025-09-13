@@ -8,9 +8,30 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Slider } from '@react-native-community/slider';
 import { mainColors } from '../../constants/colors';
 import { useTextToSpeech } from '../../hooks/useTextToSpeech';
+
+// Conditionally import Slider for React Native
+let Slider;
+try {
+  const SliderModule = require('@react-native-community/slider');
+  Slider = SliderModule.Slider || SliderModule.default;
+} catch (error) {
+  console.warn('Slider component not available:', error);
+  // Fallback for web - create a simple range input
+  Slider = ({ value, onValueChange, minimumValue, maximumValue, step, style, ...props }) => (
+    <input
+      type="range"
+      min={minimumValue}
+      max={maximumValue}
+      step={step}
+      value={value}
+      onChange={(e) => onValueChange(parseFloat(e.target.value))}
+      style={{ width: '100%', ...style }}
+      {...props}
+    />
+  );
+}
 
 const TTSControls = ({ 
   text, 
@@ -232,20 +253,20 @@ const TTSControls = ({
                 <Text className="text-base font-semibold mb-2">
                   Speed: {settings.rate.toFixed(1)}x
                 </Text>
-                <Slider
-                  style={{ height: 40 }}
-                  minimumValue={0.5}
-                  maximumValue={2.0}
-                  step={0.1}
-                  value={settings.rate}
-                  onValueChange={updateRate}
-                  minimumTrackTintColor={mainColors.primary500}
-                  maximumTrackTintColor={mainColors.gray}
-                  thumbStyle={{ backgroundColor: mainColors.primary500 }}
-                />
-                <View className="flex-row justify-between">
-                  <Text className="text-xs text-gray-500">0.5x</Text>
-                  <Text className="text-xs text-gray-500">2.0x</Text>
+                <View className="flex-row justify-between items-center">
+                  <TouchableOpacity
+                    onPress={() => updateRate(Math.max(0.5, settings.rate - 0.1))}
+                    className="bg-gray-200 p-2 rounded-full"
+                  >
+                    <Text className="text-lg font-bold">-</Text>
+                  </TouchableOpacity>
+                  <Text className="mx-4 text-lg">{settings.rate.toFixed(1)}x</Text>
+                  <TouchableOpacity
+                    onPress={() => updateRate(Math.min(2.0, settings.rate + 0.1))}
+                    className="bg-gray-200 p-2 rounded-full"
+                  >
+                    <Text className="text-lg font-bold">+</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
 
@@ -254,20 +275,20 @@ const TTSControls = ({
                 <Text className="text-base font-semibold mb-2">
                   Pitch: {settings.pitch.toFixed(1)}
                 </Text>
-                <Slider
-                  style={{ height: 40 }}
-                  minimumValue={0.5}
-                  maximumValue={2.0}
-                  step={0.1}
-                  value={settings.pitch}
-                  onValueChange={updatePitch}
-                  minimumTrackTintColor={mainColors.primary500}
-                  maximumTrackTintColor={mainColors.gray}
-                  thumbStyle={{ backgroundColor: mainColors.primary500 }}
-                />
-                <View className="flex-row justify-between">
-                  <Text className="text-xs text-gray-500">Low</Text>
-                  <Text className="text-xs text-gray-500">High</Text>
+                <View className="flex-row justify-between items-center">
+                  <TouchableOpacity
+                    onPress={() => updatePitch(Math.max(0.5, settings.pitch - 0.1))}
+                    className="bg-gray-200 p-2 rounded-full"
+                  >
+                    <Text className="text-lg font-bold">-</Text>
+                  </TouchableOpacity>
+                  <Text className="mx-4 text-lg">{settings.pitch.toFixed(1)}</Text>
+                  <TouchableOpacity
+                    onPress={() => updatePitch(Math.min(2.0, settings.pitch + 0.1))}
+                    className="bg-gray-200 p-2 rounded-full"
+                  >
+                    <Text className="text-lg font-bold">+</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
 
@@ -276,20 +297,20 @@ const TTSControls = ({
                 <Text className="text-base font-semibold mb-2">
                   Volume: {Math.round(settings.volume * 100)}%
                 </Text>
-                <Slider
-                  style={{ height: 40 }}
-                  minimumValue={0.0}
-                  maximumValue={1.0}
-                  step={0.1}
-                  value={settings.volume}
-                  onValueChange={updateVolume}
-                  minimumTrackTintColor={mainColors.primary500}
-                  maximumTrackTintColor={mainColors.gray}
-                  thumbStyle={{ backgroundColor: mainColors.primary500 }}
-                />
-                <View className="flex-row justify-between">
-                  <Text className="text-xs text-gray-500">0%</Text>
-                  <Text className="text-xs text-gray-500">100%</Text>
+                <View className="flex-row justify-between items-center">
+                  <TouchableOpacity
+                    onPress={() => updateVolume(Math.max(0.0, settings.volume - 0.1))}
+                    className="bg-gray-200 p-2 rounded-full"
+                  >
+                    <Text className="text-lg font-bold">-</Text>
+                  </TouchableOpacity>
+                  <Text className="mx-4 text-lg">{Math.round(settings.volume * 100)}%</Text>
+                  <TouchableOpacity
+                    onPress={() => updateVolume(Math.min(1.0, settings.volume + 0.1))}
+                    className="bg-gray-200 p-2 rounded-full"
+                  >
+                    <Text className="text-lg font-bold">+</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             </ScrollView>
@@ -306,5 +327,7 @@ const TTSControls = ({
     </>
   );
 };
+
+TTSControls.displayName = 'TTSControls';
 
 export default TTSControls;
