@@ -7,10 +7,10 @@ The Tassie Reader feature allows users to take photos of text passages from book
 ## Features
 
 ### 🔍 OCR Integration
-- **Primary**: Tesseract.js for offline, reliable text extraction
-- **Fallback**: Existing OCR API service for enhanced accuracy
+- **API Service**: Uses existing APILayer OCR service for reliable text extraction
 - **Error Handling**: Graceful fallbacks with user-friendly messages
 - **Image Sources**: Camera capture or photo library selection
+- **React Native Compatible**: No Web Workers or browser dependencies
 
 ### 🎵 Text-to-Speech (TTS)
 - **Fixed Voice**: Automatically selects the cutest available voice for Tassie
@@ -86,8 +86,8 @@ The feature is integrated into the existing ReadingScreen via a camera button in
 ### New Dependencies Added
 ```json
 {
-  "tesseract.js": "^5.1.1",
-  "expo-camera": "~16.1.7"
+  "expo-camera": "~16.1.7",
+  "expo-speech": "~13.1.7"
 }
 ```
 
