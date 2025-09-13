@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import Tesseract from 'tesseract.js';
 import { performOCR } from '../../services/ocrService';
 
 const OcrCapture = ({ onTextExtracted, onError }) => {
@@ -45,26 +44,9 @@ const OcrCapture = ({ onTextExtracted, onError }) => {
   };
 
   const processImageWithTesseract = async (imageUri) => {
-    try {
-      setProcessingStep('Reading text from image...');
-      
-      const { data: { text } } = await Tesseract.recognize(
-        imageUri,
-        'eng',
-        {
-          logger: m => {
-            if (m.status === 'recognizing text') {
-              setProcessingStep(`Reading text... ${Math.round(m.progress * 100)}%`);
-            }
-          }
-        }
-      );
-      
-      return text.trim();
-    } catch (error) {
-      console.error('Tesseract OCR error:', error);
-      throw error;
-    }
+    // Tesseract.js doesn't work in React Native due to Web Workers
+    // Skip to fallback OCR service
+    throw new Error('Tesseract not supported in React Native');
   };
 
   const processImageWithFallback = async (imageUri) => {
