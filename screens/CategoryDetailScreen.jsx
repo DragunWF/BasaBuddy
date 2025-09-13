@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,16 +7,16 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Image,
-  ScrollView
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import Icon from 'react-native-vector-icons/Feather';
-import { getBooksBySubject } from '../services/openLibraryService';
+  ScrollView,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import Icon from "react-native-vector-icons/Feather";
+import { getBooksBySubject } from "../services/openLibraryService";
 
 const BookItem = ({ book, onPress }) => {
   // Generate random view count for demonstration
   const viewCount = Math.floor(Math.random() * 50000) + 1000;
-  
+
   return (
     <TouchableOpacity
       className="flex-row bg-white mx-4 mb-3 p-4 rounded-xl shadow-sm"
@@ -39,7 +39,10 @@ const BookItem = ({ book, onPress }) => {
 
       {/* Book Info */}
       <View className="flex-1">
-        <Text className="text-base font-semibold text-gray-900 mb-1" numberOfLines={2}>
+        <Text
+          className="text-base font-semibold text-gray-900 mb-1"
+          numberOfLines={2}
+        >
           {book.title}
         </Text>
         <Text className="text-sm text-gray-600 mb-2" numberOfLines={1}>
@@ -67,30 +70,31 @@ const CategoryDetailScreen = ({ navigation, route }) => {
 
   // Category descriptions for better UX
   const categoryDescriptions = {
-    'art': 'Explore the world of creativity, visual arts, and artistic expression.',
-    'biographies': 'Life stories of remarkable people who shaped our world.',
-    'business': 'Insights into entrepreneurship, management, and business strategy.',
-    'comic': 'Graphic novels, comics, and illustrated storytelling.',
-    'cooking': 'Culinary adventures, recipes, and food culture.',
-    'education': 'Learning resources and educational methodologies.',
-    'health': 'Wellness, medical knowledge, and healthy living guides.',
-    'history': 'Journey through time and discover past civilizations.',
-    'horror': 'Spine-chilling tales and supernatural stories.',
-    'kids': 'Delightful stories and educational content for children.',
-    'medical': 'Medical knowledge, healthcare, and scientific research.',
-    'romance': 'Love stories and romantic adventures.',
-    'fantasy': 'Magical worlds and extraordinary adventures.',
-    'self-help': 'Personal development and self-improvement guides.',
-    'sport': 'Athletic achievements and sports culture.',
-    'travel': 'Explore destinations and travel experiences.',
-    'science': 'Scientific discoveries and technological innovations.',
-    'fiction': 'Imaginative stories and literary works.',
-    'mystery': 'Puzzling cases and thrilling investigations.',
-    'poetry': 'Beautiful verses and poetic expressions.',
-    'philosophy': 'Deep thoughts and philosophical inquiries.',
-    'religion': 'Spiritual texts and religious studies.',
-    'technology': 'Innovation, computing, and digital transformation.',
-    'music': 'Musical theory, history, and artist biographies.'
+    art: "Explore the world of creativity, visual arts, and artistic expression.",
+    biographies: "Life stories of remarkable people who shaped our world.",
+    business:
+      "Insights into entrepreneurship, management, and business strategy.",
+    comic: "Graphic novels, comics, and illustrated storytelling.",
+    cooking: "Culinary adventures, recipes, and food culture.",
+    education: "Learning resources and educational methodologies.",
+    health: "Wellness, medical knowledge, and healthy living guides.",
+    history: "Journey through time and discover past civilizations.",
+    horror: "Spine-chilling tales and supernatural stories.",
+    kids: "Delightful stories and educational content for children.",
+    medical: "Medical knowledge, healthcare, and scientific research.",
+    romance: "Love stories and romantic adventures.",
+    fantasy: "Magical worlds and extraordinary adventures.",
+    "self-help": "Personal development and self-improvement guides.",
+    sport: "Athletic achievements and sports culture.",
+    travel: "Explore destinations and travel experiences.",
+    science: "Scientific discoveries and technological innovations.",
+    fiction: "Imaginative stories and literary works.",
+    mystery: "Puzzling cases and thrilling investigations.",
+    poetry: "Beautiful verses and poetic expressions.",
+    philosophy: "Deep thoughts and philosophical inquiries.",
+    religion: "Spiritual texts and religious studies.",
+    technology: "Innovation, computing, and digital transformation.",
+    music: "Musical theory, history, and artist biographies.",
   };
 
   useEffect(() => {
@@ -106,19 +110,23 @@ const CategoryDetailScreen = ({ navigation, route }) => {
         setLoadingMore(true);
       }
 
-      const response = await getBooksBySubject(category.subject || category.id, pageNum, 20);
-      
+      const response = await getBooksBySubject(
+        category.subject || category.id,
+        pageNum,
+        20
+      );
+
       if (isLoadMore) {
-        setBooks(prevBooks => [...prevBooks, ...response.books]);
+        setBooks((prevBooks) => [...prevBooks, ...response.books]);
       } else {
         setBooks(response.books);
       }
-      
+
       setHasMore(response.pagination.hasNextPage);
       setPage(pageNum);
     } catch (err) {
-      console.error('Error loading books:', err);
-      setError('Failed to load books. Please try again.');
+      console.error("Error loading books:", err);
+      setError("Failed to load books. Please try again.");
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -132,7 +140,7 @@ const CategoryDetailScreen = ({ navigation, route }) => {
   };
 
   const handleBookPress = (book) => {
-    navigation.navigate('BookDetails', { bookId: book.id });
+    navigation.navigate("BookDetails", { bookId: book.id });
   };
 
   const handleBackPress = () => {
@@ -145,7 +153,7 @@ const CategoryDetailScreen = ({ navigation, route }) => {
 
   const renderFooter = () => {
     if (!loadingMore) return null;
-    
+
     return (
       <View className="py-4">
         <ActivityIndicator size="small" color="#FE9F1F" />
@@ -187,7 +195,7 @@ const CategoryDetailScreen = ({ navigation, route }) => {
     <SafeAreaView className="flex-1 bg-gray-50">
       {/* Header with gradient background */}
       <LinearGradient
-        colors={['#FE9F1F', '#FF8C42']}
+        colors={["#FE9F1F", "#FF8C42"]}
         className="px-4 py-6 pb-8"
       >
         <View className="flex-row items-center mb-4">
@@ -198,20 +206,20 @@ const CategoryDetailScreen = ({ navigation, route }) => {
             <Icon name="chevron-left" size={20} color="white" />
           </TouchableOpacity>
         </View>
-        
+
         <View className="px-2">
           <Text className="text-2xl font-bold text-white mb-2">
             {category.name || category.subject}
           </Text>
           <Text className="text-white/90 text-sm leading-5">
-            {categoryDescriptions[category.subject || category.id] || 
-             'Discover amazing books in this category.'}
+            {categoryDescriptions[category.subject || category.id] ||
+              "Discover amazing books in this category."}
           </Text>
         </View>
       </LinearGradient>
 
       {/* Books List */}
-      <View className="flex-1 -mt-4">
+      <View className="flex-1 mt-4">
         <FlatList
           data={books}
           renderItem={renderBook}
