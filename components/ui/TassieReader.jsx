@@ -119,10 +119,23 @@ const TassieReader = ({ onClose }) => {
 
         {/* OCR Capture */}
         {!showText && !error && (
-          <OcrCapture 
-            onTextExtracted={handleTextExtracted}
-            onError={handleOcrError}
-          />
+          <>
+            <OcrCapture 
+              onTextExtracted={handleTextExtracted}
+              onError={handleOcrError}
+            />
+            
+            {/* Test Button for Quick Demo */}
+            <View className="bg-blue-50 border border-blue-200 rounded-lg p-4 m-4">
+              <Text className="text-blue-800 font-semibold mb-2">Quick Test</Text>
+              <TouchableOpacity
+                onPress={() => handleTextExtracted("Hello! This is a test message from Tassie. Let me read this sample text for you to demonstrate the text-to-speech functionality.")}
+                className="bg-blue-600 py-2 px-4 rounded-full"
+              >
+                <Text className="text-white font-medium text-center">Test TTS with Sample Text</Text>
+              </TouchableOpacity>
+            </View>
+          </>
         )}
 
         {/* Error State */}
