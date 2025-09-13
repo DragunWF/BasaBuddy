@@ -1,10 +1,11 @@
-import { useContext } from "react";
-import { StyleSheet, Text } from "react-native";
-import { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
+import { View, Text, Image, StyleSheet } from "react-native";
+import { mainColors, chatBubbleColors } from "../../constants/colors";
+import { responseParser } from "../../helpers/chatbot/responseParser";
+import TTSControls from "../ui/TTSControls";
 
 import ChatBubble from "./ChatBubble";
 import { ChatContext } from "../../store/ChatContext";
-import { mainColors, chatBubbleColors } from "../../constants/colors";
 
 const BotChatBubble = ({ children, isText = true }) => {
   const chatContext = useContext(ChatContext);
@@ -43,20 +44,34 @@ const BotChatBubble = ({ children, isText = true }) => {
   }, [currentIndex, fullText]);
 
   return (
-    <ChatBubble
-      isOwnMessage={false}
-      bubbleColor={chatBubbleColors.bot}
-      withTail={true}
-      style={styles.chatBubble}
-    >
-      {isText ? (
-        <Text style={styles.text} selectable={true}>
-          {displayedText}
-        </Text>
-      ) : (
-        children
+    <View>
+      <ChatBubble
+        isOwnMessage={false}
+        bubbleColor={chatBubbleColors.bot}
+        withTail={true}
+        style={styles.chatBubble}
+      >
+        {isText ? (
+          <Text style={styles.text} selectable={true}>
+            {displayedText}
+          </Text>
+        ) : (
+          children
+        )}
+      </ChatBubble>
+      
+      {/* Add TTS controls for completed bot messages */}
+      {isText && currentIndex >= fullText?.length && displayedText.trim() && (
+        <View style={styles.ttsContainer}>
+          <TTSControls 
+            text={displayedText}
+            compact={true}
+            showSettings={false}
+            style={styles.ttsControls}
+          />
+        </View>
       )}
-    </ChatBubble>
+    </View>
   );
 };
 
@@ -72,6 +87,14 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 0.5 },
     textShadowRadius: 1,
     letterSpacing: 0.2,
+  },
+  ttsContainer: {
+    alignItems: 'flex-end',
+    marginTop: 4,
+    marginRight: 8,
+  },
+  ttsControls: {
+    opacity: 0.8,
   },
 });
 

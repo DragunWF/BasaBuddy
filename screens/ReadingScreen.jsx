@@ -19,6 +19,9 @@ import * as IntentLauncher from "expo-intent-launcher";
 import * as FileSystem from "expo-file-system";
 import { getBookContent } from "../services/openLibraryService";
 import InAppPDFViewer from "../components/ui/InAppPDFViewer";
+import TTSControls from "../components/ui/TTSControls";
+import ReadingIndicator from "../components/ui/ReadingIndicator";
+import { useTextToSpeech } from "../hooks/useTextToSpeech";
 
 const ReadingScreen = ({ route, navigation }) => {
   const { book, isLocalPdf = false } = route.params;
@@ -31,6 +34,9 @@ const ReadingScreen = ({ route, navigation }) => {
   // PDF-specific states
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+
+  // TTS state for reading indicator
+  const { isPlaying, isPaused, progress } = useTextToSpeech();
 
   useEffect(() => {
     if (!isLocalPdf) {
@@ -245,9 +251,9 @@ const ReadingScreen = ({ route, navigation }) => {
 
         <TouchableOpacity
           onPress={toggleChapterList}
-          className="flex-row items-center"
+          className="flex-row items-center flex-1 mx-4"
         >
-          <Text className="text-lg font-bold mr-1" numberOfLines={1}>
+          <Text className="text-lg font-bold mr-1 flex-1" numberOfLines={1}>
             {currentContent.title || `Chapter ${currentChapter + 1}`}
           </Text>
           <Ionicons
@@ -257,43 +263,54 @@ const ReadingScreen = ({ route, navigation }) => {
           />
         </TouchableOpacity>
 
-        <View className="flex-row">
-          <TouchableOpacity
-            onPress={() => changeFontSize("small")}
-            className="p-2"
-          >
-            <Text
-              className={`text-sm ${
-                fontSize === "small" ? "text-[#FE9F1F]" : "text-gray-500"
-              }`}
+        <View className="flex-row items-center">
+          {/* TTS Controls */}
+          <TTSControls 
+            text={currentContent.content}
+            compact={true}
+            showSettings={true}
+            style={{ marginRight: 8 }}
+          />
+          
+          {/* Font Size Controls */}
+          <View className="flex-row">
+            <TouchableOpacity
+              onPress={() => changeFontSize("small")}
+              className="p-2"
             >
-              A
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => changeFontSize("medium")}
-            className="p-2"
-          >
-            <Text
-              className={`text-base ${
-                fontSize === "medium" ? "text-[#FE9F1F]" : "text-gray-500"
-              }`}
+              <Text
+                className={`text-sm ${
+                  fontSize === "small" ? "text-[#FE9F1F]" : "text-gray-500"
+                }`}
+              >
+                A
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => changeFontSize("medium")}
+              className="p-2"
             >
-              A
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => changeFontSize("large")}
-            className="p-2"
-          >
-            <Text
-              className={`text-lg ${
-                fontSize === "large" ? "text-[#FE9F1F]" : "text-gray-500"
-              }`}
+              <Text
+                className={`text-base ${
+                  fontSize === "medium" ? "text-[#FE9F1F]" : "text-gray-500"
+                }`}
+              >
+                A
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => changeFontSize("large")}
+              className="p-2"
             >
-              A
-            </Text>
-          </TouchableOpacity>
+              <Text
+                className={`text-lg ${
+                  fontSize === "large" ? "text-[#FE9F1F]" : "text-gray-500"
+                }`}
+              >
+                A
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
@@ -321,19 +338,27 @@ const ReadingScreen = ({ route, navigation }) => {
       )}
 
       {/* Book content */}
-      <ScrollView ref={scrollViewRef} className="flex-1 px-6 py-8 bg-white">
-        {!bookData.isFullVersion && (
-          <View className="mb-6 p-4 bg-gray-100 rounded-lg">
-            <Text className="italic text-gray-600">
-              Preview only. Full book not available.
-            </Text>
-          </View>
-        )}
+      <View className="flex-1 relative">
+        {/* Reading Indicator */}
+        <ReadingIndicator 
+          isVisible={isPlaying || isPaused} 
+          progress={progress}
+        />
+        
+        <ScrollView ref={scrollViewRef} className="flex-1 px-6 py-8 bg-white">
+          {!bookData.isFullVersion && (
+            <View className="mb-6 p-4 bg-gray-100 rounded-lg">
+              <Text className="italic text-gray-600">
+                Preview only. Full book not available.
+              </Text>
+            </View>
+          )}
 
-        <Text className={`${getFontSizeClass()} text-gray-800`}>
-          {currentContent.content}
-        </Text>
-      </ScrollView>
+          <Text className={`${getFontSizeClass()} text-gray-800 leading-relaxed`}>
+            {currentContent.content}
+          </Text>
+        </ScrollView>
+      </View>
 
       {/* Chapter navigation */}
       <View className="flex-row justify-between items-center px-6 py-4 bg-white border-t border-gray-200">
