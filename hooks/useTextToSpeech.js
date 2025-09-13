@@ -32,122 +32,138 @@ const useTextToSpeech = () => {
     return chunks.filter(chunk => chunk.length > 0);
   };
 
-  const speakChunk = (chunkIndex) => {
+  const speakChunk = async (chunkIndex) => {
     if (chunkIndex >= textChunksRef.current.length) {
       // Finished speaking all chunks
       setIsPlaying(false);
       setIsPaused(false);
       setProgress(100);
+      isSpeakingRef.current = false;
       return;
     }
 
     const chunk = textChunksRef.current[chunkIndex];
-    const utterance = new SpeechSynthesisUtterance(chunk);
     
-    // Configure the utterance for Tassie's cute voice
-    if (selectedVoiceRef.current) {
-      utterance.voice = selectedVoiceRef.current;
-    }
-    
-    // Make it sound cute and friendly
-    utterance.rate = 0.9; // Slightly slower for clarity
-    utterance.pitch = 1.2; // Higher pitch for cuteness
-    utterance.volume = 0.8;
+    try {
+      // Configure speech options for Tassie's cute voice
+      const speechOptions = {
+        rate: 0.8, // Slightly slower for clarity
+        pitch: 1.3, // Higher pitch for cuteness
+        volume: 0.9,
+        language: 'en-US',
+        onStart: () => {
+          setIsPlaying(true);
+          setIsPaused(false);
+          setError(null);
+        },
+        onDone: () => {
+          currentChunkIndexRef.current++;
+          const newProgress = ((currentChunkIndexRef.current) / textChunksRef.current.length) * 100;
+          setProgress(newProgress);
+          
+          // Continue to next chunk if still speaking
+          if (isSpeakingRef.current) {
+            setTimeout(() => speakChunk(currentChunkIndexRef.current), 300);
+          }
+        },
+        onError: (error) => {
+          console.error('Speech synthesis error:', error);
+          setError('Sorry, I had trouble speaking that part!');
+          setIsPlaying(false);
+          setIsPaused(false);
+          isSpeakingRef.current = false;
+        }
+      };
 
-    utterance.onstart = () => {
-      setIsPlaying(true);
-      setIsPaused(false);
-      setError(null);
-    };
-
-    utterance.onend = () => {
-      currentChunkIndexRef.current++;
-      const newProgress = ((currentChunkIndexRef.current) / textChunksRef.current.length) * 100;
-      setProgress(newProgress);
-      
-      // Continue to next chunk
-      setTimeout(() => speakChunk(currentChunkIndexRef.current), 100);
-    };
-
-    utterance.onerror = (event) => {
-      console.error('Speech synthesis error:', event);
-      setError('Sorry, I had trouble speaking that part!');
+      await Speech.speak(chunk, speechOptions);
+    } catch (error) {
+      console.error('Speech error:', error);
+      setError('Sorry, speech is not available right now!');
       setIsPlaying(false);
       setIsPaused(false);
-    };
-
-    utteranceRef.current = utterance;
-    speechSynthesis.speak(utterance);
+      isSpeakingRef.current = false;
+    }
   };
 
-  const speak = (text) => {
+  const speak = async (text) => {
     if (!text || !text.trim()) {
       setError('No text to read!');
       return;
     }
 
-    if (!('speechSynthesis' in window)) {
-      setError('Speech synthesis not supported in this browser');
-      return;
+    // Check if speech is available
+    const isAvailable = await Speech.isSpeakingAsync();
+    if (isAvailable) {
+      await Speech.stop();
     }
-
-    stop(); // Stop any current speech
     
     setIsLoading(true);
     setCurrentText(text);
     setProgress(0);
     setError(null);
+    isSpeakingRef.current = true;
     
     // Split text into chunks
     textChunksRef.current = splitTextIntoChunks(text);
     currentChunkIndexRef.current = 0;
     
     setIsLoading(false);
-    speakChunk(0);
+    await speakChunk(0);
   };
 
-  const pause = () => {
-    if (speechSynthesis.speaking && !speechSynthesis.paused) {
-      speechSynthesis.pause();
-      setIsPaused(true);
-      setIsPlaying(false);
+  const pause = async () => {
+    try {
+      const isSpeaking = await Speech.isSpeakingAsync();
+      if (isSpeaking) {
+        // Expo Speech doesn't have pause/resume, so we stop and track position
+        await Speech.stop();
+        setIsPaused(true);
+        setIsPlaying(false);
+        isSpeakingRef.current = false;
+      }
+    } catch (error) {
+      console.error('Pause error:', error);
     }
   };
 
-  const resume = () => {
-    if (speechSynthesis.paused) {
-      speechSynthesis.resume();
+  const resume = async () => {
+    if (isPaused && textChunksRef.current.length > 0) {
       setIsPaused(false);
-      setIsPlaying(true);
+      isSpeakingRef.current = true;
+      await speakChunk(currentChunkIndexRef.current);
     }
   };
 
-  const stop = () => {
-    speechSynthesis.cancel();
-    setIsPlaying(false);
-    setIsPaused(false);
-    setProgress(0);
-    currentChunkIndexRef.current = 0;
-    textChunksRef.current = [];
-    utteranceRef.current = null;
+  const stop = async () => {
+    try {
+      await Speech.stop();
+      setIsPlaying(false);
+      setIsPaused(false);
+      setProgress(0);
+      currentChunkIndexRef.current = 0;
+      textChunksRef.current = [];
+      isSpeakingRef.current = false;
+    } catch (error) {
+      console.error('Stop error:', error);
+    }
   };
 
-  const togglePlayPause = () => {
+  const togglePlayPause = async () => {
     if (isPlaying) {
-      pause();
+      await pause();
     } else if (isPaused) {
-      resume();
+      await resume();
     } else if (currentText) {
-      speak(currentText);
+      await speak(currentText);
     }
   };
 
-  // Get the selected voice info for display
+  // Get voice info for display
   const getVoiceInfo = () => {
-    return selectedVoiceRef.current ? {
-      name: selectedVoiceRef.current.name,
-      lang: selectedVoiceRef.current.lang
-    } : null;
+    return {
+      name: "Tassie's Voice",
+      lang: "en-US"
+    };
   };
 
   return {
@@ -162,7 +178,7 @@ const useTextToSpeech = () => {
     error,
     isLoading,
     currentText,
-    isSupported: 'speechSynthesis' in window,
+    isSupported: true, // Expo Speech is always supported
     voiceInfo: getVoiceInfo()
   };
 };
