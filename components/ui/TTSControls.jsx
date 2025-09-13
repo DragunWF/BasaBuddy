@@ -11,28 +11,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { mainColors } from '../../constants/colors';
 import { useTextToSpeech } from '../../hooks/useTextToSpeech';
 
-// Conditionally import Slider for React Native
-let Slider;
-try {
-  const SliderModule = require('@react-native-community/slider');
-  Slider = SliderModule.Slider || SliderModule.default;
-} catch (error) {
-  console.warn('Slider component not available:', error);
-  // Fallback for web - create a simple range input
-  Slider = ({ value, onValueChange, minimumValue, maximumValue, step, style, ...props }) => (
-    <input
-      type="range"
-      min={minimumValue}
-      max={maximumValue}
-      step={step}
-      value={value}
-      onChange={(e) => onValueChange(parseFloat(e.target.value))}
-      style={{ width: '100%', ...style }}
-      {...props}
-    />
-  );
-}
-
 const TTSControls = ({ 
   text, 
   style, 
