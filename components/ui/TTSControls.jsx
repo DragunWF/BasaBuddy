@@ -50,7 +50,7 @@ const TTSControls = ({
       <View className="flex-row items-center justify-center space-x-4">
         {/* Play/Pause Button */}
         <TouchableOpacity
-          onPress={onTogglePlayPause}
+          onPress={() => onTogglePlayPause && onTogglePlayPause()}
           disabled={disabled || isLoading}
           className={`w-16 h-16 rounded-full items-center justify-center ${
             disabled ? 'bg-gray-200' : 'bg-[#FE9F1F]'
@@ -70,7 +70,7 @@ const TTSControls = ({
 
         {/* Stop Button */}
         <TouchableOpacity
-          onPress={onStop}
+          onPress={() => onStop && onStop()}
           disabled={disabled || (!isPlaying && !isPaused)}
           className={`w-12 h-12 rounded-full items-center justify-center border-2 ${
             disabled || (!isPlaying && !isPaused)
