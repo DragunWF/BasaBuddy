@@ -30,9 +30,9 @@ const descriptionContent = [
     gradient: ["#f093fb", "#f5576c"],
   },
   {
-    title: "Build Your Reading Streak",
+    title: "Find or Upload Books you Love",
     description:
-      "Track your progress, grow your streak, and unlock cute rewards as you read every day.",
+      "Choose from the various selection of books from the OpenLibrary API or upload the books you love on the app!",
     imageSource: require("../assets/onboarding/third.png"),
     gradient: ["#4facfe", "#00f2fe"],
   },

@@ -21,6 +21,7 @@ import { getCollections } from "../helpers/storage/collectionStorage";
 import { getLevel } from "../helpers/storage/experienceStorage";
 import { getTodayReadingTime } from "../helpers/storage/timerStorage";
 import { getCurrentStreak } from "../helpers/storage/streakStorage";
+import { testDemoStreak } from "../demo/testDemoData";
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -353,6 +354,48 @@ const ProfileScreen = () => {
             </View>
           ))}
         </View>
+
+        {/* Test Demo Streak Button - Development Only */}
+        {/*
+          <View className="mx-4 mb-6">
+            <TouchableOpacity
+              className="bg-blue-500 p-3 rounded-xl"
+              onPress={async () => {
+                try {
+                  const success = await testDemoStreak();
+                  if (success) {
+                    Toast.show({
+                      type: "success",
+                      text1: "Demo Streak Test",
+                      text2:
+                        "✅ 7-day streak (Sept 8-14) created successfully!",
+                      position: "bottom",
+                    });
+                  } else {
+                    Toast.show({
+                      type: "error",
+                      text1: "Demo Streak Test",
+                      text2: "❌ Test failed - check console for details",
+                      position: "bottom",
+                    });
+                  }
+                } catch (error) {
+                  console.error("Test error:", error);
+                  Toast.show({
+                    type: "error",
+                    text1: "Demo Streak Test",
+                    text2: "❌ Error running test",
+                    position: "bottom",
+                  });
+                }
+              }}
+            >
+              <Text className="text-white font-bold text-center">
+                Test Demo Streak (7 days Sept 8-14)
+              </Text>
+            </TouchableOpacity>
+          </View>
+        */}
       </ScrollView>
     </SafeAreaView>
   );

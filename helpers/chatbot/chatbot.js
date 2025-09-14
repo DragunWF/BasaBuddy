@@ -11,7 +11,6 @@ import {
   tassieInsightsPrompt,
   tassieInsightsPromptTemplates,
 } from "./prompts";
-import { dummyBooksRead } from "../tools/dummyData";
 
 import {
   getLibraryBooks,
@@ -189,7 +188,7 @@ export async function generateTassieInsights(text) {
   );
   modifiedInsightsPrompt = modifiedInsightsPrompt.replace(
     tassieInsightsPromptTemplates.userGenre,
-    profile.getFavoriteGenre()
+    profile.getPreferredCategories()
   );
   const insights = await generateText(modifiedInsightsPrompt);
   console.info("Tassie Insights: ", insights);
