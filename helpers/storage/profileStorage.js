@@ -426,3 +426,41 @@ export async function importProfileData() {
     };
   }
 }
+
+export async function updateProfilePicture(imageUri) {
+  try {
+    const existingProfile = await getData(STORAGE_KEYS.profile);
+
+    if (!existingProfile) {
+      throw new Error("Profile not found");
+    }
+
+    if (existingProfile.profileImage) {
+      try {
+        await FileSystem.deleteAsync(existingProfile.profileImage);
+      } catch (error) {
+        console.log("Error deleting old profile image:", error);
+      }
+    }
+
+    const savedImageUri = await saveImageToFileSystem(imageUri);
+
+    const updatedProfile = {
+      ...existingProfile,
+
+      profileImage: savedImageUri,
+
+      updatedAt: new Date().toISOString(),
+    };
+
+    await storeData(STORAGE_KEYS.profile, updatedProfile);
+
+    console.log(`Profile picture was successfully updated to ${imageUri}`);
+
+    return { success: true, imageUri: savedImageUri };
+  } catch (error) {
+    console.log("Error updating profile picture:", error);
+
+    return { success: false, error };
+  }
+}
