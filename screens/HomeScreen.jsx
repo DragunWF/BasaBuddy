@@ -49,13 +49,13 @@ function HomeScreen({ navigation }) {
 
   const handleCategoryPress = (category) => {
     // Navigate to CategoryDetailScreen with the selected category
-    navigation.navigate("CategoryDetail", { 
+    navigation.navigate("CategoryDetail", {
       category: {
         id: category.name.toLowerCase(),
         name: category.name,
         subject: category.name.toLowerCase(),
-        color: category.color
-      }
+        color: category.color,
+      },
     });
   };
 
