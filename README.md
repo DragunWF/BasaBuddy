@@ -22,58 +22,74 @@ This hackathon took place on **September 13, 2025 to September 14, 2025**.
 
 ### Onboarding
 
+<div style="display: flex; flex-wrap: wrap; justify-content: space-around;">
 <img src="docs/images/onboarding/onboarding-1.png" alt="Onboarding Image 1" width="300" />
 <img src="docs/images/onboarding/onboarding-2.png" alt="Onboarding Image 2" width="300" />
 <img src="docs/images/onboarding/onboarding-3.png" alt="Onboarding Image 3" width="300" />
 <img src="docs/images/onboarding/onboarding-4.png" alt="Onboarding Image 4" width="300" />
 <img src="docs/images/onboarding/onboarding-5.png" alt="Onboarding Image 5" width="300" />
+</div>
 
 ### Home
 
+<div style="display: flex; flex-wrap: wrap; justify-content: space-around;">
 <img src="docs/images/home/home-1.png" alt="Home Image 1" width="300" />
 <img src="docs/images/home/home-2.png" alt="Home Image 2" width="300" />
+</div>
 
 ### Explore
 
+<div style="display: flex; flex-wrap: wrap; justify-content: space-around;">
 <img src="docs/images/explore/explore-1.png" alt="Explore Image 1" width="300" />
 <img src="docs/images/explore/explore-2.png" alt="Explore Image 2" width="300" />
+</div>
 
 ### Book Details
 
+<div style="display: flex; flex-wrap: wrap; justify-content: space-around;">
 <img src="docs/images/bookDetails/bookDetails-1.png" alt="Book Details Image 1" width="300" />
 <img src="docs/images/bookDetails/bookDetails-2.png" alt="Book Details Image 2" width="300" />
 <img src="docs/images/bookDetails/bookDetails-3.png" alt="Book Details Image 3" width="300" />
 <img src="docs/images/bookDetails/bookDetails-4.png" alt="Book Details Image 4" width="300" />
+</div>
 
 ### Library
 
+<div style="display: flex; flex-wrap: wrap; justify-content: space-around;">
 <img src="docs/images/library/library-1.png" alt="Library Image 1" width="300" />
 <img src="docs/images/library/library-2.png" alt="Library Image 2" width="300" />
 <img src="docs/images/library/library-3.png" alt="Library Image 3" width="300" />
 <img src="docs/images/library/library-4.png" alt="Library Image 4" width="300" />
+</div>
 
 ### Tassie Chatbot
 
+<div style="display: flex; flex-wrap: wrap; justify-content: space-around;">
 <img src="docs/images/chat/chat-1.png" alt="Chat Image 1" width="300">
 <img src="docs/images/chat/chat-2.png" alt="Chat Image 2" width="300">
 <img src="docs/images/chat/chat-3.png" alt="Chat Image 3" width="300">
 <img src="docs/images/chat/chat-4.png" alt="Chat Image 4" width="300">
+</div>
 
 ### Profile & Settings
 
+<div style="display: flex; flex-wrap: wrap; justify-content: space-around;">
 <img src="docs/images/profile/profile-1.png" alt="Profile Image 1" width="300">
 <img src="docs/images/profile/profile-2.png" alt="Profile Image 2" width="300">
 <img src="docs/images/profile/profile-3.png" alt="Profile Image 3" width="300">
 <img src="docs/images/profile/profile-4.png" alt="Profile Image 4" width="300">
+</div>
 
 ### Session
 
+<div style="display: flex; flex-wrap: wrap; justify-content: space-around;">
 <img src="docs/images/session/session-1.png" alt="Session Image 1" width="300">
 <img src="docs/images/session/session-2.png" alt="Session Image 2" width="300">
 <img src="docs/images/session/session-3.png" alt="Session Image 3" width="300">
 <img src="docs/images/session/session-4.png" alt="Session Image 4" width="300">
 <img src="docs/images/session/session-5.png" alt="Session Image 5" width="300">
 <img src="docs/images/session/session-6.png" alt="Session Image 6" width="300">
+</div>
 
 ---
 
